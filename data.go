@@ -6,12 +6,17 @@ type Core interface {
 	InjectToFile(pattern *regexp.Regexp) error
 }
 
+type grub struct {
+	file    string
+	pattern *regexp.Regexp
+}
+
 type InternalConfig struct {
-	grubFile           string
-	configFile         string
-	data               Config
-	patternCfgGrub     *regexp.Regexp
-	patternDefaultGrug *regexp.Regexp
+	configFile string
+	data       Config
+
+	grubDefault grub
+	grubCfg     grub
 }
 
 type Config struct {
