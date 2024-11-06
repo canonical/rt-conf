@@ -1,0 +1,4 @@
+#!/bin/bash -x
+
+# Put the default configuration in place
+cp "$SNAP"/config.yaml "$SNAP_COMMON"/config.yaml
