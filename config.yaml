@@ -1,0 +1,6 @@
+# Real time options for the kernel
+
+kernel_cmdline:
+  - "console ttyS0,115200"
+  - "root=/dev/vda1"
+
