@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -10,27 +9,75 @@ import (
 )
 
 const (
+	// Grub files paths
 	BOOT_CFG_GRUBCFG = "/boot/cfg/grub.cfg"
 	ETC_DEFAULT_GRUB = "/etc/default/grub"
 
-	cmdlineParams    = "isolcpus=8-9" // Text to append
-	regexGrubDefault = `^(GRUB_CMDLINE_LINUX_DEFAULT=")([^"]*)(")$`
+	regexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
 
-	// Old regex: linux\s*\/*\w*\/vmlinuz-\d.\d.\d
 	regexGrubcfg = `linux\s*\/*\w*\/vmlinuz-\d.\d.\d`
 )
 
-var defaultConfig string = ""
-
-func init() {
-	snapCommon := os.Getenv("SNAP_COMMON")
-	if snapCommon == "" {
-		defaultConfig = snapCommon + "/config.yaml"
-	}
+// FileTransformer interface with a TransformLine method.
+// This method is used to transform a line of a file.
+//
+// NOTE: This interface can be implemented also for RPi on classic
+type FileTransformer interface {
+	TransformLine(string) string
+	GetFilePath() string
+	GetPattern() *regexp.Regexp
 }
 
-// For /boot/cfg/grub.cfg and /etc/default/grub
-func (c *InternalConfig) InjectToFile() error {
+// grubCfgTransformer handles transformations for /boot/grub/grub.cfg
+type grubCfgTransformer struct {
+	filePath string
+	pattern  *regexp.Regexp
+	params   []string
+}
+
+func (g *grubCfgTransformer) TransformLine(line string) string {
+	// Append each kernel command line parameter to the matched line
+	for _, param := range g.params {
+		line += " " + param
+	}
+	return line
+}
+
+func (g *grubCfgTransformer) GetFilePath() string {
+	return g.filePath
+}
+
+func (g *grubCfgTransformer) GetPattern() *regexp.Regexp {
+	return g.pattern
+}
+
+// grubDefaultTransformer handles transformations for /etc/default/grub
+type grubDefaultTransformer struct {
+	filePath string
+	pattern  *regexp.Regexp
+	params   []string
+}
+
+func (g *grubDefaultTransformer) TransformLine(line string) string {
+	// Extract existing parameters
+	matches := g.pattern.FindStringSubmatch(line)
+	// Append new parameters
+	updatedParams := strings.TrimSpace(matches[2] + " " + strings.Join(g.params, " "))
+	// Reconstruct the line with updated parameters
+	return fmt.Sprintf(`%s%s%s`, matches[1], updatedParams, matches[3])
+}
+
+func (g *grubDefaultTransformer) GetFilePath() string {
+	return g.filePath
+}
+
+func (g *grubDefaultTransformer) GetPattern() *regexp.Regexp {
+	return g.pattern
+}
+
+// InjectToGrubFiles inject the kernel command line parameters to the grub files.
+// /boot/grub/grub.cfg and /etc/default/grub
+func (c *InternalConfig) InjectToGrubFiles() error {
 	err := readConfigFile(c)
 	if err != nil {
 		return err
@@ -38,106 +85,26 @@ func (c *InternalConfig) InjectToFile() error {
 
 	fmt.Println("KernelCmdline: ", c.data.KernelCmdline)
 
-	cfgFile, err := os.Open(c.grubCfg.file)
-	if err != nil {
-		fmt.Printf("Failed to open file: %v\n", err)
-		return err
-	}
-	defer cfgFile.Close()
-
-	// Create a temporary file to write the modified content
-	tmpFileCfg, err := os.CreateTemp("", "config-modified-")
-	if err != nil {
-		fmt.Printf("Failed to create temp file: %v\n", err)
-		return err
-	}
-	defer os.Remove(tmpFileCfg.Name()) // Clean up after execution if necessary
-
-	scannerCfg := bufio.NewScanner(cfgFile)
-	for scannerCfg.Scan() {
-		line := scannerCfg.Text()
-
-		if c.grubCfg.pattern.MatchString(line) {
-			for _, param := range c.data.KernelCmdline {
-				line += " " + param
-			}
-		}
-		// Write the line to the temporary file
-		_, err := tmpFileCfg.WriteString(line + "\n")
-		if err != nil {
-			fmt.Printf("Failed to write to temp file: %v\n", err)
-			return err
-		}
+	grubCfg := &grubCfgTransformer{
+		filePath: c.grubCfg.file,
+		pattern:  c.grubCfg.pattern,
+		params:   c.data.KernelCmdline,
 	}
 
-	if err := scannerCfg.Err(); err != nil {
-		fmt.Printf("Failed to read file: %v\n", err)
-		return err
+	grubDefault := &grubDefaultTransformer{
+		filePath: c.grubDefault.file,
+		pattern:  c.grubDefault.pattern,
+		params:   c.data.KernelCmdline,
 	}
 
-	// Replace the original file with the modified one
-	tmpFileCfg.Close()
-	err = os.Rename(tmpFileCfg.Name(), c.grubCfg.file)
-	if err != nil {
-		fmt.Printf("Failed to replace original file: %v\n", err)
+	// Process each file with its specific transformer
+	if err := processFile(grubCfg); err != nil {
+		return fmt.Errorf("error updating %s: %v", grubCfg.filePath, err)
 	}
 	fmt.Println("File /boot/grub/grub.cfg updated successfully.")
 
-	// Second part ----------------------------------------------
-	// Modifying the /etc/default/grub file
-
-	defaultFile, err := os.Open(c.grubDefault.file)
-	if err != nil {
-		fmt.Printf("Failed to open file: %v\n", err)
-		return err
-	}
-	defer cfgFile.Close()
-
-	// Create a temporary file to write the modified content
-	tmpFileDefault, err := os.CreateTemp("", "config-modified-")
-	if err != nil {
-		fmt.Printf("Failed to create temp file: %v\n", err)
-		return err
-	}
-	defer os.Remove(tmpFileDefault.Name()) // Clean up after execution if necessary
-
-	scannerDefault := bufio.NewScanner(defaultFile)
-	for scannerDefault.Scan() {
-		line := scannerDefault.Text()
-
-		// BEGIN: THIS IS GOING TO BE DIFFERENT FOR /etc/default/grub
-
-		if c.grubDefault.pattern.MatchString(line) {
-
-			// Extract existing parameters
-			matches := c.grubDefault.pattern.FindStringSubmatch(line)
-			existing := matches[2]
-			// Append new parameters
-			updatedParams := strings.TrimSpace(existing + " " + strings.Join(c.data.KernelCmdline, " "))
-			// Reconstruct the line with updated parameters
-			line = fmt.Sprintf(`%s%s%s`, matches[1], updatedParams, matches[3])
-		}
-
-		// END: THIS IS GOING TO BE DIFFERENT FOR /etc/default/grub
-
-		// Write the line to the temporary file
-		_, err := tmpFileDefault.WriteString(line + "\n")
-		if err != nil {
-			fmt.Printf("Failed to write to temp file: %v\n", err)
-			return err
-		}
-	}
-
-	if err := scannerDefault.Err(); err != nil {
-		fmt.Printf("Failed to read file: %v\n", err)
-		return err
-	}
-
-	// Replace the original file with the modified one
-	tmpFileDefault.Close()
-	err = os.Rename(tmpFileDefault.Name(), c.grubDefault.file)
-	if err != nil {
-		fmt.Printf("Failed to replace original file: %v\n", err)
+	if err := processFile(grubDefault); err != nil {
+		return fmt.Errorf("error updating %s: %v", grubDefault.filePath, err)
 	}
 	fmt.Println("File /etc/default/grub updated successfully.")
 
@@ -148,6 +115,8 @@ func main() {
 
 	configPath := flag.String("config", defaultConfig, "Path to the configuration file")
 
+	// Define the paths to the grub files as flags
+	// To be used for testing purposes
 	grubCfgPath := flag.String("grub-cfg", BOOT_CFG_GRUBCFG, "Path to the processed grub file")
 	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, "Path to the default grub file")
 
@@ -168,7 +137,7 @@ func main() {
 	fmt.Println("Config path: ", iCfg.configFile)
 	fmt.Println("Grub path: ", iCfg.grubCfg.file)
 
-	err := iCfg.InjectToFile()
+	err := iCfg.InjectToGrubFiles()
 	if err != nil {
 		fmt.Printf("Failed to inject to file: %v\n", err)
 		os.Exit(1)
