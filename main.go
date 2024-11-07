@@ -116,14 +116,6 @@ func (c *InternalConfig) InjectToFile() error {
 			updatedParams := strings.TrimSpace(existing + " " + strings.Join(c.data.KernelCmdline, " "))
 			// Reconstruct the line with updated parameters
 			line = fmt.Sprintf(`%s%s%s`, matches[1], updatedParams, matches[3])
-
-			// Extract existing parameters
-			// matches := c.grubDefault.pattern.FindStringSubmatch(line)
-			// existing := matches[len(matches)-1]
-			// // Append new parameters
-			// updatedParams := existing + " " + strings.Join(c.data.KernelCmdline, " ")
-			// // Reconstruct the line with updated parameters
-			// line = fmt.Sprintf(`%s%s%s`, matches[0], updatedParams, matches[len(matches)-1])
 		}
 
 		// END: THIS IS GOING TO BE DIFFERENT FOR /etc/default/grub
@@ -182,77 +174,4 @@ func main() {
 		os.Exit(1)
 	}
 
-	// // Also modifying the /etc/default/grub file
-	// regexDefaultGrub := `GRUB_CMDLINE_LINUX_DEFAULT="(.*)"` // regex to match vmlinuz line
-	// iCfg.pattern = regexp.MustCompile(regexDefaultGrub)
-	// iCfg.grubFile = "/etc/default/grub"
-	// fmt.Println("Config path: ", iCfg.configFile)
-	// fmt.Println("Grub path: ", iCfg.grubFile)
-	// injectToFile(&iCfg)
-
-	// data, err := os.ReadFile(*configPath)
-	// if err != nil {
-	// 	fmt.Printf("Failed to read file: %v\n", err)
-	// 	return
-	// }
-
-	// config := Config{}
-	// {
-	// 	err := yaml.Unmarshal([]byte(data), &config)
-	// 	if err != nil {
-	// 		fmt.Printf("Failed to unmarshal data: %v\n", err)
-	// 		return
-	// 	}
-	// }
-
-	// fmt.Println("KernelCmdline: ", config.KernelCmdline)
-
-	// // Open the configuration file
-	// file, err := os.Open(*grubCfgPath)
-	// if err != nil {
-	// 	fmt.Printf("Failed to open file: %v\n", err)
-	// 	return
-	// }
-	// defer file.Close()
-
-	// // Create a temporary file to write the modified content
-	// tmpFile, err := os.CreateTemp("", "config-modified-")
-	// if err != nil {
-	// 	fmt.Printf("Failed to create temp file: %v\n", err)
-	// 	return
-	// }
-	// defer os.Remove(tmpFile.Name()) // Clean up after execution if necessary
-
-	// // Compile the regex pattern
-	// re := regexp.MustCompile(regexPattern)
-
-	// scanner := bufio.NewScanner(file)
-	// for scanner.Scan() {
-	// 	line := scanner.Text()
-
-	// 	if re.MatchString(line) {
-	// 		for _, param := range config.KernelCmdline {
-	// 			line += " " + param
-	// 		}
-	// 	}
-	// 	// Write the line to the temporary file
-	// 	_, err := tmpFile.WriteString(line + "\n")
-	// 	if err != nil {
-	// 		fmt.Printf("Failed to write to temp file: %v\n", err)
-	// 		return
-	// 	}
-	// }
-
-	// if err := scanner.Err(); err != nil {
-	// 	fmt.Printf("Failed to read file: %v\n", err)
-	// 	return
-	// }
-
-	// // Replace the original file with the modified one
-	// tmpFile.Close()
-	// err = os.Rename(tmpFile.Name(), *grubCfgPath)
-	// if err != nil {
-	// 	fmt.Printf("Failed to replace original file: %v\n", err)
-	// }
-	// fmt.Println("File updated successfully.")
 }
