@@ -39,40 +39,42 @@ func readConfigFile(cfg *InternalConfig) error {
 // processFile processes a file with a given FileTransformer, applying
 // its transformation on lines matching the pattern.
 func processFile(transformer FileTransformer) error {
-	file, err := os.Open(transformer.GetFilePath())
+	// Open file with read and write permissions
+	file, err := os.OpenFile(transformer.GetFilePath(), os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %v", err)
 	}
 	defer file.Close()
 
-	// Create a temporary file to write modified content
-	tmpFile, err := os.CreateTemp("", "config-modified-")
-	if err != nil {
-		return fmt.Errorf("failed to create temp file: %v", err)
-	}
-	defer os.Remove(tmpFile.Name())
-
+	// Read all lines into a slice
+	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if transformer.GetPattern().MatchString(line) {
 			line = transformer.TransformLine(line)
 		}
-		_, err := tmpFile.WriteString(line + "\n")
-		if err != nil {
-			return fmt.Errorf("failed to write to temp file: %v", err)
-		}
+		lines = append(lines, line)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("failed to read file: %v", err)
 	}
 
-	// Replace the original file with the modified one
-	tmpFile.Close()
-	err = os.Rename(tmpFile.Name(), transformer.GetFilePath())
-	if err != nil {
-		return fmt.Errorf("failed to replace original file: %v", err)
+	// Truncate file and write transformed lines
+	if err := file.Truncate(0); err != nil {
+		return fmt.Errorf("failed to truncate file: %v", err)
 	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("failed to seek to start of file: %v", err)
+	}
+
+	for _, line := range lines {
+		_, err := file.WriteString(line + "\n")
+		if err != nil {
+			return fmt.Errorf("failed to write to file: %v", err)
+		}
+	}
+
 	return nil
 }
