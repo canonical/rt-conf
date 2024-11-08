@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 )
@@ -12,6 +13,9 @@ const (
 	// Grub files paths
 	BOOT_CFG_GRUBCFG = "/boot/cfg/grub.cfg"
 	ETC_DEFAULT_GRUB = "/etc/default/grub"
+
+	// Default configuration file path
+	DEFAULT_CONFIG_PATH = "/var/snap/rt-conf/common/config.yaml"
 
 	regexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
 
@@ -59,6 +63,8 @@ type grubDefaultTransformer struct {
 }
 
 func (g *grubDefaultTransformer) TransformLine(line string) string {
+	// TODO: Add functionality to avoid duplications of parameters
+
 	// Extract existing parameters
 	matches := g.pattern.FindStringSubmatch(line)
 	// Append new parameters
@@ -85,11 +91,11 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 
 	fmt.Println("KernelCmdline: ", c.data.KernelCmdline)
 
-	grubCfg := &grubCfgTransformer{
-		filePath: c.grubCfg.file,
-		pattern:  c.grubCfg.pattern,
-		params:   c.data.KernelCmdline,
-	}
+	// grubCfg := &grubCfgTransformer{
+	// 	filePath: c.grubCfg.file,
+	// 	pattern:  c.grubCfg.pattern,
+	// 	params:   c.data.KernelCmdline,
+	// }
 
 	grubDefault := &grubDefaultTransformer{
 		filePath: c.grubDefault.file,
@@ -97,11 +103,11 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 		params:   c.data.KernelCmdline,
 	}
 
-	// Process each file with its specific transformer
-	if err := processFile(grubCfg); err != nil {
-		return fmt.Errorf("error updating %s: %v", grubCfg.filePath, err)
-	}
-	fmt.Println("File /boot/grub/grub.cfg updated successfully.")
+	// // Process each file with its specific transformer
+	// if err := processFile(grubCfg); err != nil {
+	// 	return fmt.Errorf("error updating %s: %v", grubCfg.filePath, err)
+	// }
+	// fmt.Println("File /boot/grub/grub.cfg updated successfully.")
 
 	if err := processFile(grubDefault); err != nil {
 		return fmt.Errorf("error updating %s: %v", grubDefault.filePath, err)
@@ -113,7 +119,7 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 
 func main() {
 
-	configPath := flag.String("config", defaultConfig, "Path to the configuration file")
+	configPath := flag.String("config", DEFAULT_CONFIG_PATH, "Path to the configuration file")
 
 	// Define the paths to the grub files as flags
 	// To be used for testing purposes
@@ -140,6 +146,16 @@ func main() {
 	err := iCfg.InjectToGrubFiles()
 	if err != nil {
 		fmt.Printf("Failed to inject to file: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Run update-grub command
+	cmd := exec.Command("update-grub")
+	var out []byte
+	out, err = cmd.CombinedOutput()
+	fmt.Println(string(out))
+	if err != nil {
+		fmt.Printf("Failed to update grub: %v\n", err)
 		os.Exit(1)
 	}
 
