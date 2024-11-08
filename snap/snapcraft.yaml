@@ -15,7 +15,35 @@ parts:
     plugin: go
     build-snaps:
       - go
+    stage-packages:
+      - grub2-common
+      - grub-common
+  
+  config:
+    plugin: dump
+    source: .
+    organize:
+      config.yaml: config/config.yaml
+    stage:
+      - config/config.yaml
+
+plugs:
+  etc-default-grub:
+    interface: system-files
+    write:
+      - /etc/default/grub
+  usr-share-grub-grub-mkconfig_lib:
+    interface: system-files
+    write:
+      - /usr/share/grub/grub-mkconfig_lib
+
+# layout:
+#   /usr/share/grub/grub-mkconfig_lib:
+#     bind: $SNAP/usr/share/grub/grub-mkconfig_lib
 
 apps:
   rt-conf:
+    plugs:
+      - home
+      - etc-default-grub
     command: bin/rt-conf
