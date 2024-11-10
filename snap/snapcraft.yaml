@@ -32,18 +32,15 @@ plugs:
     interface: system-files
     write:
       - /etc/default/grub
-  usr-share-grub-grub-mkconfig_lib:
+  boot-grub-grubcfg:
     interface: system-files
     write:
-      - /usr/share/grub/grub-mkconfig_lib
-
-# layout:
-#   /usr/share/grub/grub-mkconfig_lib:
-#     bind: $SNAP/usr/share/grub/grub-mkconfig_lib
+      - /boot/grub/grub.cfg
 
 apps:
   rt-conf:
     plugs:
       - home
       - etc-default-grub
+      - boot-grub-grubcfg
     command: bin/rt-conf
