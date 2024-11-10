@@ -32,14 +32,10 @@ plugs:
     interface: system-files
     write:
       - /etc/default/grub
-  usr-share-grub-grub-mkconfig_lib:
+  boot-grub-grubcfg:
     interface: system-files
     write:
-      - /usr/share/grub/grub-mkconfig_lib
-
-# layout:
-#   /usr/share/grub/grub-mkconfig_lib:
-#     bind: $SNAP/usr/share/grub/grub-mkconfig_lib
+      - /boot/grub/grub.cfg
 
   config:
     plugin: dump
@@ -58,6 +54,7 @@ apps:
     plugs:
       - home
       - etc-default-grub
+      - boot-grub-grubcfg
     command: bin/rt-conf
     environment:
       COMMON_CONFIG_PATH: $SNAP_COMMON/config.yaml
