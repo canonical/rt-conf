@@ -1,5 +1,12 @@
 # Real time options for the kernel
 
-kernel_cmdline:
-  - "isolcpus=8-9"
-  - "nohz=on"
+kernel-cmdline:
+  # Isolate a given set of CPUs from disturbance.
+  isolcpus: "8-9"
+
+  # If set to true, is equivalent to "nohz=on"
+  dyntick-idle: true
+
+  # CPUs to be isolated. Reduces the number of scheduling-clock interrupts, improving energy efficiency and reducing OS jitter. 
+  # If set to "8-9", is equivalent to "nohz_full=8-9" 
+  adaptive-ticks: "8-9"
