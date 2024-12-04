@@ -44,7 +44,7 @@ const (
 	// // Default configuration file path
 	// DEFAULT_CONFIG_PATH = "/var/snap/rt-conf/common/config.yaml"
 
-	regexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
+	RegexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
 
 	// regexGrubcfg = `linux\s*\/*\w*\/vmlinuz-\d.\d.\d`
 )
@@ -75,7 +75,7 @@ func main() {
 		// },
 		GrubDefault: data.Grub{
 			File:    *grubDefaultPath,
-			Pattern: regexp.MustCompile(regexGrubDefault),
+			Pattern: regexp.MustCompile(RegexGrubDefault),
 		},
 	}
 
