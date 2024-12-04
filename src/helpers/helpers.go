@@ -164,7 +164,7 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 	if err := ProcessFile(grubDefault); err != nil {
 		return fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
-	fmt.Printf("File %v updated successfully.", grubDefault.FilePath)
+	fmt.Printf("File %v updated successfully.\n", grubDefault.FilePath)
 
 	// // Process each file with its specific transformer
 	// if err := ProcessFile(grubCfg); err != nil {
