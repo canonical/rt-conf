@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -12,11 +13,11 @@ import (
 
 const (
 	grubSample = `
-	GRUB_DEFAULT=0
-	GRUB_TIMEOUT_STYLE=hidden
-	GRUB_TIMEOUT=0
-	GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
-	GRUB_CMDLINE_LINUX=""
+GRUB_DEFAULT=0
+GRUB_TIMEOUT_STYLE=hidden
+GRUB_TIMEOUT=0
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+GRUB_CMDLINE_LINUX=""
 `
 
 	configSample = `
@@ -28,15 +29,16 @@ kernel-cmdline:
 )
 
 func setupTempFile(t *testing.T, content string) string {
-	tmpFile, err := os.CreateTemp("", "grub-test-*.cfg")
+	tmpFile, err := os.CreateTemp("", "test")
 	if err != nil {
 		t.Fatalf("Failed to create temporary file: %v", err)
 	}
-	defer tmpFile.Close()
 
-	_, err = tmpFile.WriteString(content)
-	if err != nil {
+	if _, err := tmpFile.Write([]byte(content)); err != nil {
 		t.Fatalf("Failed to write to temporary file: %v", err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		t.Fatal(err)
 	}
 
 	return tmpFile.Name()
@@ -49,12 +51,15 @@ func TestInjectToFile(t *testing.T) {
 	defer os.Remove(tempConfigPath)
 	defer os.Remove(tempGrubPath)
 
+	fmt.Printf("tempConfigPath: %s\n", tempConfigPath)
+	fmt.Printf("tempGrubPath: %s\n", tempGrubPath)
+
 	// Prepare InternalConfig with the temporary file paths
 	iCfg := helpers.InternalConfig{
 		ConfigFile: tempConfigPath,
 		GrubDefault: data.Grub{
 			File:    tempGrubPath,
-			Pattern: regexp.MustCompile(regexGrubDefault),
+			Pattern: regexp.MustCompile(RegexGrubDefault),
 		},
 	}
 
@@ -69,7 +74,18 @@ func TestInjectToFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read modified grub file: %v", err)
 	}
-	if !strings.Contains(string(updatedGrub), "isolcpus=8-9") {
-		t.Errorf("Expected isolcpus=8-9 in grub file, but not found")
+
+	testCases := []struct {
+		param string
+		value string
+	}{
+		{"isolcpus", "8-9"},
+		{"nohz", "on"},
+		{"nohz_full", "8-9"},
+	}
+	for _, tc := range testCases {
+		if !strings.Contains(string(updatedGrub), fmt.Sprintf("%s=%s", tc.param, tc.value)) {
+			t.Errorf("\nExpected %s=%s in grub file, but not found", tc.param, tc.value)
+		}
 	}
 }
