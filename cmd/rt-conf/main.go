@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/execute"
 	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/models"
 )
@@ -52,8 +53,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: Add system detection functionality to print the message for each system
-	// TODO: Move the message to a separate function
-	fmt.Println("Successfully injected to file")
-	fmt.Println("Please run:\nsudo update-grub\nto apply the changes")
+	// Instruct the user on execution of the update-grub command
+	execute.Exec()
 }
