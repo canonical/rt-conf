@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const RegexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
+
 // grubCfgTransformer handles transformations for /boot/grub/grub.cfg
 type GrubCfgTransformer struct {
 	FilePath string
