@@ -37,4 +37,4 @@ apps:
       - etc-default-grub
     command: bin/rt-conf
     environment:
-      COMMON_CONFIG_PATH: $SNAP_COMMON/config/config.yaml
+      COMMON_CONFIG_PATH: $SNAP_COMMON/config.yaml

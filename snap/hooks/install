@@ -2,4 +2,3 @@
 
 # Put the default configuration in place
 cp "$SNAP"/config/config.yaml "$SNAP_COMMON"/config.yaml
-
