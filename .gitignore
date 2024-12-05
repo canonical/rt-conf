@@ -25,10 +25,7 @@ go.work.sum
 .env
 
 # Generated binary
-rt-conf
-
-# Do not ignore the rt-conf directory
-!rt-conf/
+/rt-conf
 
 # Snap packages related
 squashfs-root/
