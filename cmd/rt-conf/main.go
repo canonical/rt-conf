@@ -25,9 +25,7 @@ func main() {
 
 	configPath := flag.String("config", getDefaultConfig(), "Path to the configuration file")
 
-	// Define the paths to the grub files as flags
-	// To be used for testing purposes
-	// grubCfgPath := flag.String("grub-cfg", BOOT_GRUB_GRUBCFG, "Path to the processed grub file")
+	// Define the paths to grub as flags
 	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, "Path to the default grub file")
 
 	flag.Parse()
