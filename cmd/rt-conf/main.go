@@ -9,20 +9,13 @@ import (
 
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/models"
 )
 
 const (
 	cfgFilePath = "COMMON_CONFIG_PATH"
 
-	// Grub files paths
-	// BOOT_GRUB_GRUBCFG = "/boot/grub/grub.cfg"
 	ETC_DEFAULT_GRUB = "/etc/default/grub"
-	// // Default configuration file path
-	// DEFAULT_CONFIG_PATH = "/var/snap/rt-conf/common/config.yaml"
-
-	RegexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
-
-	// regexGrubcfg = `linux\s*\/*\w*\/vmlinuz-\d.\d.\d`
 )
 
 var lock = &sync.Mutex{}
@@ -66,18 +59,13 @@ func main() {
 
 	iCfg := helpers.InternalConfig{
 		ConfigFile: *configPath,
-		// GrubCfg: data.Grub{
-		// 	File:    *grubCfgPath,
-		// 	Pattern: regexp.MustCompile(regexGrubcfg),
-		// },
 		GrubDefault: data.Grub{
 			File:    *grubDefaultPath,
-			Pattern: regexp.MustCompile(RegexGrubDefault),
+			Pattern: regexp.MustCompile(models.RegexGrubDefault),
 		},
 	}
 
 	fmt.Println("Config path: ", iCfg.ConfigFile)
-	// fmt.Println("Grub path: ", iCfg.GrubCfg.File)
 
 	err := iCfg.InjectToGrubFiles()
 	if err != nil {
