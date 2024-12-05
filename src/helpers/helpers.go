@@ -87,8 +87,6 @@ type InternalConfig struct {
 	Data       data.Config
 
 	GrubDefault data.Grub
-
-	// GrubCfg data.Grub
 }
 
 var Parameters = []data.Param{
@@ -143,18 +141,6 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 	cmdline := translateConfig(kernelCmdline)
 	fmt.Println("KernelCmdline: ", cmdline)
 
-	// rpiCmdline := &rpiTransformer{
-	// 	filePath: c.grubCfg.file,
-	// 	pattern:  c.grubCfg.pattern,
-	// 	params:   c.data.KernelCmdline,
-	// }
-
-	// grubCfg := &models.GrubCfgTransformer{
-	// 	FilePath: c.GrubCfg.File,
-	// 	Pattern:  c.GrubCfg.Pattern,
-	// 	Params:   cmdline,
-	// }
-
 	grubDefault := &models.GrubDefaultTransformer{
 		FilePath: c.GrubDefault.File,
 		Pattern:  c.GrubDefault.Pattern,
@@ -165,12 +151,6 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 		return fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 	fmt.Printf("File %v updated successfully.\n", grubDefault.FilePath)
-
-	// // Process each file with its specific transformer
-	// if err := ProcessFile(grubCfg); err != nil {
-	// 	return fmt.Errorf("error updating %s: %v", grubCfg.FilePath, err)
-	// }
-	// fmt.Println("File /boot/grub/grub.cfg updated successfully.")
 
 	return nil
 }
