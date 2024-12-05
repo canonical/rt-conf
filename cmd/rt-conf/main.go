@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"sync"
 
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/helpers"
@@ -13,30 +12,12 @@ import (
 )
 
 const (
-	cfgFilePath = "COMMON_CONFIG_PATH"
-
+	cfgFilePath      = "COMMON_CONFIG_PATH"
 	ETC_DEFAULT_GRUB = "/etc/default/grub"
 )
 
-var lock = &sync.Mutex{}
-
-type singletonDefaultConfig struct {
-	path string
-}
-
-var instance *singletonDefaultConfig
-
 func getDefaultConfig() string {
-	lock.Lock()
-	defer lock.Unlock()
-
-	return instance.path
-}
-
-func init() {
-	defaultConfig := ""
-	defaultConfig = os.Getenv(cfgFilePath)
-	instance = &singletonDefaultConfig{path: defaultConfig}
+	return os.Getenv(cfgFilePath)
 }
 
 func main() {
@@ -74,6 +55,7 @@ func main() {
 	}
 
 	// TODO: Add system detection functionality to print the message for each system
+	// TODO: Move the message to a separate function
 	fmt.Println("Successfully injected to file")
 	fmt.Println("Please run:\nsudo update-grub\nto apply the changes")
 }
