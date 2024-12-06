@@ -121,11 +121,9 @@ var Parameters = []data.Param{
 // translateConfig translates YAML configuration into kernel command-line parameters.
 func translateConfig(cfg data.Config) []string {
 	var result []string
-	for _, param := range Parameters {
-		if value, exists := cfg[param.YAMLName]; exists {
-			result = append(result, param.TransformFn(value))
-		}
-	}
+	result = append(result, Parameters[0].TransformFn(cfg.KernelCmdline.IsolCPUs))
+	result = append(result, Parameters[1].TransformFn(cfg.KernelCmdline.DyntickIdle))
+	result = append(result, Parameters[2].TransformFn(cfg.KernelCmdline.AdaptiveTicks))
 	return result
 }
 
@@ -137,8 +135,7 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 		return err
 	}
 
-	kernelCmdline := c.Data["kernel-cmdline"].(data.Config)
-	cmdline := translateConfig(kernelCmdline)
+	cmdline := translateConfig(c.Data)
 	fmt.Println("KernelCmdline: ", cmdline)
 
 	grubDefault := &models.GrubDefaultTransformer{

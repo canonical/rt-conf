@@ -23,8 +23,16 @@ type Grub struct {
 	Pattern *regexp.Regexp
 }
 
-// Holds the parsed YAML data
-type Config map[string]interface{}
+type Config struct {
+	KernelCmdline KernelCmdline `yaml:"kernel-cmdline"`
+}
+
+// KernelCmdline represents the kernel command line options.
+type KernelCmdline struct {
+	IsolCPUs      string `yaml:"isolcpus"`       // Isolate CPUs
+	DyntickIdle   bool   `yaml:"dyntick-idle"`   // Enable/Disable dyntick idle
+	AdaptiveTicks string `yaml:"adaptive-ticks"` // CPUs for adaptive ticks
+}
 
 // Param defines a mapping between a YAML field and a kernel parameter.
 type Param struct {
