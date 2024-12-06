@@ -7,8 +7,6 @@ import (
 	"regexp"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/execute"
-	"github.com/canonical/rt-conf/src/models"
 	"github.com/canonical/rt-conf/src/validator"
 	"gopkg.in/yaml.v3"
 )
@@ -63,7 +61,7 @@ func LoadConfigFile(confPath, grubPath string) (InternalConfig, error) {
 		Data:       content.(data.Config),
 		GrubDefault: data.Grub{
 			File:    grubPath,
-			Pattern: regexp.MustCompile(models.RegexGrubDefault),
+			Pattern: regexp.MustCompile(data.RegexGrubDefault),
 		},
 	}, nil
 
@@ -148,25 +146,4 @@ func TranslateConfig(cfg data.Config) []string {
 	result = append(result, Parameters[1].TransformFn(cfg.KernelCmdline.DyntickIdle))
 	result = append(result, Parameters[2].TransformFn(cfg.KernelCmdline.AdaptiveTicks))
 	return result
-}
-
-// InjectToGrubFiles inject the kernel command line parameters to the grub files.
-// /boot/grub/grub.cfg and /etc/default/grub
-func UpdateGrub(cfg *InternalConfig) error {
-	cmdline := translateConfig(cfg.Data)
-	fmt.Println("KernelCmdline: ", cmdline)
-
-	grubDefault := &models.GrubDefaultTransformer{
-		FilePath: cfg.GrubDefault.File,
-		Pattern:  cfg.GrubDefault.Pattern,
-		Params:   cmdline,
-	}
-
-	if err := ProcessFile(grubDefault); err != nil {
-		return fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
-	}
-	fmt.Printf("File %v updated successfully.\n", grubDefault.FilePath)
-
-	execute.GrubConclusion()
-	return nil
 }

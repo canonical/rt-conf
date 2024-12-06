@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-)
 
-const RegexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
+	"github.com/canonical/rt-conf/src/execute"
+	"github.com/canonical/rt-conf/src/helpers"
+)
 
 // grubCfgTransformer handles transformations for /boot/grub/grub.cfg
 type GrubCfgTransformer struct {
@@ -55,4 +56,21 @@ func (g *GrubDefaultTransformer) GetFilePath() string {
 
 func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 	return g.Pattern
+}
+
+// InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
+func UpdateGrub(cfg *helpers.InternalConfig) error {
+	grubDefault := &GrubDefaultTransformer{
+		FilePath: cfg.GrubDefault.File,
+		Pattern:  cfg.GrubDefault.Pattern,
+		Params:   helpers.TranslateConfig(cfg.Data),
+	}
+
+	if err := helpers.ProcessFile(grubDefault); err != nil {
+		return fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
+	}
+	fmt.Printf("File %v updated successfully.\n", grubDefault.FilePath)
+
+	execute.GrubConclusion()
+	return nil
 }
