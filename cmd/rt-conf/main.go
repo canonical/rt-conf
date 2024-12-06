@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/canonical/rt-conf/src/execute"
 	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/models"
+	"github.com/canonical/rt-conf/src/system"
 )
 
 const (
@@ -32,34 +35,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
+	sys, err := system.DetectSystem()
 	if err != nil {
-		fmt.Printf("Failed to load config file: %v\n", err)
+		fmt.Printf("Failed to detect system: %v\n", err)
 		os.Exit(1)
 	}
 
-	err = helpers.UpdateGrub(&conf)
+	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
 	if err != nil {
-		err := fmt.Errorf("failed to read file: %v", err)
+		err := fmt.Errorf("failed to load config file: %v", err)
 		os.Stderr.WriteString(err.Error())
 		os.Exit(1)
 	}
 
-	cmdline := helpers.TranslateConfig(iCfg.Data)
-	fmt.Println("KernelCmdline: ", cmdline)
-
-	if system == "raspberry" {
+	if sys == "raspberry" {
 		fmt.Println("Raspberry Pi detected")
-		execute.ExecRaspberry(cmdline)
+		execute.RaspberryConclusion(&conf)
 	} else {
-		err = iCfg.InjectToGrubFiles(cmdline)
+		err = models.UpdateGrub(&conf)
 		if err != nil {
-			err := fmt.Errorf("failed to inject to file: %v", err)
+			err := fmt.Errorf("failed to read file: %v", err)
 			os.Stderr.WriteString(err.Error())
 			os.Exit(1)
 		}
-		// Instruct the user on execution of the update-grub command
-		execute.ExecGeneric()
 	}
 
 }
