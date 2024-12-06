@@ -19,10 +19,8 @@ parts:
   config:
     plugin: dump
     source: .
-    organize:
-      config.yaml: config/config.yaml
     stage:
-      - config/config.yaml
+      - config.yaml
 
 plugs:
   etc-default-grub:
