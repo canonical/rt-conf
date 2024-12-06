@@ -142,7 +142,7 @@ var Parameters = []data.Param{
 }
 
 // translateConfig translates YAML configuration into kernel command-line parameters.
-func translateConfig(cfg data.Config) []string {
+func TranslateConfig(cfg data.Config) []string {
 	var result []string
 	result = append(result, Parameters[0].TransformFn(cfg.KernelCmdline.IsolCPUs))
 	result = append(result, Parameters[1].TransformFn(cfg.KernelCmdline.DyntickIdle))

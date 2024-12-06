@@ -11,3 +11,12 @@ func GrubConclusion() {
 	fmt.Println("")
 	fmt.Println("to apply the changes")
 }
+
+func ExecRaspberry(cmdline []string) {
+	fmt.Println("Please, append the following to /boot/firmware/cmdline.txt:")
+	fmt.Printf("In case of old style boot partition, \nappend to /boot/cmdline.txt\n\n")
+	for _, param := range cmdline {
+		fmt.Printf("%s ", param)
+	}
+	fmt.Printf("\n\n")
+}

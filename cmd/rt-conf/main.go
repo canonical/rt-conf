@@ -18,7 +18,6 @@ func getDefaultConfig() string {
 }
 
 func main() {
-	// TODO: Add system detection functionality
 
 	configPath := flag.String("config", getDefaultConfig(), "Path to the configuration file")
 
@@ -41,8 +40,26 @@ func main() {
 
 	err = helpers.UpdateGrub(&conf)
 	if err != nil {
-		fmt.Printf("Failed to inject to file: %v\n", err)
+		err := fmt.Errorf("failed to read file: %v", err)
+		os.Stderr.WriteString(err.Error())
 		os.Exit(1)
+	}
+
+	cmdline := helpers.TranslateConfig(iCfg.Data)
+	fmt.Println("KernelCmdline: ", cmdline)
+
+	if system == "raspberry" {
+		fmt.Println("Raspberry Pi detected")
+		execute.ExecRaspberry(cmdline)
+	} else {
+		err = iCfg.InjectToGrubFiles(cmdline)
+		if err != nil {
+			err := fmt.Errorf("failed to inject to file: %v", err)
+			os.Stderr.WriteString(err.Error())
+			os.Exit(1)
+		}
+		// Instruct the user on execution of the update-grub command
+		execute.ExecGeneric()
 	}
 
 }

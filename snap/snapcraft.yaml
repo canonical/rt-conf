@@ -45,6 +45,7 @@ apps:
     plugs:
       - home
       - etc-default-grub
+      - proc-device-tree-model
     command: bin/rt-conf
     environment:
       COMMON_CONFIG_PATH: $SNAP_COMMON/config.yaml
