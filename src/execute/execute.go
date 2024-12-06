@@ -2,8 +2,6 @@ package execute
 
 import (
 	"fmt"
-
-	"github.com/canonical/rt-conf/src/helpers"
 )
 
 func GrubConclusion() {
@@ -16,9 +14,7 @@ func GrubConclusion() {
 	fmt.Println("to apply the changes")
 }
 
-func RaspberryConclusion(c *helpers.InternalConfig) {
-	cmdline := helpers.TranslateConfig(c.Data)
-
+func RaspberryConclusion(cmdline []string) {
 	fmt.Println("Please, append the following to /boot/firmware/cmdline.txt:")
 	fmt.Printf("In case of old style boot partition, \nappend to /boot/cmdline.txt\n\n")
 	for _, param := range cmdline {

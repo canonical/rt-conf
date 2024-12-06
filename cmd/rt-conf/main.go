@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/canonical/rt-conf/src/execute"
 	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/models"
 	"github.com/canonical/rt-conf/src/system"
@@ -50,7 +49,7 @@ func main() {
 
 	if sys == "raspberry" {
 		fmt.Println("Raspberry Pi detected")
-		execute.RaspberryConclusion(&conf)
+		models.UpdateRPi(&conf)
 	} else {
 		err = models.UpdateGrub(&conf)
 		if err != nil {
