@@ -4,16 +4,52 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/execute"
 	"github.com/canonical/rt-conf/src/models"
 	"github.com/canonical/rt-conf/src/validator"
 	"gopkg.in/yaml.v3"
 )
 
-// ReadConfigFile reads the configuration file and unmarshals its content
-// into the InternalConfig struct.
-func ReadConfigFile(cfg *InternalConfig) error {
+type InternalConfig struct {
+	ConfigFile string
+	Data       data.Config
+
+	GrubDefault data.Grub
+}
+
+func readYAML(path string) (cfg data.Config, err error) {
+	d, err := os.ReadFile(path)
+	if err != nil {
+		// TODO: improve error logging
+		fmt.Printf("Failed to read file: %v\n", err)
+		return data.Config{}, err
+	}
+
+	err = yaml.Unmarshal([]byte(d), &cfg)
+	if err != nil {
+		// TODO: improve error logging
+		fmt.Printf("Failed to unmarshal data: %v\n", err)
+		return data.Config{}, err
+	}
+	return cfg, nil
+}
+
+func LoadConfigFile(confPath, grubPath string) (InternalConfig, error) {
+	var content interface{}
+	for _, p := range []string{confPath, grubPath} {
+		if _, err := os.Stat(p); err != nil {
+			return InternalConfig{}, fmt.Errorf("failed to find file: %v", err)
+		}
+	}
+
+	content, err := readYAML(confPath)
+	if err != nil {
+		return InternalConfig{}, err
+	}
+
 	/*
 		TODO: Needs to implement proper validation of the parameters
 		and parameters format
@@ -22,21 +58,15 @@ func ReadConfigFile(cfg *InternalConfig) error {
 			- key=value
 			- flag
 	*/
+	return InternalConfig{
+		ConfigFile: confPath,
+		Data:       content.(data.Config),
+		GrubDefault: data.Grub{
+			File:    grubPath,
+			Pattern: regexp.MustCompile(models.RegexGrubDefault),
+		},
+	}, nil
 
-	data, err := os.ReadFile(cfg.ConfigFile)
-	if err != nil {
-		// TODO: improve error logging
-		fmt.Printf("Failed to read file: %v\n", err)
-		return err
-	}
-
-	err = yaml.Unmarshal([]byte(data), &cfg.Data)
-	if err != nil {
-		// TODO: improve error logging
-		fmt.Printf("Failed to unmarshal data: %v\n", err)
-		return err
-	}
-	return nil
 }
 
 // processFile processes a file with a given FileTransformer, applying
@@ -82,13 +112,6 @@ func ProcessFile(transformer data.FileTransformer) error {
 	return nil
 }
 
-type InternalConfig struct {
-	ConfigFile string
-	Data       data.Config
-
-	GrubDefault data.Grub
-}
-
 var Parameters = []data.Param{
 	{
 		YAMLName:    "isolcpus",
@@ -129,18 +152,13 @@ func translateConfig(cfg data.Config) []string {
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files.
 // /boot/grub/grub.cfg and /etc/default/grub
-func (c *InternalConfig) InjectToGrubFiles() error {
-	err := ReadConfigFile(c)
-	if err != nil {
-		return err
-	}
-
-	cmdline := translateConfig(c.Data)
+func UpdateGrub(cfg *InternalConfig) error {
+	cmdline := translateConfig(cfg.Data)
 	fmt.Println("KernelCmdline: ", cmdline)
 
 	grubDefault := &models.GrubDefaultTransformer{
-		FilePath: c.GrubDefault.File,
-		Pattern:  c.GrubDefault.Pattern,
+		FilePath: cfg.GrubDefault.File,
+		Pattern:  cfg.GrubDefault.Pattern,
 		Params:   cmdline,
 	}
 
@@ -149,5 +167,6 @@ func (c *InternalConfig) InjectToGrubFiles() error {
 	}
 	fmt.Printf("File %v updated successfully.\n", grubDefault.FilePath)
 
+	execute.GrubConclusion()
 	return nil
 }

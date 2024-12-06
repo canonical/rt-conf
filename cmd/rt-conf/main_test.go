@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 	"testing"
 
-	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
@@ -54,17 +52,13 @@ func TestInjectToFile(t *testing.T) {
 	fmt.Printf("tempConfigPath: %s\n", tempConfigPath)
 	fmt.Printf("tempGrubPath: %s\n", tempGrubPath)
 
-	// Prepare InternalConfig with the temporary file paths
-	iCfg := helpers.InternalConfig{
-		ConfigFile: tempConfigPath,
-		GrubDefault: data.Grub{
-			File:    tempGrubPath,
-			Pattern: regexp.MustCompile(RegexGrubDefault),
-		},
+	conf, err := helpers.LoadConfigFile(tempConfigPath, tempGrubPath)
+	if err != nil {
+		t.Fatalf("LoadConfigFile failed: %v", err)
 	}
 
 	// Run the InjectToFile method
-	err := iCfg.InjectToGrubFiles()
+	err = helpers.UpdateGrub(&conf)
 	if err != nil {
 		t.Fatalf("InjectToFile failed: %v", err)
 	}

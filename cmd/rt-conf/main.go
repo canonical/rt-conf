@@ -4,12 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"regexp"
 
-	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/execute"
 	"github.com/canonical/rt-conf/src/helpers"
-	"github.com/canonical/rt-conf/src/models"
 )
 
 const (
@@ -37,22 +33,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	iCfg := helpers.InternalConfig{
-		ConfigFile: *configPath,
-		GrubDefault: data.Grub{
-			File:    *grubDefaultPath,
-			Pattern: regexp.MustCompile(models.RegexGrubDefault),
-		},
+	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
+	if err != nil {
+		fmt.Printf("Failed to load config file: %v\n", err)
+		os.Exit(1)
 	}
 
-	fmt.Println("Config path: ", iCfg.ConfigFile)
-
-	err := iCfg.InjectToGrubFiles()
+	err = helpers.UpdateGrub(&conf)
 	if err != nil {
 		fmt.Printf("Failed to inject to file: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Instruct the user on execution of the update-grub command
-	execute.Exec()
 }
