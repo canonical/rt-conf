@@ -14,9 +14,13 @@ const (
 	PROC_DT_MODEL = "/proc/device-tree/model"
 )
 
+// TODO: Return an value from an enum
+
 func DetectSystem() (string, error) {
 	// Use runtime.GOARCH for a basic architecture check
 	if runtime.GOARCH == "arm" || runtime.GOARCH == "arm64" {
+		// TODO: check for the vendor
+
 		// Check for Raspberry Pi specific file or data
 		if _, err := os.Stat(PROC_DT_MODEL); err != nil {
 			return runtime.GOARCH, nil

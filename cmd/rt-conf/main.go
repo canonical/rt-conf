@@ -34,6 +34,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// TODO: move this
 	sys, err := system.DetectSystem()
 	if err != nil {
 		fmt.Printf("Failed to detect system: %v\n", err)
@@ -46,7 +47,7 @@ func main() {
 		os.Stderr.WriteString(err.Error())
 		os.Exit(1)
 	}
-
+	// TODO: move this to a function in system package
 	if sys == "raspberry" {
 		fmt.Println("Raspberry Pi detected")
 		models.UpdateRPi(&conf)

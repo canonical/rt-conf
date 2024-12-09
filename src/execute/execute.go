@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// NOTE: These messages should be serialized into a struct/json for future use of TUI app
 func GrubConclusion() {
 	// TODO: Add system detection functionality to print the message for each system
 	fmt.Println("Successfully injected to file")
