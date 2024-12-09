@@ -6,8 +6,7 @@ import (
 	"os"
 
 	"github.com/canonical/rt-conf/src/helpers"
-	"github.com/canonical/rt-conf/src/models"
-	"github.com/canonical/rt-conf/src/system"
+	"github.com/canonical/rt-conf/src/kcmd"
 )
 
 const (
@@ -20,7 +19,6 @@ func getDefaultConfig() string {
 }
 
 func main() {
-
 	configPath := flag.String("config", getDefaultConfig(), "Path to the configuration file")
 
 	// Define the paths to grub as flags
@@ -34,30 +32,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: move this
-	sys, err := system.DetectSystem()
-	if err != nil {
-		fmt.Printf("Failed to detect system: %v\n", err)
-		os.Exit(1)
-	}
-
 	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
 	if err != nil {
-		err := fmt.Errorf("failed to load config file: %v", err)
-		os.Stderr.WriteString(err.Error())
-		os.Exit(1)
-	}
-	// TODO: move this to a function in system package
-	if sys == "raspberry" {
-		fmt.Println("Raspberry Pi detected")
-		models.UpdateRPi(&conf)
-	} else {
-		err = models.UpdateGrub(&conf)
-		if err != nil {
-			err := fmt.Errorf("failed to read file: %v", err)
-			os.Stderr.WriteString(err.Error())
-			os.Exit(1)
-		}
+		panic(fmt.Errorf("\nFailed to load config file: %v", err))
 	}
 
+	err = kcmd.ProcessKcmdArgs(&conf)
+	if err != nil {
+		panic(fmt.Errorf("failed to process kernel cmdline args: %v", err))
+	}
 }

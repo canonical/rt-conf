@@ -9,14 +9,14 @@ import (
 )
 
 func LoadConfigFile(confPath, grubPath string) (InternalConfig, error) {
-	var content interface{}
-	for _, p := range []string{confPath, grubPath} {
-		if _, err := os.Stat(p); err != nil {
-			return InternalConfig{}, fmt.Errorf("failed to find file: %v", err)
-		}
+	var content data.Config
+
+	_, err := os.Stat(confPath)
+	if err != nil {
+		return InternalConfig{}, fmt.Errorf("failed to find file: %v", err)
 	}
 
-	content, err := readYAML(confPath)
+	content, err = readYAML(confPath)
 	if err != nil {
 		return InternalConfig{}, err
 	}
@@ -31,7 +31,7 @@ func LoadConfigFile(confPath, grubPath string) (InternalConfig, error) {
 	*/
 	return InternalConfig{
 		ConfigFile: confPath,
-		Data:       content.(data.Config),
+		Data:       content,
 		GrubDefault: data.Grub{
 			File:    grubPath,
 			Pattern: regexp.MustCompile(data.RegexGrubDefault),

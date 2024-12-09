@@ -2,7 +2,6 @@ package system
 
 import (
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -10,30 +9,27 @@ type System interface {
 	DetectHostHardware()
 }
 
-const (
-	PROC_DT_MODEL = "/proc/device-tree/model"
-)
-
 // TODO: Return an value from an enum
 
-func DetectSystem() (string, error) {
+func DetectBootloader() (Bootloader, error) {
 	// Use runtime.GOARCH for a basic architecture check
-	if runtime.GOARCH == "arm" || runtime.GOARCH == "arm64" {
-		// TODO: check for the vendor
 
-		// Check for Raspberry Pi specific file or data
-		if _, err := os.Stat(PROC_DT_MODEL); err != nil {
-			return runtime.GOARCH, nil
-		}
-
-		content, err := os.ReadFile(PROC_DT_MODEL)
+	// TODO: check for the vendor
+	if _, err := os.Stat("/proc/device-tree/model"); err == nil {
+		content, err := os.ReadFile("/proc/device-tree/model")
 		if err != nil {
-			return "", err
+			return Unknown, err
 		}
 
 		if strings.Contains(string(content), "Raspberry Pi") {
-			return "raspberry", nil
+			return Rpi, nil
 		}
+		return Unknown, nil
 	}
-	return runtime.GOARCH, nil
+
+	if _, err := os.Stat("/etc/default/grub"); err == nil {
+		return Grub, nil
+	}
+
+	return Unknown, nil
 }
