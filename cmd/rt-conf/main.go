@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/kcmd"
 )
 
 const (
@@ -13,36 +14,35 @@ const (
 	ETC_DEFAULT_GRUB = "/etc/default/grub"
 )
 
+const (
+	cfgFilehelp = `Path to the configuration file either set this or set the COMMON_CONFIG_PATH environment variable`
+	grubHelp    = `Path to the default grub file`
+)
+
 func getDefaultConfig() string {
 	return os.Getenv(cfgFilePath)
 }
 
 func main() {
-	// TODO: Add system detection functionality
+	configPath := flag.String("config", getDefaultConfig(), cfgFilehelp)
 
-	configPath := flag.String("config", getDefaultConfig(), "Path to the configuration file")
-
+	// TODO: make this generic for any bootloader
 	// Define the paths to grub as flags
-	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, "Path to the default grub file")
+	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, grubHelp)
 
 	flag.Parse()
 	if *configPath == "" {
-		fmt.Fprintln(os.Stderr, "Default config path not set neither by flag nor by env var")
-		fmt.Fprintf(os.Stderr, "Please set the %v environment variable\n", cfgFilePath)
-		fmt.Fprintf(os.Stderr, " or use the --config flag to set the path to the configuration file\n")
-		os.Exit(1)
+		flag.PrintDefaults()
+		log.Fatalf("Failed to load config file: config path not set")
 	}
 
 	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
 	if err != nil {
-		fmt.Printf("Failed to load config file: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to load config file: %v", err)
 	}
 
-	err = helpers.UpdateGrub(&conf)
+	err = kcmd.ProcessKcmdArgs(&conf)
 	if err != nil {
-		fmt.Printf("Failed to inject to file: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to process kernel cmdline args: %v", err)
 	}
-
 }

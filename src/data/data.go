@@ -4,6 +4,8 @@ import (
 	"regexp"
 )
 
+const RegexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
+
 // FileTransformer interface with a TransformLine method.
 // This method is used to transform a line of a file.
 //
