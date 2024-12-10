@@ -3,12 +3,12 @@ package kcmd
 import (
 	"fmt"
 
-	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/models"
 	"github.com/canonical/rt-conf/src/system"
 )
 
-func ProcessKcmdArgs(c *helpers.InternalConfig) error {
+func ProcessKcmdArgs(c *data.InternalConfig) error {
 	sys, err := system.DetectBootloader()
 	if err != nil {
 		return fmt.Errorf("failed to detect system: %v", err)

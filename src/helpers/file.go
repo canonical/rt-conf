@@ -8,13 +8,6 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 )
 
-type InternalConfig struct {
-	ConfigFile string
-	Data       data.Config
-
-	GrubDefault data.Grub
-}
-
 // processFile processes a file with a given FileTransformer, applying
 // its transformation on lines matching the pattern.
 func ProcessFile(transformer data.FileTransformer) error {
