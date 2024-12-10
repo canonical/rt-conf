@@ -28,17 +28,10 @@ plugs:
     write:
       - /etc/default/grub
 
-  config:
-    plugin: dump
-    source: .
-    stage:
-      - config.yaml
-
-plugs:
-  etc-default-grub:
+  proc-device-tree-model:
     interface: system-files
-    write:
-      - /etc/default/grub
+    read:
+      - /proc/device-tree/model
 
 apps:
   rt-conf:
