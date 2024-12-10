@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/canonical/rt-conf/src/helpers"
@@ -33,16 +33,16 @@ func main() {
 	flag.Parse()
 	if *configPath == "" {
 		flag.PrintDefaults()
-		panic(fmt.Errorf("failed to load config file: %v", "config path not set"))
+		log.Fatalf("Failed to load config file: config path not set")
 	}
 
 	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
 	if err != nil {
-		panic(fmt.Errorf("\nFailed to load config file: %v", err))
+		log.Fatalf("Failed to load config file: %v", err)
 	}
 
 	err = kcmd.ProcessKcmdArgs(&conf)
 	if err != nil {
-		panic(fmt.Errorf("failed to process kernel cmdline args: %v", err))
+		log.Fatalf("Failed to process kernel cmdline args: %v", err)
 	}
 }
