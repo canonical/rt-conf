@@ -14,22 +14,26 @@ const (
 	ETC_DEFAULT_GRUB = "/etc/default/grub"
 )
 
+const (
+	cfgFilehelp = `Path to the configuration file either set this or set the COMMON_CONFIG_PATH environment variable`
+	grubHelp    = `Path to the default grub file`
+)
+
 func getDefaultConfig() string {
 	return os.Getenv(cfgFilePath)
 }
 
 func main() {
-	configPath := flag.String("config", getDefaultConfig(), "Path to the configuration file")
+	configPath := flag.String("config", getDefaultConfig(), cfgFilehelp)
 
+	// TODO: make this generic for any bootloader
 	// Define the paths to grub as flags
-	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, "Path to the default grub file")
+	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, grubHelp)
 
 	flag.Parse()
 	if *configPath == "" {
-		fmt.Fprintln(os.Stderr, "Default config path not set neither by flag nor by env var")
-		fmt.Fprintf(os.Stderr, "Please set the %v environment variable\n", cfgFilePath)
-		fmt.Fprintf(os.Stderr, " or use the --config flag to set the path to the configuration file\n")
-		os.Exit(1)
+		flag.PrintDefaults()
+		panic(fmt.Errorf("failed to load config file: %v", "config path not set"))
 	}
 
 	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
