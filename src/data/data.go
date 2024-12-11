@@ -32,7 +32,13 @@ type Grub struct {
 }
 
 type Config struct {
+	Interrupts    IRQs          `yaml:"interrupts"`
 	KernelCmdline KernelCmdline `yaml:"kernel-cmdline"`
+}
+
+type IRQs struct {
+	IsolateCPU string `yaml:"remove-from-cpus"`
+	IRQHandler string `yaml:"handle-on-cpus"`
 }
 
 // KernelCmdline represents the kernel command line options.
