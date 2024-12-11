@@ -5,7 +5,7 @@ interrupts:
   remove-from-cpus: "8-9"
 
   # CPUs to handle IRQs
-  handle-on-cpus: "0-1"
+  handle-on-cpus: "0-1" # OPTIONAL
 
 kernel-cmdline:
   # Isolate a given set of CPUs from disturbance.
