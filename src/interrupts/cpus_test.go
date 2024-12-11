@@ -75,7 +75,54 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestComplement(t *testing.T) {
+	type test struct {
+		input  string
+		output string
+		tCores int
+	}
+
+	var tst = []test{
+		{
+			"0-7",
+			"8,9",
+			10,
+		},
+		{
+			"0-1",
+			"2,3,4,5,6,7,8,9",
+			10,
+		},
+		{
+			"2",
+			"0,1,3",
+			4,
+		},
+		{
+			"0-20:2/5", // 0,1,5,6,10,11,15,16,20
+			"2,3,4,7,8,9,12,13,14,17,18,19,21,22,23",
+			24,
+		},
+		{
+			"2,0-20:2/5,21-23", // 0,1,2,5,6,10,11,15,16,20,21,22,23
+			"3,4,7,8,9,12,13,14,17,18,19",
+			24,
+		},
+	}
+
+	for _, tt := range tst {
+		t.Run(tt.input, func(t *testing.T) {
+			res, err := i.GenerateComplementCPUList(tt.input, tt.tCores)
+			if err != nil {
+				t.Fatalf("Failed GenerateComplementCPUList: %v", err)
+			}
+			if res != tt.output {
+				t.Fatalf("expected %v, got %v", tt.output, res)
+			}
+		})
+	}
 }
 
 func TestMutualExclusionCheck(t *testing.T) {
