@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/kcmd"
 )
 
 const (
@@ -58,7 +59,7 @@ func TestInjectToFile(t *testing.T) {
 	}
 
 	// Run the InjectToFile method
-	err = helpers.UpdateGrub(&conf)
+	err = kcmd.ProcessKcmdArgs(&conf)
 	if err != nil {
 		t.Fatalf("InjectToFile failed: %v", err)
 	}

@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func readYAML(path string) (cfg data.Config, err error) {
+func ReadYAML(path string) (cfg data.Config, err error) {
 	d, err := os.ReadFile(path)
 	if err != nil {
 		// TODO: improve error logging

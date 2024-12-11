@@ -4,7 +4,13 @@ import (
 	"regexp"
 )
 
-const RegexGrubDefault = `^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`
+var PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
+
+type InternalConfig struct {
+	Data Config
+
+	GrubDefault Grub
+}
 
 // FileTransformer interface with a TransformLine method.
 // This method is used to transform a line of a file.

@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/execute"
 	"github.com/canonical/rt-conf/src/helpers"
 )
@@ -59,7 +60,7 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 }
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
-func UpdateGrub(cfg *helpers.InternalConfig) error {
+func UpdateGrub(cfg *data.InternalConfig) error {
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,
 		Pattern:  cfg.GrubDefault.Pattern,
