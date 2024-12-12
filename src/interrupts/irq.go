@@ -31,6 +31,9 @@ import (
 // interrupt line to the IRQ number.
 // https://elixir.bootlin.com/linux/v6.13-rc2/source/kernel/irq/irqdomain.c#L834
 
+// About SMI (System Management Interrupt):
+// https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
+
 type ProcIRQNumber struct {
 	Number   int
 	Affinity string
@@ -76,7 +79,7 @@ func RemapIRQAffinity(newAffinity string, irq []ProcIRQNumber) error {
 		if err == nil {
 			continue
 		}
-		// Managed IRQs are not allowed to be written to from userspace.
+		// SMI IRQs are not allowed to be written to from userspace.
 		// It fails with "input/output error"
 		if !strings.Contains(err.Error(), "input/output error") {
 			return fmt.Errorf("error writing to %s: %v", f, err)
