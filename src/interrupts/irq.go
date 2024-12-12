@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/helpers"
 )
@@ -30,17 +31,15 @@ import (
 // interrupt line to the IRQ number.
 // https://elixir.bootlin.com/linux/v6.13-rc2/source/kernel/irq/irqdomain.c#L834
 
-type Cores map[int]struct{}
-
 type ProcIRQNumber struct {
 	Number   int
 	Affinity string
-	CPUs     Cores
+	CPUs     cpu.CPUs
 }
 
 type ProcInterrupts struct {
 	Number int
-	CPUs   Cores
+	CPUs   cpu.CPUs
 	Name   string
 }
 
@@ -55,7 +54,7 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 	newAffinity := cfg.Data.Interrupts.IRQHandler
 	if newAffinity == "" {
 		var err error
-		newAffinity, err = GenerateComplementCPUList(isolCPUs, maxcpus)
+		newAffinity, err = cpu.GenerateComplementCPUList(isolCPUs, maxcpus)
 		if err != nil {
 			return fmt.Errorf("error generating complement CPU list: %v", err)
 		}
@@ -113,7 +112,7 @@ func MapSystemIRQs() ([]ProcIRQNumber, error) {
 
 		affinity := strings.TrimSpace(string(bytes))
 
-		cpus, err := ParseCPUs(affinity, runtime.NumCPU())
+		cpus, err := cpu.ParseCPUs(affinity, runtime.NumCPU())
 		if err != nil {
 			return nil, fmt.Errorf("error parsing CPUs for IRQ %d: %v", irqNumber, err)
 		}
@@ -177,7 +176,7 @@ func MapIRQs() ([]ProcInterrupts, error) {
 	return irqs, nil
 }
 
-func getCPUsForIRQ(irqN int) (Cores, error) {
+func getCPUsForIRQ(irqN int) (cpu.CPUs, error) {
 	procfs := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", irqN)
 	file, err := os.Open(procfs)
 	if err != nil {
@@ -187,7 +186,7 @@ func getCPUsForIRQ(irqN int) (Cores, error) {
 
 	scanner := bufio.NewScanner(file)
 	if scanner.Scan() {
-		cpus, err := ParseCPUs(scanner.Text(), runtime.NumCPU())
+		cpus, err := cpu.ParseCPUs(scanner.Text(), runtime.NumCPU())
 		if err != nil {
 			err := fmt.Errorf("error parsing CPUs for IRQ %d: %v", irqN, err)
 			return nil, err
