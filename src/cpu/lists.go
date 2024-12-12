@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type Cores map[int]struct{}
+type CPUs map[int]bool
 
 // Generate Complement (list') given the list
 //
@@ -31,8 +31,8 @@ func GenerateComplementCPUList(list string, maxcpus int) (string, error) {
 // Inspired in the Kernel documentation:
 // https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists
 // I had nightmares about this function
-func ParseCPUs(cpuList string, totalCPUs int) (Cores, error) {
-	cpus := make(Cores)
+func ParseCPUs(cpuList string, totalCPUs int) (CPUs, error) {
+	cpus := make(CPUs)
 	items := strings.Split(cpuList, ",")
 
 	for _, item := range items {
@@ -41,7 +41,7 @@ func ParseCPUs(cpuList string, totalCPUs int) (Cores, error) {
 		// Handle "all"
 		if item == "all" {
 			for i := 0; i < totalCPUs; i++ {
-				cpus[i] = struct{}{}
+				cpus[i] = true
 			}
 			continue
 		}
@@ -73,7 +73,7 @@ func ParseCPUs(cpuList string, totalCPUs int) (Cores, error) {
 
 // Handle the format:
 // <cpu number>-<cpu number>:<used size>/<group size>
-func handleCPUGroup(item string, cpus Cores, t int) error {
+func handleCPUGroup(item string, cpus CPUs, t int) error {
 	rangePart, groupPart, found := strings.Cut(item, ":")
 	if !found {
 		return fmt.Errorf("invalid format: %s", item)
@@ -116,14 +116,14 @@ func handleCPUGroup(item string, cpus Cores, t int) error {
 	// Split the range into groups and take the first "usedSize" CPUs
 	for i := start; i <= end; i += groupSize {
 		for j := 0; j < usedSize && (i+j) <= end; j++ {
-			cpus[i+j] = struct{}{}
+			cpus[i+j] = true
 		}
 	}
 	return nil
 }
 
 // Handle: <cpu number>-<cpu number>
-func handleCPURange(item string, cpus Cores, t int) error {
+func handleCPURange(item string, cpus CPUs, t int) error {
 	parts := strings.Split(item, "-")
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid range: %s", item)
@@ -143,13 +143,13 @@ func handleCPURange(item string, cpus Cores, t int) error {
 		return fmt.Errorf("start of range greater than end: %s", item)
 	}
 	for i := start; i <= end; i++ {
-		cpus[i] = struct{}{}
+		cpus[i] = true
 	}
 	return nil
 }
 
 // Handle <cpu number>
-func handleSingleCPU(item string, cpus Cores, t int) error {
+func handleSingleCPU(item string, cpus CPUs, t int) error {
 	// Handle single CPU
 	cpu, err := strconv.Atoi(item)
 	if err != nil {
@@ -158,7 +158,7 @@ func handleSingleCPU(item string, cpus Cores, t int) error {
 	if cpu >= t {
 		return fmt.Errorf("CPU greater than total CPUs: %s", item)
 	}
-	cpus[cpu] = struct{}{}
+	cpus[cpu] = true
 	return nil
 }
 

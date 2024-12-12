@@ -11,7 +11,7 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 	type test struct {
 		input  string
 		tCores int
-		output i.Cores
+		output i.CPUs
 	}
 
 	var tst = []test{
@@ -19,45 +19,47 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 		{
 			"4",
 			8,
-			i.Cores{4: {}},
+			i.CPUs{4: true},
 		},
 		// 3 single CPUs
 		{
 			"4,5,9",
 			10,
-			i.Cores{4: {}, 5: {}, 9: {}},
+			i.CPUs{4: true, 5: true, 9: true},
 		},
 		// CPU range
 		{
 			"0-7",
 			10,
-			i.Cores{0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}},
+			i.CPUs{0: true, 1: true, 2: true, 3: true, 4: true,
+				5: true, 6: true, 7: true},
 		},
 		// two CPUs ranges
 		{
 			"0-2,4-7",
 			10,
-			i.Cores{0: {}, 1: {}, 2: {}, 4: {}, 5: {}, 6: {}, 7: {}},
+			i.CPUs{0: true, 1: true, 2: true, 4: true,
+				5: true, 6: true, 7: true},
 		},
 		// CPU range + single CPU
 		{
 			"0-2,3",
 			4,
-			i.Cores{0: {}, 1: {}, 2: {}, 3: {}},
+			i.CPUs{0: true, 1: true, 2: true, 3: true},
 		},
 		// Formated CPU list
 		{
 			"0-20:2/5",
 			24,
-			i.Cores{0: {}, 1: {}, 5: {}, 6: {}, 10: {}, 11: {}, 15: {}, 16: {},
-				20: {}},
+			i.CPUs{0: true, 1: true, 5: true, 6: true,
+				10: true, 11: true, 15: true, 16: true, 20: true},
 		},
 		// Formated CPU list + a single CPU
 		{
 			"0-20:2/5,23",
 			24,
-			i.Cores{0: {}, 1: {}, 5: {}, 6: {}, 10: {}, 11: {}, 15: {}, 16: {},
-				20: {}, 23: {}},
+			i.CPUs{0: true, 1: true, 5: true, 6: true, 10: true,
+				11: true, 15: true, 16: true, 20: true, 23: true},
 		},
 	}
 
@@ -78,7 +80,6 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 }
 
 func TestParseCPUSlistsUnhappy(t *testing.T) {
-
 	type test struct {
 		input  string
 		tCores int
@@ -159,7 +160,7 @@ func TestParseCPUSlistsUnhappy(t *testing.T) {
 		{
 			"0-2:0/8",
 			8,
-			"used size must be greater than 0: ",
+			"used size must be at least 1, got: 0",
 		},
 		{
 			"0-3:9/10",
