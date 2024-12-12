@@ -1,10 +1,12 @@
-package interrupts
+package cpu
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
 )
+
+type Cores map[int]struct{}
 
 // Generate Complement (list') given the list
 //
@@ -49,20 +51,20 @@ func ParseCPUs(cpuList string, totalCPUs int) (Cores, error) {
 		item = strings.ReplaceAll(item, "n", strconv.Itoa(totalCPUs-1))
 
 		if strings.Contains(item, ":") {
-			if err := HandleFormatedLists(item, cpus, totalCPUs); err != nil {
+			if err := handleCPUGroup(item, cpus, totalCPUs); err != nil {
 				return nil, err
 			}
 			continue
 		}
 
 		if strings.Contains(item, "-") {
-			if err := HandleCPURange(item, cpus, totalCPUs); err != nil {
+			if err := handleCPURange(item, cpus, totalCPUs); err != nil {
 				return nil, err
 			}
 			continue
 		}
 
-		if err := HandleSingleCPU(item, cpus, totalCPUs); err != nil {
+		if err := handleSingleCPU(item, cpus, totalCPUs); err != nil {
 			return nil, err
 		}
 	}
@@ -71,7 +73,7 @@ func ParseCPUs(cpuList string, totalCPUs int) (Cores, error) {
 
 // Handle the format:
 // <cpu number>-<cpu number>:<used size>/<group size>
-func HandleFormatedLists(item string, cpus Cores, t int) error {
+func handleCPUGroup(item string, cpus Cores, t int) error {
 	rangePart, groupPart, found := strings.Cut(item, ":")
 	if !found {
 		return fmt.Errorf("invalid format: %s", item)
@@ -100,6 +102,12 @@ func HandleFormatedLists(item string, cpus Cores, t int) error {
 	if err != nil {
 		return fmt.Errorf("invalid used size: %s", groupParts[0])
 	}
+	if usedSize < 1 {
+		return fmt.Errorf("used size must be at least 1, got: %s", groupParts[0])
+	}
+	if usedSize > t {
+		return fmt.Errorf("used size greater than total CPUs: %s", groupParts[0])
+	}
 	groupSize, err := strconv.Atoi(groupParts[1])
 	if err != nil {
 		return fmt.Errorf("invalid group size: %s", groupParts[1])
@@ -115,7 +123,7 @@ func HandleFormatedLists(item string, cpus Cores, t int) error {
 }
 
 // Handle: <cpu number>-<cpu number>
-func HandleCPURange(item string, cpus Cores, t int) error {
+func handleCPURange(item string, cpus Cores, t int) error {
 	parts := strings.Split(item, "-")
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid range: %s", item)
@@ -126,7 +134,7 @@ func HandleCPURange(item string, cpus Cores, t int) error {
 	}
 	end, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return fmt.Errorf("invalid end of range: %s", parts[2])
+		return fmt.Errorf("invalid end of range: %s", parts[1])
 	}
 	if end >= t {
 		return fmt.Errorf("end of range greater than total CPUs: %s", item)
@@ -141,7 +149,7 @@ func HandleCPURange(item string, cpus Cores, t int) error {
 }
 
 // Handle <cpu number>
-func HandleSingleCPU(item string, cpus Cores, t int) error {
+func handleSingleCPU(item string, cpus Cores, t int) error {
 	// Handle single CPU
 	cpu, err := strconv.Atoi(item)
 	if err != nil {
@@ -154,9 +162,9 @@ func HandleSingleCPU(item string, cpus Cores, t int) error {
 	return nil
 }
 
-// CheckMutExclusive:
+// MutuallyExclusive:
 // checks if two CPU lists are mutually exclusive
-func CheckMutExclusive(list1, list2 string, totalCPUs int) (bool, error) {
+func MutuallyExclusive(list1, list2 string, totalCPUs int) (bool, error) {
 	set1, err := ParseCPUs(list1, totalCPUs)
 	if err != nil {
 		return false, err

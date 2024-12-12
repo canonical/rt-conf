@@ -1,10 +1,10 @@
-package interrupts_test
+package cpu_test
 
 import (
 	"reflect"
 	"testing"
 
-	i "github.com/canonical/rt-conf/src/interrupts"
+	i "github.com/canonical/rt-conf/src/cpu"
 )
 
 func TestParseCPUSlistsHappy(t *testing.T) {
@@ -72,6 +72,110 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 			}
 			if !reflect.DeepEqual(res, tt.output) {
 				t.Fatalf("expected %v, got %v", tt.output, res)
+			}
+		})
+	}
+}
+
+func TestParseCPUSlistsUnhappy(t *testing.T) {
+
+	type test struct {
+		input  string
+		tCores int
+		err    string
+	}
+
+	var tst = []test{
+		{
+			"4",
+			4,
+			"CPU greater than total CPUs: 4",
+		},
+		{
+			"a",
+			4,
+			"invalid CPU: a",
+		},
+		{
+			"1-2-3",
+			4,
+			"invalid range: 1-2-3",
+		},
+		{
+			"a-2",
+			4,
+			"invalid start of range: a",
+		},
+		{
+			"1-a",
+			4,
+			"invalid end of range: a",
+		},
+		{
+			"6-8",
+			8,
+			"end of range greater than total CPUs: 6-8",
+		},
+		{
+			"5-2",
+			8,
+			"start of range greater than end: 5-2",
+		},
+		{
+			"0--2:",
+			4,
+			"invalid range: 0--2",
+		},
+		{
+			"0-:2",
+			4,
+			"invalid end of range: ",
+		},
+		{
+			"0-2:",
+			4,
+			"invalid group size or used size: ",
+		},
+		{
+			"0-2/8:10",
+			8,
+			"invalid end of range: 2/8",
+		},
+		{
+			"a-2/8:10",
+			8,
+			"invalid start of range: a",
+		},
+		{
+			"0-2a:10",
+			8,
+			"invalid end of range: 2a",
+		},
+		{
+			"0-2:10",
+			8,
+			"invalid group size or used size: 10",
+		},
+		{
+			"0-2:0/8",
+			8,
+			"used size must be greater than 0: ",
+		},
+		{
+			"0-3:9/10",
+			8,
+			"used size greater than total CPUs: 9",
+		},
+	}
+
+	for _, tt := range tst {
+		t.Run(tt.input, func(t *testing.T) {
+			_, err := i.ParseCPUs(tt.input, tt.tCores)
+			if err == nil {
+				t.Fatalf("expected error, got nil")
+			}
+			if err.Error() != tt.err {
+				t.Fatalf("expected %v, got %v", tt.err, err)
 			}
 		})
 	}
@@ -168,7 +272,7 @@ func TestMutualExclusionCheck(t *testing.T) {
 	for _, tt := range tst {
 		t.Run(tt.s1, func(t *testing.T) {
 
-			check, err := i.CheckMutExclusive(tt.s1, tt.s2, tt.ncpus)
+			check, err := i.MutuallyExclusive(tt.s1, tt.s2, tt.ncpus)
 			if err != nil {
 				t.Fatalf("CheckMutExclusive failed: %v", err)
 			}
