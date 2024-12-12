@@ -274,7 +274,7 @@ func TestMutualExclusionCheck(t *testing.T) {
 
 			check, err := i.MutuallyExclusive(tt.s1, tt.s2, tt.ncpus)
 			if err != nil {
-				t.Fatalf("CheckMutExclusive failed: %v", err)
+				t.Fatalf("MutuallyExclusive check failed: %v", err)
 			}
 			if check != tt.mutE {
 				t.Logf("Test: %v", tt)
