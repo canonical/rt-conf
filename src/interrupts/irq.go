@@ -46,7 +46,7 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 		return fmt.Errorf("error getting total CPUs: %v", err)
 	}
 
-	irqs, err := mapSystemIRQs()
+	irqs, err := systemIRQs()
 	if err != nil {
 		return fmt.Errorf("error mapping IRQs: %v", err)
 	}
@@ -90,8 +90,8 @@ func remapIRQsAffinity(newAffinity string, irq []uint) error {
 	return nil
 }
 
-// Map IRQs from /proc/irq
-func mapSystemIRQs() ([]uint, error) {
+// Get IRQs from /proc/irq
+func systemIRQs() ([]uint, error) {
 	dirEntries, err := os.ReadDir("/proc/irq")
 	if err != nil {
 		return nil, fmt.Errorf("error reading /proc/irq directory: %v", err)
