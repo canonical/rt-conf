@@ -34,12 +34,6 @@ import (
 // About SMI (System Management Interrupt):
 // https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
 
-type ProcIRQNumber struct {
-	Number int
-	// Affinity string
-	// CPUs     cpu.CPUs
-}
-
 type ProcInterrupts struct {
 	Number int
 	CPUs   cpu.CPUs
@@ -74,14 +68,14 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 	return nil
 }
 
-func remapIRQsAffinity(newAffinity string, irq []ProcIRQNumber) error {
+func remapIRQsAffinity(newAffinity string, irq []uint) error {
 	maxcpus, err := cpu.TotalAvailable()
 	if err != nil {
 		return fmt.Errorf("error getting total CPUs: %v", err)
 	}
 	fmt.Println("Total CPUs:", maxcpus)
 	for _, i := range irq {
-		f := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", i.Number)
+		f := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", i)
 		err := helpers.WriteToFile(f, newAffinity)
 		if err == nil {
 			continue
@@ -91,19 +85,19 @@ func remapIRQsAffinity(newAffinity string, irq []ProcIRQNumber) error {
 		if !strings.Contains(err.Error(), "input/output error") {
 			return fmt.Errorf("error writing to %s: %v", f, err)
 		}
-		log.Printf("Managed IRQ %d, skipped\n", i.Number)
+		log.Printf("Managed IRQ %d, skipped\n", i)
 	}
 	return nil
 }
 
 // Map IRQs from /proc/irq
-func mapSystemIRQs() ([]ProcIRQNumber, error) {
+func mapSystemIRQs() ([]uint, error) {
 	dirEntries, err := os.ReadDir("/proc/irq")
 	if err != nil {
 		return nil, fmt.Errorf("error reading /proc/irq directory: %v", err)
 	}
 
-	var irqNumbers []ProcIRQNumber
+	var irqNumbers []uint
 	for _, entry := range dirEntries {
 		if !entry.IsDir() {
 			continue
@@ -115,9 +109,7 @@ func mapSystemIRQs() ([]ProcIRQNumber, error) {
 				entry.Name(), err)
 		}
 
-		irqNumbers = append(irqNumbers, ProcIRQNumber{
-			Number: irqNumber,
-		})
+		irqNumbers = append(irqNumbers, uint(irqNumber))
 	}
 
 	return irqNumbers, nil

@@ -8,12 +8,6 @@ import (
 	"strings"
 )
 
-type CPUInfo struct {
-	Field    string    `json:"field"`
-	Data     string    `json:"data"`
-	Children []CPUInfo `json:"children"`
-}
-
 func TotalAvailable() (int, error) {
 	cmd := exec.Command("lscpu", "--json")
 	output, err := cmd.Output()
@@ -22,7 +16,11 @@ func TotalAvailable() (int, error) {
 	}
 
 	var result struct {
-		CPUs []CPUInfo `json:"lscpu"`
+		CPUs []struct {
+			Field    string        `json:"field"`
+			Data     string        `json:"data"`
+			Children []interface{} `json:"children"`
+		} `json:"lscpu"`
 	}
 	if err := json.Unmarshal(output, &result); err != nil {
 		return 0, err
