@@ -35,9 +35,9 @@ import (
 // https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
 
 type ProcIRQNumber struct {
-	Number   int
-	Affinity string
-	CPUs     cpu.CPUs
+	Number int
+	// Affinity string
+	// CPUs     cpu.CPUs
 }
 
 type ProcInterrupts struct {
@@ -47,8 +47,12 @@ type ProcInterrupts struct {
 }
 
 func ProcessIRQIsolation(cfg *data.InternalConfig) error {
-	irqs, err := MapSystemIRQs()
-	maxcpus := runtime.NumCPU()
+	maxcpus, err := cpu.TotalAvailable()
+	if err != nil {
+		return fmt.Errorf("error getting total CPUs: %v", err)
+	}
+
+	irqs, err := mapSystemIRQs()
 	if err != nil {
 		return fmt.Errorf("error mapping IRQs: %v", err)
 	}
@@ -63,15 +67,18 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 		}
 	}
 
-	if err := RemapIRQAffinity(newAffinity, irqs); err != nil {
+	if err := remapIRQsAffinity(newAffinity, irqs); err != nil {
 		return fmt.Errorf("error performing CPU isolation: %v", err)
 	}
 
 	return nil
 }
 
-func RemapIRQAffinity(newAffinity string, irq []ProcIRQNumber) error {
-	maxcpus := runtime.NumCPU()
+func remapIRQsAffinity(newAffinity string, irq []ProcIRQNumber) error {
+	maxcpus, err := cpu.TotalAvailable()
+	if err != nil {
+		return fmt.Errorf("error getting total CPUs: %v", err)
+	}
 	fmt.Println("Total CPUs:", maxcpus)
 	for _, i := range irq {
 		f := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", i.Number)
@@ -90,7 +97,7 @@ func RemapIRQAffinity(newAffinity string, irq []ProcIRQNumber) error {
 }
 
 // Map IRQs from /proc/irq
-func MapSystemIRQs() ([]ProcIRQNumber, error) {
+func mapSystemIRQs() ([]ProcIRQNumber, error) {
 	dirEntries, err := os.ReadDir("/proc/irq")
 	if err != nil {
 		return nil, fmt.Errorf("error reading /proc/irq directory: %v", err)
@@ -104,28 +111,12 @@ func MapSystemIRQs() ([]ProcIRQNumber, error) {
 
 		irqNumber, err := strconv.Atoi(entry.Name())
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("error converting %s to int: %v",
+				entry.Name(), err)
 		}
-
-		affinityFile := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", irqNumber)
-		bytes, err := os.ReadFile(affinityFile)
-		if err != nil {
-			return nil, fmt.Errorf("error reading %s: %v", affinityFile, err)
-		}
-
-		affinity := strings.TrimSpace(string(bytes))
-
-		cpus, err := cpu.ParseCPUs(affinity, runtime.NumCPU())
-		if err != nil {
-			return nil, fmt.Errorf("error parsing CPUs for IRQ %d: %v", irqNumber, err)
-		}
-
-		fmt.Println("\nIRQ:", irqNumber, "CPUs:", cpus)
 
 		irqNumbers = append(irqNumbers, ProcIRQNumber{
-			Number:   irqNumber,
-			Affinity: affinity,
-			CPUs:     cpus,
+			Number: irqNumber,
 		})
 	}
 
