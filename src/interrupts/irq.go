@@ -1,11 +1,9 @@
 package interrupts
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 
@@ -122,81 +120,3 @@ func systemIRQs() ([]uint, error) {
 
 	return irqNumbers, nil
 }
-
-// Since there are some differences (not sure why) on the presence of IRQs
-// on /proc/interrupts and /proc/irq it was decidede to have the
-// capability to map both of them.
-// But for now, we are going to use the mapping from /proc/irq
-
-// Map interrupts from /proc/interrupts
-func MapIRQs() ([]ProcInterrupts, error) {
-	procfs, err := os.Open("/proc/interrupts")
-	if err != nil {
-		return nil, fmt.Errorf("error opening /proc/interrupts: %v", err)
-	}
-	defer procfs.Close()
-
-	var irqs []ProcInterrupts
-	scanner := bufio.NewScanner(procfs)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fields := strings.Fields(line)
-		if len(fields) < 2 {
-			continue
-		}
-
-		irqNumber, err := strconv.Atoi(strings.TrimSuffix(fields[0], ":"))
-		if err != nil {
-			continue
-		}
-
-		irqName := fields[len(fields)-1]
-		cpus, err := getCPUsForIRQ(irqNumber)
-		if err != nil {
-			return nil, fmt.Errorf("error getting CPUs for IRQ %d: %v", irqNumber, err)
-		}
-
-		irqs = append(irqs, ProcInterrupts{
-			Number: irqNumber,
-			CPUs:   cpus,
-			Name:   irqName,
-		})
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading /proc/interrupts: %v", err)
-	}
-
-	return irqs, nil
-}
-
-func getCPUsForIRQ(irqN int) (cpu.CPUs, error) {
-	procfs := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", irqN)
-	file, err := os.Open(procfs)
-	if err != nil {
-		return nil, fmt.Errorf("error opening %s: %v", procfs, err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	if scanner.Scan() {
-		cpus, err := cpu.ParseCPUs(scanner.Text(), runtime.NumCPU())
-		if err != nil {
-			err := fmt.Errorf("error parsing CPUs for IRQ %d: %v", irqN, err)
-			return nil, err
-		}
-		return cpus, nil
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading", procfs, ":", err)
-	}
-
-	return nil, err
-}
-
-// FUTURE IDEAS:
-
-// On /proc/interrupts
-// Monitor:
-// TRM - checking for thermal throttling on the CPUs
