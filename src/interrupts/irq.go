@@ -59,6 +59,14 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 		if err != nil {
 			return fmt.Errorf("error generating complement CPU list: %v", err)
 		}
+	} else {
+		excl, err := cpu.MutuallyExclusive(isolCPUs, newAffinity, maxcpus)
+		if err != nil {
+			return fmt.Errorf("error checking cpu list mutual exclusion: %v", err)
+		}
+		if !excl {
+			return fmt.Errorf("invalid input: cpu lists not mutually excluded: '%v', '%v'", isolCPUs, newAffinity)
+		}
 	}
 
 	if err := remapIRQsAffinity(newAffinity, irqs); err != nil {
