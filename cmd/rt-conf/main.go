@@ -46,7 +46,7 @@ func main() {
 
 	err = interrupts.ProcessIRQIsolation(&conf)
 	if err != nil {
-		log.Fatalf("Failed to process kernel cmdline args: %v", err)
+		log.Fatalf("Failed to process interrupts: %v", err)
 	}
 
 	// NOTE: This should also be the decision to rather render or not the TUI
