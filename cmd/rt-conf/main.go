@@ -8,6 +8,8 @@ import (
 	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
+	"github.com/canonical/rt-conf/src/ui"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 const (
@@ -33,10 +35,20 @@ func main() {
 
 	runningAsService := flag.Bool("service", false, "Run as a service")
 
+	tui := flag.Bool("ui", false, "Render the TUI")
+
 	flag.Parse()
 	if *configPath == "" {
 		flag.PrintDefaults()
 		log.Fatalf("Failed to load config file: config path not set")
+	}
+
+	if *tui {
+		// Run the Terminal User Interface (TUI)
+		if _, err := tea.NewProgram(ui.NewModel(), tea.WithAltScreen()).Run(); err != nil {
+			log.Fatalf("rt-conf failed: %v", err)
+		}
+		return
 	}
 
 	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
