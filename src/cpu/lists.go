@@ -24,6 +24,10 @@ func GenerateComplementCPUList(list string, maxcpus int) (string, error) {
 			listprime = append(listprime, strconv.Itoa(i))
 		}
 	}
+	if len(listprime) == 0 {
+		err := fmt.Errorf("unable to generate complement list: empty CPU list")
+		return "", err
+	}
 	return strings.Join(listprime, ","), nil
 }
 
