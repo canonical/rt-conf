@@ -26,7 +26,7 @@ func GenerateComplementCPUList(list string, maxcpus int) (string, error) {
 	}
 	if len(listprime) == 0 {
 		return "", fmt.Errorf(
-			"unable to generate complement: Cannot isolate all CPUs from IRQs",
+			"unable to complement cpu list '%s' for total of %d CPUs", list, maxcpus
 		)
 	}
 	return strings.Join(listprime, ","), nil
