@@ -50,3 +50,18 @@ func ProcessFile(transformer data.FileTransformer) error {
 
 	return nil
 }
+
+func WriteToFile(filePath, content string) error {
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(content)
+	if err != nil {
+		return fmt.Errorf("failed to write content to file: %w", err)
+	}
+
+	return nil
+}
