@@ -3,8 +3,13 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 const (
+	// weakOrange   = "#DF4A16" // WARN: Non offical CANONICAL color
 	strongOrange = "#E95420"
-	weakOrange   = "#DF4A16" // WARN: Non offical CANONICAL color
+
+	// RGB: (140, 51, 19) == 60% of strongOrange
+	weakOrange = "#8C3313" // WARN: Non offical CANONICAL color
+
+	green = "#3EB34F"
 )
 
 var (
@@ -14,7 +19,8 @@ var (
 			Light: "#1a1a1a",
 			Dark:  "#dddddd",
 		}).
-		Padding(0, 0, 0, 2) //nolint:mnd
+		Padding(0, 0, 0, 2). //nolint:mnd
+		Bold(true)
 
 	NormalDesc = NormalTitle.
 			Foreground(
@@ -34,7 +40,8 @@ var (
 			Light: strongOrange,
 			Dark:  strongOrange,
 		}).
-		Padding(0, 0, 0, 1)
+		Padding(0, 0, 0, 1).
+		Bold(true)
 
 	SelectedDesc = SelectedTitle.
 			Foreground(
@@ -74,8 +81,8 @@ var (
 	statusMessageStyle = lipgloss.NewStyle().
 				Foreground(
 			lipgloss.AdaptiveColor{
-				Light: "#3EB34F",
-				Dark:  "#3EB34F",
+				Light: green,
+				Dark:  green,
 			},
 		).
 		Render
