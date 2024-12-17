@@ -4,37 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-)
-
-const (
-	strongOrange = "#E95420"
-)
-
-var (
-	appStyle = lipgloss.
-			NewStyle().
-			Padding(1, 2).
-			Foreground(lipgloss.Color("#2D3748"))
-
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color(strongOrange)).
-			Padding(0, 1)
-
-	selectedItemStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color(strongOrange)).
-				Padding(0, 1)
-
-	statusMessageStyle = lipgloss.NewStyle().
-				Foreground(
-			lipgloss.AdaptiveColor{
-				Light: "#3EB34F",
-				Dark:  "#3EB34F",
-			},
-		).
-		Render
 )
 
 type item struct {
@@ -105,10 +74,10 @@ func NewModel() Model {
 	menuList := list.New(items, delegate, 0, 0)
 	menuList.Title = "rt-conf tool"
 	menuList.Styles.Title = titleStyle
-
 	menuList.SetShowStatusBar(false)
-	menuList.Styles.PaginationStyle = lipgloss.NewStyle().Background(lipgloss.Color("#CDCDCD"))
+
 	menuList.AdditionalFullHelpKeys = func() []key.Binding {
+
 		return []key.Binding{
 			listKeys.toggleSpinner,
 			// listKeys.insertItem,

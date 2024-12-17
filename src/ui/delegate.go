@@ -9,6 +9,17 @@ import (
 func newItemDelegate(keys *selectKeyMap) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
+	d.Styles.SelectedDesc = SelectedDesc
+	d.Styles.SelectedTitle = SelectedTitle
+
+	d.Styles.NormalDesc = NormalDesc
+	d.Styles.NormalTitle = NormalTitle
+
+	d.Styles.DimmedDesc = DimmedDesc
+	d.Styles.DimmedTitle = DimmedTitle
+
+	d.Styles.FilterMatch = FilterMatch
+
 	d.UpdateFunc = func(msg tea.Msg, m *list.Model) tea.Cmd {
 		var title string
 
