@@ -50,7 +50,6 @@ type listKeyMap struct {
 	// toggleTitleBar   key.Binding
 	// insertItem       key.Binding
 	toggleSpinner    key.Binding
-	toggleStatusBar  key.Binding
 	togglePagination key.Binding
 	toggleHelpMenu   key.Binding
 }
@@ -68,10 +67,6 @@ func newListKeyMap() *listKeyMap {
 		toggleSpinner: key.NewBinding(
 			key.WithKeys("s"),
 			key.WithHelp("s", "toggle spinner"),
-		),
-		toggleStatusBar: key.NewBinding(
-			key.WithKeys("S"),
-			key.WithHelp("S", "toggle status"),
 		),
 		togglePagination: key.NewBinding(
 			key.WithKeys("P"),
@@ -111,13 +106,13 @@ func NewModel() Model {
 	menuList.Title = "rt-conf tool"
 	menuList.Styles.Title = titleStyle
 
+	menuList.SetShowStatusBar(false)
 	menuList.Styles.PaginationStyle = lipgloss.NewStyle().Background(lipgloss.Color("#CDCDCD"))
 	menuList.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			listKeys.toggleSpinner,
 			// listKeys.insertItem,
 			// listKeys.toggleTitleBar,
-			listKeys.toggleStatusBar,
 			listKeys.togglePagination,
 			listKeys.toggleHelpMenu,
 		}
@@ -160,10 +155,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 	m.list.SetShowFilter(v)
 		// 	m.list.SetFilteringEnabled(v)
 		// 	return m, nil
-
-		case key.Matches(msg, m.keys.toggleStatusBar):
-			m.list.SetShowStatusBar(!m.list.ShowStatusBar())
-			return m, nil
 
 		case key.Matches(msg, m.keys.togglePagination):
 			m.list.SetShowPagination(!m.list.ShowPagination())
