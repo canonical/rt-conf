@@ -44,6 +44,14 @@ func main() {
 	}
 
 	if *tui {
+		f, err := tea.LogToFile("debug.log", "debug")
+		if err != nil {
+			log.Fatalf("failed to open log file: %v", err)
+		}
+		defer f.Close()
+
+		log.Println("Running TUI...")
+		log.Println()
 		// Run the Terminal User Interface (TUI)
 		if _, err := tea.NewProgram(ui.NewModel(), tea.WithAltScreen()).Run(); err != nil {
 			log.Fatalf("rt-conf failed: %v", err)
