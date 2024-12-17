@@ -6,6 +6,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type menuOpt int
+
+const (
+	mainMenu menuOpt = iota
+	kcmdlineMenu
+	irqAffinityMenu
+)
+
 type item struct {
 	title       string
 	description string
@@ -18,6 +26,8 @@ func (i item) FilterValue() string { return i.title }
 type listKeyMap struct {
 	// toggleTitleBar   key.Binding
 	// insertItem       key.Binding
+	goHome           key.Binding
+	selectMenu       key.Binding
 	toggleSpinner    key.Binding
 	togglePagination key.Binding
 	toggleHelpMenu   key.Binding
@@ -33,6 +43,14 @@ func newListKeyMap() *listKeyMap {
 		// 	key.WithKeys("T"),
 		// 	key.WithHelp("T", "toggle title"),
 		// ),
+		goHome: key.NewBinding(
+			key.WithKeys("g", "home"),
+			key.WithHelp("esc", "go home"),
+		),
+		selectMenu: key.NewBinding(
+			key.WithKeys("enter", "space"),
+			key.WithHelp("enter", "select menu"),
+		),
 		toggleSpinner: key.NewBinding(
 			key.WithKeys("s"),
 			key.WithHelp("s", "toggle spinner"),
@@ -53,6 +71,7 @@ type Model struct {
 	itemGenerator *menuItems
 	keys          *listKeyMap
 	delegateKeys  *selectKeyMap
+	menuItem      menuOpt
 }
 
 func NewModel() Model {
@@ -118,6 +137,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd := m.list.ToggleSpinner()
 			return m, cmd
 
+		case key.Matches(msg, m.keys.goHome):
+			m.menuItem = mainMenu
+
+		case key.Matches(msg, m.keys.selectMenu):
+			selected := m.list.SelectedItem().(item)
+			switch selected.Title() {
+			case "Kernel cmdline":
+				m.menuItem = kcmdlineMenu
+			case "IRQ Affinity":
+				m.menuItem = irqAffinityMenu
+			}
+			return m, nil
 		// case key.Matches(msg, m.keys.toggleTitleBar):
 		// 	v := !m.list.ShowTitle()
 		// 	m.list.SetShowTitle(v)
@@ -150,6 +181,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
+// TODO: Need to think a way to model the navigation between menus
 func (m Model) View() string {
-	return appStyle.Render(m.list.View())
+	switch m.menuItem {
+	case kcmdlineMenu:
+		return "\nKCMD LINE MENU:\nUNDER CONSTRUCTION\n"
+	case irqAffinityMenu:
+		return "\nIRQ AFFINITY\nUNDER CONSTRUCTION\n"
+	default:
+		return appStyle.Render(m.list.View())
+	}
 }
