@@ -7,7 +7,9 @@ import (
 var PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
 
 type InternalConfig struct {
-	Data Config
+	TotalCPUs int
+	CfgFile   string
+	Data      Config
 
 	GrubDefault Grub
 }

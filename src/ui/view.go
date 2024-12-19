@@ -1,0 +1,78 @@
+package ui
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/charmbracelet/bubbles/key"
+)
+
+// ShortHelp returns keybindings to be shown in the mini help view. It's part
+// of the key.Map interface.
+func (k listKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.toggleHelpMenu, k.selectMenu}
+}
+
+// FullHelp returns keybindings for the expanded help view. It's part of the
+// key.Map interface.
+func (k listKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.goHome, k.selectMenu}, // first column
+		{k.toggleHelpMenu},       // second column
+	}
+}
+
+func (m Model) kcmdlineView() string {
+	var s string // the view
+
+	title := innerMenuStyle("Configuring Kernel Cmdline Parameters")
+
+	// The inputs
+	var b strings.Builder
+	for i := range m.inputs {
+		b.WriteString(m.inputs[i].View())
+		if i < len(m.inputs)-1 {
+			b.WriteRune('\n')
+		}
+	}
+
+	button := &blurredButton
+	if m.focusIndex == len(m.inputs) {
+		button = &focusedButton
+	}
+	fmt.Fprintf(&b, "\n\n%s\n\n", *button)
+	b.WriteString(helpStyle.Render("cursor mode is "))
+	b.WriteString(cursorModeHelpStyle.Render(m.cursorMode.String()))
+	b.WriteString(helpStyle.Render(" (ctrl+r to change style)"))
+	body := b.String()
+
+	// The help view
+	helpView := m.help.View(m.keys)
+	height := (m.height -
+		strings.Count(title, "\n") -
+		strings.Count(helpView, "\n") -
+		strings.Count(m.errorMsg, "\n") -
+		strings.Count(body, "\n") - 2) / 2 // two newlines
+
+	bottom := helpView
+
+	s +=
+		title +
+			"\n\n" +
+			body +
+			strings.Repeat("\n", height) +
+			m.errorMsg +
+			strings.Repeat("\n", height) +
+			bottom
+	return s
+}
+
+func (m Model) irqAffinityView() string {
+
+	title := innerMenuStyle("Configuring IRQ Affinity")
+
+	helpView := m.help.View(m.keys)
+	height := m.height - strings.Count(title, "\n") - strings.Count(helpView, "\n")
+
+	return "\n" + title + strings.Repeat("\n", height) + helpView
+}

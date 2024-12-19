@@ -7,15 +7,15 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 )
 
-func LoadConfigFile(confPath, grubPath string) (data.InternalConfig, error) {
+func LoadConfigFile(confPath string) (*data.Config, error) {
 	_, err := os.Stat(confPath)
 	if err != nil {
-		return data.InternalConfig{}, fmt.Errorf("failed to find file: %v", err)
+		return nil, fmt.Errorf("failed to find file: %v", err)
 	}
 
 	content, err := ReadYAML(confPath)
 	if err != nil {
-		return data.InternalConfig{}, err
+		return nil, err
 	}
 
 	/*
@@ -26,13 +26,7 @@ func LoadConfigFile(confPath, grubPath string) (data.InternalConfig, error) {
 			- key=value
 			- flag
 	*/
-	return data.InternalConfig{
-		Data: content,
-		GrubDefault: data.Grub{
-			File:    grubPath,
-			Pattern: data.PatternGrubDefault,
-		},
-	}, nil
+	return &content, nil
 }
 
 // translateConfig translates YAML configuration into kernel command-line parameters.

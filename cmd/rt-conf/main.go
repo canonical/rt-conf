@@ -4,7 +4,9 @@ import (
 	"flag"
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
@@ -43,6 +45,24 @@ func main() {
 		log.Fatalf("Failed to load config file: config path not set")
 	}
 
+	conf := *data.NewInternCfg()
+	if d, err := helpers.LoadConfigFile(*configPath); err != nil {
+		log.Fatalf("Failed to load config file: %v", err)
+	} else {
+		conf.Data = *d
+	}
+
+	abs, err := filepath.Abs(*configPath)
+	if err != nil {
+		log.Fatalf("failed to get absolute path for config file: %v", err)
+	}
+
+	conf.CfgFile = abs
+	conf.GrubDefault = data.Grub{
+		File:    *grubDefaultPath,
+		Pattern: data.PatternGrubDefault,
+	}
+
 	if *tui {
 		f, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
@@ -53,15 +73,10 @@ func main() {
 		log.Println("Running TUI...")
 		log.Println()
 		// Run the Terminal User Interface (TUI)
-		if _, err := tea.NewProgram(ui.NewModel(), tea.WithAltScreen()).Run(); err != nil {
+		if _, err := tea.NewProgram(ui.NewModel(&conf), tea.WithAltScreen()).Run(); err != nil {
 			log.Fatalf("rt-conf failed: %v", err)
 		}
 		return
-	}
-
-	conf, err := helpers.LoadConfigFile(*configPath, *grubDefaultPath)
-	if err != nil {
-		log.Fatalf("Failed to load config file: %v", err)
 	}
 
 	err = interrupts.ProcessIRQIsolation(&conf)
@@ -77,8 +92,7 @@ func main() {
 	}
 
 	// If not running as a service then process the kernel cmdline args
-	err = kcmd.ProcessKcmdArgs(&conf)
-	if err != nil {
+	if err := kcmd.ProcessKcmdArgs(&conf); err != nil {
 		log.Fatalf("Failed to process kernel cmdline args: %v", err)
 	}
 
