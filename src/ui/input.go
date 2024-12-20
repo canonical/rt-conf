@@ -13,27 +13,78 @@ const (
 	adaptiveCPUs
 )
 
-func (m *Model) Validation() {
+type ErrValidation struct {
+	err   string
+	exist bool
+}
+
+var validationErrors = []ErrValidation{
+	isolatecpus:    {err: "\n", exist: false},
+	enableDynticks: {err: "\n", exist: false},
+	adaptiveCPUs:   {err: "\n", exist: false},
+}
+
+// TODO: This function validates and create the error message,
+// TODO: maybe it should be split into two functions to separate the logic
+func (m *Model) Validation() bool {
 	var err error
 	var dyntickMode bool
 
+	// TODO: move this logic to outside this function
+	// If focusIndex is out of range, return true
+	if m.focusIndex < 0 || m.focusIndex >= len(m.inputs) {
+		return true
+	}
+
+	log.Println("focusIndex on Validation: ", m.focusIndex)
+	value := m.inputs[m.focusIndex].Value()
+
+	// TODO: fetch value from YAML file and SetValue()
+	// m.inputs[m.focusIndex].SetValue(value)
+
+	if value == "" {
+		return false
+	}
+
 	switch m.focusIndex {
-	case isolatecpus:
-		cpuList := m.inputs[m.focusIndex].Value()
-		_, err = cpu.ParseCPUs(cpuList, m.iconf.TotalCPUs)
+	case isolatecpus, adaptiveCPUs:
+		err = cpu.ValidateList(value, m.iconf.TotalCPUs)
+		log.Println("Isolated CPU List: ", value)
+		if err != nil {
+			validationErrors[m.focusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrors[m.focusIndex].exist = true
+		} else {
+			validationErrors[m.focusIndex].err = "\n"
+			validationErrors[m.focusIndex].exist = false
+		}
 
 	case enableDynticks:
-		dyntickMode, err = strconv.ParseBool(m.inputs[m.focusIndex].Value())
+		dyntickMode, err = strconv.ParseBool(value)
 		log.Println("Dyntick Mode: ", dyntickMode)
-
-	case adaptiveCPUs:
-		cpuList := m.inputs[m.focusIndex].Value()
-		_, err = cpu.ParseCPUs(cpuList, m.iconf.TotalCPUs)
-		log.Println("Adaptive ticks CPU List: ", cpuList)
+		if err != nil {
+			validationErrors[enableDynticks].err =
+				"ERROR: expected a boolean value (true|false) got: " +
+					value + "\n"
+			validationErrors[enableDynticks].exist = true
+		} else {
+			validationErrors[enableDynticks].err = "\n"
+			validationErrors[enableDynticks].exist = false
+		}
 
 	}
 
-	if err != nil {
-		m.errorMsg = "ERROR: " + err.Error()
+	// TODO FIX THIS - add the logic to clean up the error message
+	m.errorMsg = ""
+	for _, v := range validationErrors {
+		m.errorMsg += v.err
 	}
+
+	for _, v := range validationErrors {
+		if v.exist {
+			return false
+		}
+	}
+
+	m.infoMsg = "Press 'enter' to apply changes\n"
+	return true
 }
