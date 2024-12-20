@@ -61,6 +61,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				isValid := m.Validation()
 				log.Println("isValid: ", isValid)
+
 				// Did the user press enter while the submit button was focused?
 				// If so, exit.
 				if s == "enter" && m.focusIndex == len(m.inputs) {
@@ -76,16 +77,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if !valid {
 						break
 					}
-					// TODO: fix this
+					// TODO: Improve this logic
 					m.iconf.Data.KernelCmdline.DyntickIdle = dyntickIdle
 					m.iconf.Data.KernelCmdline.IsolCPUs = m.inputs[isolatecpus].Value()
 					m.iconf.Data.KernelCmdline.AdaptiveTicks = m.inputs[enableDynticks].Value()
 
-					// IsolCPUs      string `yaml:"isolcpus"`       // Isolate CPUs
-					// DyntickIdle   bool   `yaml:"dyntick-idle"`   // Enable/Disable dyntick idle
-					// AdaptiveTicks string `yaml:"adaptive-ticks"` // CPUs for adaptive ticks
+					msgs, err := kcmd.ProcessKcmdArgs(&m.iconf)
+					if err != nil {
+						m.errorMsg = "Failed to process kernel cmdline args: " + err.Error()
+						break
+					}
+					m.infoMsg = "\n" // Doesn't show the info message
 
-					kcmd.ProcessKcmdArgs(&m.iconf)
+					for _, msg := range msgs {
+						m.logMsg += msg
+					}
+
+					// TODO: this needs to return a tea.Cmd (or maybe not)
+
 					// TODO: Apply the changes call the kcmdline funcs
 					// TODO: Present a new view (maybe a new block with text)
 				}
@@ -130,7 +139,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	cmdMainMenu := m.updateMainMenu(msg)
 	cmdInput = m.updateInputs(msg)
-	// This will also call our delegate's update function.
 	newListModel, cmd := m.list.Update(msg)
 	m.list = newListModel
 	cmds = append(cmds, cmd)
