@@ -11,6 +11,7 @@ const (
 	powerManagementMenu
 )
 
+// TODO: start to use these functions to improve Menu navigation
 type MenuNode struct {
 	Menu     menuOpt
 	Children []*MenuNode
