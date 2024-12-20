@@ -53,17 +53,26 @@ func (m Model) kcmdlineView() string {
 	height := (m.height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
+		strings.Count(m.logMsg, "\n") -
 		strings.Count(m.infoMsg, "\n") -
 		strings.Count(m.errorMsg, "\n") -
-		strings.Count(body, "\n") - 4) / 2 // TODO: fix those magic numbers
+		strings.Count(body, "\n") - 5) / 2 // TODO: fix those magic numbers
 	// NOTE: *- 4 * because:
 	// "\n\n" (jumps 2 lines)
 	// m.infoMsg is always 1 line
 	// between the m.infoMsg and m.errorMsg there is 1 line
+	// between the m.logMsg and m.infoMsg there is 1 line
+
+	// NOTE: *- 8 * because:
+	// There is 8 lines of output when processing the kcmdline functions
 
 	// NOTE: * / 2 * (divide by two) because:
 	// we want to add padding between to the top
 	// and bottom of the help view
+
+	if height < 0 {
+		height = 1
+	}
 
 	bottom := helpView
 
@@ -72,6 +81,8 @@ func (m Model) kcmdlineView() string {
 			"\n\n" +
 			body +
 			strings.Repeat("\n", height) +
+			logMessageStyle(m.logMsg) +
+			"\n" +
 			infoMessageStyle(m.infoMsg) +
 			"\n" +
 			errorMessageStyle(m.errorMsg) +
