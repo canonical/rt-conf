@@ -1,38 +1,32 @@
 package ui
 
-import (
-	"sync"
-)
-
 type menuItems struct {
 	titles     []string
 	descs      []string
 	titleIndex int
 	descIndex  int
-	mtx        *sync.Mutex
 }
 
-func (r *menuItems) reset() {
-	r.mtx = &sync.Mutex{}
+func (r *menuItems) Size() int {
+	return len(r.titles)
+}
+
+func (r *menuItems) Init() {
 
 	r.titles = []string{
 		"Kernel cmdline",
 		"IRQ Affinity",
+		"Power Management",
 	}
 
 	r.descs = []string{
 		"Configure Kernel cmdline parameters",
 		"Isolate CPUs from serving IRQs",
+		"Configure CPU power management settings",
 	}
 }
 
 func (r *menuItems) next() item {
-	if r.mtx == nil {
-		r.reset()
-	}
-
-	r.mtx.Lock()
-	defer r.mtx.Unlock()
 
 	i := item{
 		title:       r.titles[r.titleIndex],

@@ -8,6 +8,7 @@ const (
 	mainMenu menuOpt = iota
 	kcmdlineMenu
 	irqAffinityMenu
+	powerManagementMenu
 )
 
 type MenuNode struct {
