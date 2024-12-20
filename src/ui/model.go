@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/help"
@@ -43,7 +45,7 @@ func newListKeyMap() *listKeyMap {
 		// 	key.WithHelp("T", "toggle title"),
 		// ),
 		goHome: key.NewBinding(
-			key.WithKeys("g", "home"),
+			key.WithKeys("g", "home", "esc"),
 			key.WithHelp("esc", "go home"),
 		),
 		selectMenu: key.NewBinding(
@@ -114,6 +116,7 @@ type Model struct {
 	currMenu      menuOpt
 	errorMsg      string
 	infoMsg       string
+	logMsg        string
 }
 
 func NewModel(c *data.InternalConfig) Model {
@@ -149,9 +152,14 @@ func NewModel(c *data.InternalConfig) Model {
 		}
 	}
 
+	logMsg := strings.Repeat("\n", 8) // TODO fix this magic number
+	// NOTE: * 8 * because:
+	// There is 8 lines of output when processing the kcmdline functions
+
 	return Model{
 		// TODO: Fix this info msg, put in a better place
 		infoMsg:       "Please fill all fields before submit\n",
+		logMsg:        logMsg,
 		inputs:        newTextInputs(),
 		iconf:         *c,
 		list:          menuList,
