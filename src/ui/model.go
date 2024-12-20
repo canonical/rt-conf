@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 // TODO: Refact this HORRIBLE code
@@ -160,10 +159,6 @@ func NewModel(c *data.InternalConfig) Model {
 		delegateKeys:  delegateKeys,
 		itemGenerator: &menuOpts,
 	}
-}
-
-func (m Model) Init() tea.Cmd {
-	return textinput.Blink
 }
 
 func (m *Model) NextIndex() {
