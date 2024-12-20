@@ -190,15 +190,3 @@ func (m *Model) PrevIndex() {
 // 		}
 // 	return tea.Batch(cmds...)
 // }
-
-// TODO: Need to think a way to model the navigation between menus
-func (m Model) View() string {
-	switch m.currMenu {
-	case kcmdlineMenu:
-		return appStyle.Render(m.kcmdlineView())
-	case irqAffinityMenu:
-		return appStyle.Render(m.irqAffinityView())
-	default:
-		return appStyle.Render(m.list.View())
-	}
-}
