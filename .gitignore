@@ -30,3 +30,6 @@ go.work.sum
 # Snap packages related
 squashfs-root/
 *.snap
+
+# Log files
+*.log
