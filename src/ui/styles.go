@@ -15,6 +15,7 @@ const (
 
 	green     = "#3EB34F"
 	porcelain = "#F7F7F7"
+	ash       = "#888888"
 )
 
 var (
@@ -81,7 +82,8 @@ var (
 			NewStyle().
 			Foreground(lipgloss.Color(porcelain)).
 			Background(lipgloss.Color(strongOrange)).
-			Padding(0, 1)
+			Padding(0, 1).
+			Bold(true)
 
 	// statusMessageStyle = lipgloss.NewStyle().
 	// 			Foreground(
@@ -91,6 +93,26 @@ var (
 	// 		},
 	// 	).
 	// 	Render
+
+	infoMessageStyle = lipgloss.NewStyle().
+				Foreground(
+			lipgloss.AdaptiveColor{
+				Light: ash,
+				Dark:  ash,
+			},
+		).
+		Bold(true).
+		Render
+
+	errorMessageStyle = lipgloss.NewStyle().
+				Foreground(
+			lipgloss.AdaptiveColor{
+				Light: "#ED3146",
+				Dark:  "#ED3146",
+			},
+		).
+		Bold(true).
+		Render
 
 	innerMenuStyle = lipgloss.
 			NewStyle().
