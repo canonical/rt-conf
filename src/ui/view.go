@@ -24,6 +24,7 @@ func (k listKeyMap) FullHelp() [][]key.Binding {
 
 func (m Model) kcmdlineView() string {
 	var s string // the view
+	// m.infoMsg = "\n"
 
 	title := innerMenuStyle("Configuring Kernel Cmdline Parameters")
 
@@ -45,14 +46,24 @@ func (m Model) kcmdlineView() string {
 	b.WriteString(cursorModeHelpStyle.Render(m.cursorMode.String()))
 	b.WriteString(helpStyle.Render(" (ctrl+r to change style)"))
 	body := b.String()
+	// TODO: Adding padding to the bottom and top of [body] and remove new lines
 
 	// The help view
 	helpView := m.help.View(m.keys)
 	height := (m.height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
+		strings.Count(m.infoMsg, "\n") -
 		strings.Count(m.errorMsg, "\n") -
-		strings.Count(body, "\n") - 2) / 2 // two newlines
+		strings.Count(body, "\n") - 4) / 2 // TODO: fix those magic numbers
+	// NOTE: *- 4 * because:
+	// "\n\n" (jumps 2 lines)
+	// m.infoMsg is always 1 line
+	// between the m.infoMsg and m.errorMsg there is 1 line
+
+	// NOTE: * / 2 * (divide by two) because:
+	// we want to add padding between to the top
+	// and bottom of the help view
 
 	bottom := helpView
 
@@ -61,7 +72,9 @@ func (m Model) kcmdlineView() string {
 			"\n\n" +
 			body +
 			strings.Repeat("\n", height) +
-			m.errorMsg +
+			infoMessageStyle(m.infoMsg) +
+			"\n" +
+			errorMessageStyle(m.errorMsg) +
 			strings.Repeat("\n", height) +
 			bottom
 	return s
