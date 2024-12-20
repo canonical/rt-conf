@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -92,8 +93,12 @@ func main() {
 	}
 
 	// If not running as a service then process the kernel cmdline args
-	if err := kcmd.ProcessKcmdArgs(&conf); err != nil {
+	if msgs, err := kcmd.ProcessKcmdArgs(&conf); err != nil {
 		log.Fatalf("Failed to process kernel cmdline args: %v", err)
+	} else {
+		for _, msg := range msgs {
+			fmt.Print(msg)
+		}
 	}
 
 }

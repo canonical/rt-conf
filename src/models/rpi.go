@@ -7,7 +7,8 @@ import (
 )
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
-func UpdateRPi(cfg *data.InternalConfig) {
+func UpdateRPi(cfg *data.InternalConfig) []string {
 	cmdline := helpers.TranslateConfig(cfg.Data)
-	execute.RpiConclusion(cmdline)
+	msgs := execute.RpiConclusion(cmdline)
+	return msgs
 }

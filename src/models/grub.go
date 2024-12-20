@@ -60,7 +60,8 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 }
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
-func UpdateGrub(cfg *data.InternalConfig) error {
+func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
+	var msgs []string
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,
 		Pattern:  cfg.GrubDefault.Pattern,
@@ -68,10 +69,11 @@ func UpdateGrub(cfg *data.InternalConfig) error {
 	}
 
 	if err := helpers.ProcessFile(grubDefault); err != nil {
-		return fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
+		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
-	fmt.Printf("File %v updated successfully.\n", grubDefault.FilePath)
 
-	execute.GrubConclusion()
-	return nil
+	msgs = append(msgs, "File "+grubDefault.FilePath+" updated successfully.\n")
+	msgs = append(msgs, execute.GrubConclusion()...)
+
+	return msgs, nil
 }
