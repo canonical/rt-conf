@@ -33,3 +33,16 @@ squashfs-root/
 
 # Log files
 *.log
+
+## Ignore IDE specific directories
+
+# VSCode
+.vscode
+# Visual Studio Code
+.vs
+# JetBrains IDEs
+.idea
+# Atom
+.atom
+# Xcode
+.xcodeproj
