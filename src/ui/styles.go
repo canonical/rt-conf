@@ -93,6 +93,15 @@ var (
 	// 		},
 	// 	).
 	// 	Render
+	logMessageStyle = lipgloss.NewStyle().
+			Foreground(
+			lipgloss.AdaptiveColor{
+				Light: porcelain,
+				Dark:  porcelain,
+			},
+		).
+		// Bold(true).
+		Render
 
 	infoMessageStyle = lipgloss.NewStyle().
 				Foreground(
