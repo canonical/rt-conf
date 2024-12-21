@@ -72,7 +72,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 
-	msgs = append(msgs, "File "+grubDefault.FilePath+" updated successfully.\n")
+	msgs = append(msgs, "Updated default grub file: "+grubDefault.FilePath+"\n")
 	msgs = append(msgs, execute.GrubConclusion()...)
 
 	return msgs, nil

@@ -12,12 +12,12 @@ const lineNums = 6
 // NOTE: These messages should be serialized into a struct/json for future use of TUI app
 func GrubConclusion() []string {
 	s := []string{
-		"Successfully injected to file\n",
-		"Please run:\n",
-		"\n",
-		"sudo update-grub\n",
-		"\n",
-		"to apply the changes\n",
+		"\n",                   // 1
+		"Please run:\n",        // 2
+		"\n",                   // 3
+		"\tsudo update-grub\n", // 4
+		"\n",                   // 5
+		"to apply the changes to your bootloader.\n", // 6
 	}
 	if len(s) != lineNums {
 		panic("GrubConclusion: invalid number of lines")
@@ -27,10 +27,10 @@ func GrubConclusion() []string {
 
 func RpiConclusion(cmdline []string) []string {
 	s := []string{
-		"Please, append the following to /boot/firmware/cmdline.txt:\n", // 1
-		"In case of old style boot partition,\n",                        // 2
-		"append to /boot/cmdline.txt\n",                                 // 3
-		"\n",                                                            // 4
+		"\n", //1
+		"Please, append the following to /boot/firmware/cmdline.txt:\n", // 2
+		"In case of old style boot partition,\n",                        // 3
+		"append to /boot/cmdline.txt\n",                                 // 4
 	}
 	kcmdline := ""
 	for _, param := range cmdline {
@@ -38,6 +38,7 @@ func RpiConclusion(cmdline []string) []string {
 	}
 	s = append(s, fmt.Sprintf("%s\n", kcmdline)) // 5
 	s = append(s, "\n")                          // 6
+
 	if len(s) != lineNums {
 		panic("RpiConclusion: invalid number of lines")
 	}
