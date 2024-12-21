@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"strings"
-
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/help"
@@ -78,7 +76,7 @@ func newTextInputs() []textinput.Model {
 
 		switch i {
 		case 0:
-			t.Prompt = "Isolate CPUs from serving IRQs > "
+			t.Prompt = "Isolate CPUs from general execution > "
 			t.Placeholder = "2-n"
 			t.Focus()
 			t.PromptStyle = focusedStyle
