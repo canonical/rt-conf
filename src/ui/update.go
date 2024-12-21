@@ -89,9 +89,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 					m.infoMsg = "\n" // Doesn't show the info message
 
-					for _, msg := range msgs {
-						m.logMsg += msg
-					}
+					m.logMsg = msgs
+					m.renderLog = true
 
 					// TODO: this needs to return a tea.Cmd (or maybe not)
 

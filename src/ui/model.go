@@ -114,7 +114,8 @@ type Model struct {
 	currMenu      menuOpt
 	errorMsg      string
 	infoMsg       string
-	logMsg        string
+	logMsg        []string
+	renderLog     bool
 }
 
 func NewModel(c *data.InternalConfig) Model {
@@ -150,14 +151,17 @@ func NewModel(c *data.InternalConfig) Model {
 		}
 	}
 
-	logMsg := strings.Repeat("\n", 8) // TODO fix this magic number
+	var logmsg [8]string
+	for i := range 8 {
+		logmsg[i] = "\n"
+	}
 	// NOTE: * 8 * because:
 	// There is 8 lines of output when processing the kcmdline functions
 
 	return Model{
 		// TODO: Fix this info msg, put in a better place
 		infoMsg:       "Please fill all fields before submit\n",
-		logMsg:        logMsg,
+		logMsg:        logmsg[:],
 		inputs:        newTextInputs(),
 		iconf:         *c,
 		list:          menuList,
