@@ -24,6 +24,8 @@ var validationErrors = []ErrValidation{
 	adaptiveCPUs:   {err: "\n", exist: false},
 }
 
+// TODO: Think in a way to handle if the user wants empty values
+
 // TODO: This function validates and create the error message,
 // TODO: maybe it should be split into two functions to separate the logic
 func (m *Model) Validation() bool {
