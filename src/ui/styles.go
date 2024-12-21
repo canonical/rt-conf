@@ -93,16 +93,6 @@ var (
 	// 		},
 	// 	).
 	// 	Render
-	logMessageStyle = lipgloss.NewStyle().
-			Foreground(
-			lipgloss.AdaptiveColor{
-				Light: porcelain,
-				Dark:  porcelain,
-			},
-		).
-		// Bold(true).
-		Render
-
 	infoMessageStyle = lipgloss.NewStyle().
 				Foreground(
 			lipgloss.AdaptiveColor{
@@ -140,8 +130,8 @@ var (
 
 	focusedStyle = lipgloss.
 			NewStyle().
-			Foreground(lipgloss.Color(strongOrange)).
-			Padding(0, 1)
+			Foreground(lipgloss.Color(strongOrange))
+		// Padding(0, 1)
 
 	blurredStyle = lipgloss.
 			NewStyle().
@@ -155,3 +145,54 @@ var (
 	focusedButton = focusedStyle.Render("[ Apply ]")
 	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Apply"))
 )
+
+func CenteredSquareWithText(
+	appWidth, appHeight, textWidth, textHeight int,
+	content string) string {
+	// Calculate dimensions for the rectangles
+	// outerWidth := int(float64(appWidth) * 0.9)
+	// outerHeight := int(float64(appHeight) * 0.9)
+	outerWidth := appWidth
+	outerHeight := appHeight
+
+	// innerWidth := int(float64(m.width) * 0.3)
+	// innerHeight := int(float64(m.height) * 0.3)
+	innerWidth := textWidth
+	innerHeight := textHeight
+
+	// Define styles for the rectangles
+	outerRectangleStyle := lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), true).
+		BorderForeground(lipgloss.Color(strongOrange)).
+		Width(outerWidth).
+		Height(outerHeight)
+
+	innerRectangleStyle := lipgloss.NewStyle().
+		// Border(lipgloss.NormalBorder(), true).
+		// BorderForeground(lipgloss.Color("#E95420")).
+		Width(innerWidth).
+		Height(innerHeight).
+		Bold(true)
+
+	// Render the inner rectangle
+	innerRectangle := innerRectangleStyle.Render(content)
+
+	// Calculate center positions for the inner rectangle within the outer rectangle
+	innerX := (outerWidth - innerWidth) / 2
+	innerY := (outerHeight - innerHeight) / 2
+
+	// Combine the rectangles
+	final := lipgloss.Place(
+		appWidth, appHeight,
+		lipgloss.Center, lipgloss.Center,
+		outerRectangleStyle.Render(
+			lipgloss.Place(
+				innerWidth, innerHeight,
+				lipgloss.Center, lipgloss.Center,
+				lipgloss.NewStyle().Margin(innerY, innerX).Render(innerRectangle),
+			),
+		),
+	)
+
+	return final
+}
