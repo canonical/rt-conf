@@ -53,11 +53,12 @@ func (m Model) kcmdlineView() string {
 	height := (m.height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
-		strings.Count(m.logMsg, "\n") -
+		// strings.Count(m.logMsg, "\n") -
 		strings.Count(m.infoMsg, "\n") -
 		strings.Count(m.errorMsg, "\n") -
 		strings.Count(body, "\n") - 5) / 2 // TODO: fix those magic numbers
-	// NOTE: *- 4 * because:
+
+	// NOTE: *- 5 * because:
 	// "\n\n" (jumps 2 lines)
 	// m.infoMsg is always 1 line
 	// between the m.infoMsg and m.errorMsg there is 1 line
@@ -81,7 +82,7 @@ func (m Model) kcmdlineView() string {
 			"\n\n" +
 			body +
 			strings.Repeat("\n", height) +
-			logMessageStyle(m.logMsg) +
+			// logMessageStyle(m.logMsg) +
 			"\n" +
 			infoMessageStyle(m.infoMsg) +
 			"\n" +
@@ -105,6 +106,26 @@ func (m Model) irqAffinityView() string {
 func (m Model) View() string {
 	switch m.currMenu {
 	case kcmdlineMenu:
+		if m.renderLog {
+
+			var content string
+			for _, msg := range m.logMsg {
+				content += msg
+			}
+
+			max := 0
+			for _, msg := range m.logMsg {
+				if len(msg) > max {
+					max = len(msg)
+				}
+			}
+
+			// Render the centered square with text
+			return CenteredSquareWithText(
+				m.width, m.height, max, len(m.logMsg), content)
+		}
+		// TODO: check for the [ apply ] button then show a clean view
+		// to show the needed actions from the user
 		return appStyle.Render(m.kcmdlineView())
 	case irqAffinityMenu:
 		return appStyle.Render(m.irqAffinityView())
