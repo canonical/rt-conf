@@ -6,13 +6,9 @@ func CenteredSquareWithText(
 	appWidth, appHeight, textWidth, textHeight int,
 	content string) string {
 	// Calculate dimensions for the rectangles
-	// outerWidth := int(float64(appWidth) * 0.9)
-	// outerHeight := int(float64(appHeight) * 0.9)
 	outerWidth := appWidth
 	outerHeight := appHeight
 
-	// innerWidth := int(float64(m.width) * 0.3)
-	// innerHeight := int(float64(m.height) * 0.3)
 	innerWidth := textWidth
 	innerHeight := textHeight
 
@@ -24,8 +20,6 @@ func CenteredSquareWithText(
 		Height(outerHeight)
 
 	innerRectangleStyle := lipgloss.NewStyle().
-		// Border(lipgloss.NormalBorder(), true).
-		// BorderForeground(lipgloss.Color("#E95420")).
 		Width(innerWidth).
 		Height(innerHeight).
 		Bold(true)
