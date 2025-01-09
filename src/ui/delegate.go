@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 )
@@ -8,16 +9,16 @@ import (
 func newItemDelegate(keys *selectKeyMap) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
-	d.Styles.SelectedDesc = SelectedDesc
-	d.Styles.SelectedTitle = SelectedTitle
+	d.Styles.SelectedDesc = styles.SelectedDesc
+	d.Styles.SelectedTitle = styles.SelectedTitle
 
-	d.Styles.NormalDesc = NormalDesc
-	d.Styles.NormalTitle = NormalTitle
+	d.Styles.NormalDesc = styles.NormalDesc
+	d.Styles.NormalTitle = styles.NormalTitle
 
-	d.Styles.DimmedDesc = DimmedDesc
-	d.Styles.DimmedTitle = DimmedTitle
+	d.Styles.DimmedDesc = styles.DimmedDesc
+	d.Styles.DimmedTitle = styles.DimmedTitle
 
-	d.Styles.FilterMatch = FilterMatch
+	d.Styles.FilterMatch = styles.FilterMatch
 
 	help := []key.Binding{keys.choose}
 

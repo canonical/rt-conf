@@ -29,22 +29,22 @@ func newTextInputs() []textinput.Model {
 	var t textinput.Model
 	for i := range m {
 		t = textinput.New()
-		t.Cursor.Style = cursorStyle
+		t.Cursor.Style = styles.CursorStyle
 		t.CharLimit = 32
 
 		switch i {
 		case 0:
-			t.Prompt = "Isolate CPUs from general execution > "
+			t.Prompt = "Isolate CPUs from general execution (isolcpus) > "
 			t.Placeholder = "2-n"
 			t.Focus()
-			t.PromptStyle = focusedStyle
-			t.TextStyle = focusedStyle
+			t.PromptStyle = styles.FocusedStyle
+			t.TextStyle = styles.FocusedStyle
 		case 1:
-			t.Prompt = "Enable dyntick mode? (true/false) > "
+			t.Prompt = "Enable dyntick mode? (y/n) (nohz)> "
 			t.Placeholder = "true"
 			t.CharLimit = 5
 		case 2:
-			t.Prompt = "Adaptive ticks CPUs > "
+			t.Prompt = "Adaptive ticks CPUs (nohz_full)> "
 			t.Placeholder = "2-n"
 			// t.EchoMode = textinput.EchoPassword
 			// t.EchoCharacter = '•'
@@ -94,18 +94,18 @@ func NewModel(c *data.InternalConfig) Model {
 	delegate := newItemDelegate(delegateKeys)
 	menuList := list.New(items, delegate, 0, 0)
 	menuList.Title = "rt-conf tool"
-	menuList.Styles.Title = titleStyle
+	menuList.Styles.Title = styles.TitleStyle
 	menuList.SetShowStatusBar(false)
 
 	menuList.AdditionalFullHelpKeys = func() []key.Binding {
 
 		return []key.Binding{
-			listKeys.toggleSpinner,
+			// listKeys.toggleSpinner,
 			// listKeys.insertItem,
 			// listKeys.toggleTitleBar,
 			// listKeys.togglePagination,
 			listKeys.goHome,
-			listKeys.toggleHelpMenu,
+			listKeys.Help,
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/canonical/rt-conf/src/kcmd"
+	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -20,7 +21,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		h, v := appStyle.GetFrameSize()
+		// TODO: check if this will not break the app
+		h, v := styles.AppStyle.GetFrameSize()
+
 		m.width = msg.Width - h
 		m.height = msg.Height - v
 
@@ -121,14 +124,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if i == m.focusIndex {
 						// Set focused state
 						cmds[i] = m.inputs[i].Focus()
-						m.inputs[i].PromptStyle = focusedStyle
-						m.inputs[i].TextStyle = focusedStyle
+						m.inputs[i].PromptStyle = styles.FocusedStyle
+						m.inputs[i].TextStyle = styles.FocusedStyle
 						continue
 					}
 					// Remove focused state
 					m.inputs[i].Blur()
-					m.inputs[i].PromptStyle = noStyle
-					m.inputs[i].TextStyle = noStyle
+					m.inputs[i].PromptStyle = styles.NoStyle
+					m.inputs[i].TextStyle = styles.NoStyle
 				}
 
 				return m, tea.Batch(cmds...)
