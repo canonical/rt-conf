@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/key"
 )
 
@@ -26,7 +27,7 @@ func (m Model) kcmdlineView() string {
 	var s string // the view
 	// m.infoMsg = "\n"
 
-	title := innerMenuStyle("Configuring Kernel Cmdline Parameters")
+	title := styles.InnerMenuStyle("Configuring Kernel Cmdline Parameters")
 
 	// The inputs
 	var b strings.Builder
@@ -37,19 +38,24 @@ func (m Model) kcmdlineView() string {
 		}
 	}
 
-	button := &blurredButton
+	button := &styles.BlurredButton
 	if m.focusIndex == len(m.inputs) {
-		button = &focusedButton
+		button = &styles.FocusedButton
 	}
+
+	// [ Apply ] button
 	fmt.Fprintf(&b, "\n\n%s\n\n", *button)
-	b.WriteString(helpStyle.Render("cursor mode is "))
-	b.WriteString(cursorModeHelpStyle.Render(m.cursorMode.String()))
-	b.WriteString(helpStyle.Render(" (ctrl+r to change style)"))
+
+	// Cursor mode message
+	b.WriteString(styles.HelpStyle.Render("cursor mode is "))
+	b.WriteString(styles.CursorModeHelpStyle.Render(m.cursorMode.String()))
+	b.WriteString(styles.HelpStyle.Render(" (ctrl+r to change style)"))
 	body := b.String()
 	// TODO: Adding padding to the bottom and top of [body] and remove new lines
 
 	// The help view
 	helpView := m.help.View(m.keys)
+
 	height := (m.height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
@@ -84,9 +90,9 @@ func (m Model) kcmdlineView() string {
 			strings.Repeat("\n", height) +
 			// logMessageStyle(m.logMsg) +
 			"\n" +
-			infoMessageStyle(m.infoMsg) +
+			styles.InfoMessageStyle(m.infoMsg) +
 			"\n" +
-			errorMessageStyle(m.errorMsg) +
+			styles.ErrorMessageStyle(m.errorMsg) +
 			strings.Repeat("\n", height) +
 			bottom
 	return s
@@ -94,7 +100,7 @@ func (m Model) kcmdlineView() string {
 
 func (m Model) irqAffinityView() string {
 
-	title := innerMenuStyle("Configuring IRQ Affinity")
+	title := styles.InnerMenuStyle("Configuring IRQ Affinity")
 
 	helpView := m.help.View(m.keys)
 	height := m.height - strings.Count(title, "\n") - strings.Count(helpView, "\n")
@@ -121,15 +127,15 @@ func (m Model) View() string {
 			}
 
 			// Render the centered square with text
-			return CenteredSquareWithText(
+			return styles.CenteredSquareWithText(
 				m.width, m.height, max, len(m.logMsg), content)
 		}
 		// TODO: check for the [ apply ] button then show a clean view
 		// to show the needed actions from the user
-		return appStyle.Render(m.kcmdlineView())
+		return styles.AppStyle.Render(m.kcmdlineView())
 	case irqAffinityMenu:
-		return appStyle.Render(m.irqAffinityView())
+		return styles.AppStyle.Render(m.irqAffinityView())
 	default:
-		return appStyle.Render(m.list.View())
+		return styles.AppStyle.Render(m.list.View())
 	}
 }
