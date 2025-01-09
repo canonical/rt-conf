@@ -23,49 +23,6 @@ func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.description }
 func (i item) FilterValue() string { return i.title }
 
-type listKeyMap struct {
-	// toggleTitleBar   key.Binding
-	// insertItem       key.Binding
-	goHome        key.Binding
-	selectMenu    key.Binding
-	toggleSpinner key.Binding
-	// togglePagination key.Binding
-	toggleHelpMenu key.Binding
-}
-
-func newListKeyMap() *listKeyMap {
-	return &listKeyMap{
-		// insertItem: key.NewBinding(
-		// 	key.WithKeys("a"),
-		// 	key.WithHelp("a", "add item"),
-		// ),
-		// toggleTitleBar: key.NewBinding(
-		// 	key.WithKeys("T"),
-		// 	key.WithHelp("T", "toggle title"),
-		// ),
-		goHome: key.NewBinding(
-			key.WithKeys("g", "home", "esc"),
-			key.WithHelp("esc", "go home"),
-		),
-		selectMenu: key.NewBinding(
-			key.WithKeys("enter", "space"),
-			key.WithHelp("enter", "select menu"),
-		),
-		toggleSpinner: key.NewBinding(
-			key.WithKeys("s"),
-			key.WithHelp("s", "toggle spinner"),
-		),
-		// togglePagination: key.NewBinding(
-		// 	key.WithKeys("P"),
-		// 	key.WithHelp("P", "toggle pagination"),
-		// ),
-		toggleHelpMenu: key.NewBinding(
-			key.WithKeys("H"),
-			key.WithHelp("H", "toggle help"),
-		),
-	}
-}
-
 func newTextInputs() []textinput.Model {
 	m := make([]textinput.Model, 3)
 
