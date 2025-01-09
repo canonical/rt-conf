@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -171,20 +172,7 @@ func NewModel(c *data.InternalConfig) Model {
 	}
 }
 
-func (m *Model) NextIndex() {
-	m.focusIndex++
-	if m.focusIndex > len(m.inputs) {
-		m.focusIndex = 0
-	}
-}
-
-func (m *Model) PrevIndex() {
-	m.focusIndex--
-	if m.focusIndex == -1 {
-		m.focusIndex = len(m.inputs)
-	}
-}
-
+// TODO: figure out what is wrong with this
 // func (m *Model) updateKcmdlineMenu(msg tea.Msg) tea.Cmd {
 // 	cmds := make([]tea.Cmd, len(m.inputs))
 // 	switch msg := msg.(type) {

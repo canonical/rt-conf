@@ -64,3 +64,19 @@ func (navigator *MenuNavigator) Previous() error {
 	navigator.ParentStack = navigator.ParentStack[:len(navigator.ParentStack)-1]
 	return nil
 }
+
+// ******************** MENU NAVIGATION ********************
+
+func (m *Model) NextIndex() {
+	m.focusIndex++
+	if m.focusIndex > len(m.inputs) {
+		m.focusIndex = 0
+	}
+}
+
+func (m *Model) PrevIndex() {
+	m.focusIndex--
+	if m.focusIndex == -1 {
+		m.focusIndex = len(m.inputs)
+	}
+}
