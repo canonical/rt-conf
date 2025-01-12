@@ -2,7 +2,6 @@ package ui
 
 import (
 	"log"
-	"strconv"
 
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/ui/styles"
@@ -58,7 +57,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, m.keys.Select),
 				key.Matches(msg, m.keys.Up),
 				key.Matches(msg, m.keys.Down):
-				s := msg.String()
+				// s := msg.String()
 				log.Println("focusIndex on Update: ", m.focusIndex)
 
 				isValid := m.Validation()
@@ -66,23 +65,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				// Did the user press enter while the submit button was focused?
 				// If so, exit.
-				if s == "enter" && m.focusIndex == len(m.inputs) {
+				if key.Matches(msg, m.keys.Select) &&
+					m.focusIndex == len(m.inputs) {
+
 					log.Println("Apply changes")
 
 					valid := m.Validation()
 
-					dyntickIdle, err := strconv.ParseBool(m.inputs[enableDynticks].Value())
-					if err != nil {
-						log.Printf("Failed to parse dyntick idle value: %v", err)
+					var dyntickIdle bool
+
+					// TODO: move this away from here
+					if m.inputs[enableDynticks].Value() == "y" || m.inputs[enableDynticks].Value() == "Y" {
+						dyntickIdle = true
+					} else if m.inputs[enableDynticks].Value() == "n" || m.inputs[enableDynticks].Value() == "N" {
+						dyntickIdle = false
+					} else {
+						m.errorMsg = "ERROR: expected Yes or No value (y|n) got: " + m.inputs[enableDynticks].Value()
 						break
 					}
+
 					if !valid {
 						break
 					}
 					// TODO: Improve this logic
 					m.iconf.Data.KernelCmdline.DyntickIdle = dyntickIdle
 					m.iconf.Data.KernelCmdline.IsolCPUs = m.inputs[isolatecpus].Value()
-					m.iconf.Data.KernelCmdline.AdaptiveTicks = m.inputs[enableDynticks].Value()
+					m.iconf.Data.KernelCmdline.AdaptiveTicks = m.inputs[adaptiveCPUs].Value()
 
 					msgs, err := kcmd.ProcessKcmdArgs(&m.iconf)
 					if err != nil {
@@ -104,10 +112,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.focusIndex < len(m.inputs) {
 					log.Println("Value: ", m.inputs[m.focusIndex].Value())
 				}
+
 				// Cycle indexes
-				if s == "up" || s == "shift+tab" {
+				if key.Matches(msg, m.keys.Up) {
 					m.PrevIndex()
-				} else {
+				}
+
+				if key.Matches(msg, m.keys.Down) || key.Matches(msg, m.keys.Select) {
 					m.NextIndex()
 				}
 

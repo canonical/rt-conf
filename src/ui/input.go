@@ -2,7 +2,6 @@ package ui
 
 import (
 	"log"
-	"strconv"
 
 	"github.com/canonical/rt-conf/src/cpu"
 )
@@ -44,12 +43,11 @@ func (m *Model) Validation() bool {
 	// TODO: fetch value from YAML file and SetValue()
 	// m.inputs[m.focusIndex].SetValue(value)
 
-	if value == "" {
-		return false
-	}
-
 	switch m.focusIndex {
 	case isolatecpus, adaptiveCPUs:
+		if value == "" {
+			return true
+		}
 		err = cpu.ValidateList(value, m.iconf.TotalCPUs)
 		log.Println("Isolated CPU List: ", value)
 		if err != nil {
@@ -61,11 +59,28 @@ func (m *Model) Validation() bool {
 		}
 
 	case enableDynticks:
-		dyntickMode, err = strconv.ParseBool(value)
+
+		if value == "" {
+			validationErrors[enableDynticks].err = "ERROR: value cannot be empty\n"
+			validationErrors[enableDynticks].exist = true
+			break
+		}
+		if value == "y" || value == "Y" {
+			value = "true"
+		} else if value == "n" || value == "N" {
+			value = "false"
+		} else {
+			validationErrors[enableDynticks].err =
+				"ERROR: expected Yes or No value (y|n) got: " + value + "\n"
+			validationErrors[enableDynticks].exist = true
+			break
+		}
+
+		// dyntickMode, err = strconv.ParseBool(value)
 		log.Println("Dyntick Mode: ", dyntickMode)
 		if err != nil {
 			validationErrors[enableDynticks].err =
-				"ERROR: expected a boolean value (true|false) got: " +
+				"ERROR: expected Yes or No value (y|n) got: " +
 					value + "\n"
 			validationErrors[enableDynticks].exist = true
 		} else {

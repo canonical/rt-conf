@@ -40,11 +40,11 @@ func newTextInputs() []textinput.Model {
 			t.PromptStyle = styles.FocusedStyle
 			t.TextStyle = styles.FocusedStyle
 		case 1:
-			t.Prompt = "Enable dyntick mode? (y/n) (nohz)> "
-			t.Placeholder = "true"
-			t.CharLimit = 5
+			t.Prompt = "Enable dyntick mode (nohz) [y/n] > "
+			t.Placeholder = "y"
+			t.CharLimit = 1
 		case 2:
-			t.Prompt = "Adaptive ticks CPUs (nohz_full)> "
+			t.Prompt = "Adaptive ticks CPUs (nohz_full) > "
 			t.Placeholder = "2-n"
 			// t.EchoMode = textinput.EchoPassword
 			// t.EchoCharacter = '•'
@@ -97,6 +97,8 @@ func NewModel(c *data.InternalConfig) Model {
 	menuList.Styles.Title = styles.TitleStyle
 	menuList.SetShowStatusBar(false)
 
+	menuList.Help = help.New()
+
 	menuList.AdditionalFullHelpKeys = func() []key.Binding {
 
 		return []key.Binding{
@@ -121,6 +123,7 @@ func NewModel(c *data.InternalConfig) Model {
 		infoMsg:       "Please fill all fields before submit\n",
 		logMsg:        logmsg[:],
 		inputs:        newTextInputs(),
+		help:          help.New(), // TODO: Check need for custom style
 		iconf:         *c,
 		list:          menuList,
 		keys:          listKeys,
