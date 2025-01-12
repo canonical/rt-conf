@@ -5,23 +5,7 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/ui/styles"
-	"github.com/charmbracelet/bubbles/key"
 )
-
-// ShortHelp returns keybindings to be shown in the mini help view. It's part
-// of the key.Map interface.
-func (k listKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.toggleHelpMenu, k.selectMenu}
-}
-
-// FullHelp returns keybindings for the expanded help view. It's part of the
-// key.Map interface.
-func (k listKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.goHome, k.selectMenu}, // first column
-		{k.toggleHelpMenu},       // second column
-	}
-}
 
 func (m Model) kcmdlineView() string {
 	var s string // the view
@@ -113,7 +97,7 @@ func (m Model) View() string {
 	switch m.currMenu {
 	case kcmdlineMenu:
 		if m.renderLog {
-
+			// TODO: Create a [ BACK ] button on the bottom of the view
 			var content string
 			for _, msg := range m.logMsg {
 				content += msg

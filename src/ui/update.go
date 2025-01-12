@@ -13,7 +13,6 @@ import (
 )
 
 // TODO: FOCUS ON THE [ APPLY ] FUNCTIONALITY
-// TODO:
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
@@ -34,18 +33,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Don't match any of the keys below if we're actively filtering.
 
 		if m.currMenu != mainMenu {
-
-			// TODO: Move this logic to a func specific for kcmdlineMenu
-			switch msg.String() {
-			case "ctrl+c", "esc":
+			switch {
+			case key.Matches(msg, m.keys.Quit):
 				return m, tea.Quit
 
-			case "g":
+			case key.Matches(msg, m.keys.goHome):
 				m.currMenu = mainMenu
-				return m, nil
 
-			// Change cursor mode
-			case "ctrl+r":
+			case key.Matches(msg, m.keys.Help):
+				// TODO: Disable text input here
+				m.help.ShowAll = !m.help.ShowAll
+
+			case key.Matches(msg, m.keys.CursorMode):
 				m.cursorMode++
 				if m.cursorMode > cursor.CursorHide {
 					m.cursorMode = cursor.CursorBlink
@@ -56,10 +55,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				return m, tea.Batch(cmds...)
 
-			// Set focus to next input
-			case "tab", "shift+tab", "enter", "up", "down":
+			case key.Matches(msg, m.keys.Select),
+				key.Matches(msg, m.keys.Up),
+				key.Matches(msg, m.keys.Down):
 				s := msg.String()
-
 				log.Println("focusIndex on Update: ", m.focusIndex)
 
 				isValid := m.Validation()
@@ -105,7 +104,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.focusIndex < len(m.inputs) {
 					log.Println("Value: ", m.inputs[m.focusIndex].Value())
 				}
-
 				// Cycle indexes
 				if s == "up" || s == "shift+tab" {
 					m.PrevIndex()
@@ -135,6 +133,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				return m, tea.Batch(cmds...)
+
 			}
 		}
 	}
@@ -143,9 +142,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmdInput = m.updateInputs(msg)
 	newListModel, cmd := m.list.Update(msg)
 	m.list = newListModel
-	cmds = append(cmds, cmd)
-	cmds = append(cmds, cmdInput)
-	cmds = append(cmds, cmdMainMenu)
+	cmds = append(cmds, cmd, cmdInput, cmdMainMenu)
 
 	return m, tea.Batch(cmds...)
 }
@@ -161,14 +158,10 @@ func (m *Model) updateMainMenu(msg tea.Msg) tea.Cmd {
 				break
 			}
 			switch {
-			case key.Matches(msg, m.keys.toggleSpinner):
-				cmd := m.list.ToggleSpinner()
-				cmds = append(cmds, cmd)
-
 			case key.Matches(msg, m.keys.goHome):
 				m.currMenu = mainMenu
 
-			case key.Matches(msg, m.keys.selectMenu):
+			case key.Matches(msg, m.keys.Select):
 				selected := m.list.SelectedItem().(item)
 
 				// TODO: Improve this selection logic
@@ -182,7 +175,7 @@ func (m *Model) updateMainMenu(msg tea.Msg) tea.Cmd {
 					m.currMenu = irqAffinityMenu
 				}
 
-			case key.Matches(msg, m.keys.toggleHelpMenu):
+			case key.Matches(msg, m.keys.Help):
 				m.list.SetShowHelp(!m.list.ShowHelp())
 				// return m, nil
 			}
