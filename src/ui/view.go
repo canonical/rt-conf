@@ -65,8 +65,6 @@ func (m Model) kcmdlineView() string {
 		height = 1
 	}
 
-	bottom := helpView
-
 	s +=
 		title +
 			"\n\n" +
@@ -74,11 +72,12 @@ func (m Model) kcmdlineView() string {
 			strings.Repeat("\n", height) +
 			// logMessageStyle(m.logMsg) +
 			"\n" +
-			styles.InfoMessageStyle(m.infoMsg) +
+			// styles.InfoMessageStyle(m.infoMsg) +
+			"\n" +
 			"\n" +
 			styles.ErrorMessageStyle(m.errorMsg) +
 			strings.Repeat("\n", height) +
-			bottom
+			helpView
 	return s
 }
 
