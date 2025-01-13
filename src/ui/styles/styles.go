@@ -119,7 +119,6 @@ var (
 	FocusedStyle = lipgloss.
 			NewStyle().
 			Foreground(lipgloss.Color(StrongOrange))
-		// Padding(0, 1)
 
 	BlurredStyle = lipgloss.
 			NewStyle().
@@ -130,6 +129,28 @@ var (
 	HelpStyle           = BlurredStyle
 	CursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
 
-	FocusedButton = FocusedStyle.Render("[ Apply ]")
-	BlurredButton = fmt.Sprintf("[ %s ]", BlurredStyle.Render("Apply"))
+	ButtonPadding = []int{0, 2, 0, 0}
+
+	// TODO: refactor this in to be scalable (Is there a more scalable way?)
+	FocusedBackButton = FocusedStyle.Padding(ButtonPadding...).
+				Render("[ Back ]")
+
+	BlurredBackButton = lipgloss.NewStyle().
+				Padding(ButtonPadding...).
+				Render(
+			fmt.Sprintf("[ %s ]",
+				BlurredStyle.Render("Back"),
+			),
+		)
+
+	FocusedApplyButton = FocusedStyle.Padding(ButtonPadding...).
+				Render("[ Apply ]")
+
+	BlurredApplyButton = lipgloss.NewStyle().
+				Padding(ButtonPadding...).
+				Render(
+			fmt.Sprintf("[ %s ]",
+				BlurredStyle.Render("Apply"),
+			),
+		)
 )

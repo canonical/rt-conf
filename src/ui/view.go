@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/styles"
 )
 
@@ -22,18 +23,33 @@ func (m Model) kcmdlineView() string {
 		}
 	}
 
-	button := &styles.BlurredButton
+	apply_button := cmp.NewButton("Apply")
+	back_button := cmp.NewButton("Back")
+	apply_button.SetBlurred()
+	back_button.SetBlurred()
+
+	// TODO: add space between the [ Apply ] and [ Back ] buttons
 	if m.focusIndex == len(m.inputs) {
-		button = &styles.FocusedButton
+		apply_button.SetFocused()
+		back_button.SetBlurred()
+
+	} else if m.focusIndex == len(m.inputs)+1 {
+		apply_button.SetBlurred()
+		back_button.SetFocused()
 	}
 
-	// [ Apply ] button
-	fmt.Fprintf(&b, "\n\n%s\n\n", *button)
+	// [ Back ] [ Apply ] buttons
+	fmt.Fprintf(&b, "\n\n%s\n\n",
+		styles.JoinHorizontal(
+			back_button.Render(),
+			apply_button.Render(),
+		))
 
-	// Cursor mode message
-	b.WriteString(styles.HelpStyle.Render("cursor mode is "))
-	b.WriteString(styles.CursorModeHelpStyle.Render(m.cursorMode.String()))
-	b.WriteString(styles.HelpStyle.Render(" (ctrl+r to change style)"))
+	// Cursor mode message //TODO: MAYBE use this to display info
+	// b.WriteString(styles.HelpStyle.Render("cursor mode is "))
+	// b.WriteString(styles.CursorModeHelpStyle.Render(m.cursorMode.String()))
+	// b.WriteString(styles.HelpStyle.Render(" (ctrl+r to change style)"))
+
 	body := b.String()
 	// TODO: Adding padding to the bottom and top of [body] and remove new lines
 
@@ -95,8 +111,14 @@ func (m Model) irqAffinityView() string {
 func (m Model) View() string {
 	switch m.currMenu {
 	case kcmdlineMenu:
+
+		// TODO: move this to a separate function
 		if m.renderLog {
-			// TODO: Create a [ BACK ] button on the bottom of the view
+			back_button := cmp.FocusedButton("Back")
+
+			m.logMsg = append(m.logMsg, "\n")
+			m.logMsg = append(m.logMsg, back_button)
+
 			var content string
 			for _, msg := range m.logMsg {
 				content += msg
@@ -113,8 +135,6 @@ func (m Model) View() string {
 			return styles.CenteredSquareWithText(
 				m.width, m.height, max, len(m.logMsg), content)
 		}
-		// TODO: check for the [ apply ] button then show a clean view
-		// to show the needed actions from the user
 		return styles.AppStyle.Render(m.kcmdlineView())
 	case irqAffinityMenu:
 		return styles.AppStyle.Render(m.irqAffinityView())

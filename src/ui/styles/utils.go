@@ -2,6 +2,10 @@ package styles
 
 import "github.com/charmbracelet/lipgloss"
 
+func JoinHorizontal(left, right *string) string {
+	return lipgloss.JoinHorizontal(lipgloss.Top, *left, *right)
+}
+
 func CenteredSquareWithText(
 	appWidth, appHeight, textWidth, textHeight int,
 	content string) string {

@@ -63,8 +63,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// s := msg.String()
 				log.Println("focusIndex on Update: ", m.focusIndex)
 
+				// Validate the inputs
 				isValid := m.Validation()
 				log.Println("isValid: ", isValid)
+
+				// Handle [ Back ] button
+				if m.focusIndex == len(m.inputs)+1 &&
+					key.Matches(msg, m.keys.Select) {
+					m.currMenu = mainMenu
+				}
+
+				/* If the user press enter on the log view,
+				go back to the previous menu */
+				if m.renderLog && key.Matches(msg, m.keys.Select) {
+					m.renderLog = false
+					m.currMenu = kcmdlineMenu
+				}
 
 				// Did the user press enter while the submit button was focused?
 				// If so, exit.
