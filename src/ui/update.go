@@ -125,12 +125,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.NextIndex()
 				}
 
-				// if m.focusIndex > len(m.inputs) {
-				// 	m.focusIndex = 0
-				// } else if m.focusIndex < 0 {
-				// 	m.focusIndex = len(m.inputs)
-				// }
-
 				cmds := make([]tea.Cmd, len(m.inputs))
 				for i := 0; i <= len(m.inputs)-1; i++ {
 					if i == m.focusIndex {
