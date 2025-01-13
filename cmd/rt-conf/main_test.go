@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/kcmd"
 )
@@ -53,15 +54,18 @@ func TestInjectToFile(t *testing.T) {
 	fmt.Printf("tempConfigPath: %s\n", tempConfigPath)
 	fmt.Printf("tempGrubPath: %s\n", tempGrubPath)
 
-	conf, err := helpers.LoadConfigFile(tempConfigPath, tempGrubPath)
-	if err != nil {
-		t.Fatalf("LoadConfigFile failed: %v", err)
+	var err error
+	conf := *data.NewInternCfg()
+	if d, err := helpers.LoadConfigFile(tempConfigPath); err != nil {
+		t.Fatalf("Failed to load config file: %v", err)
+	} else {
+		conf.Data = *d
 	}
 
 	// Run the InjectToFile method
-	err = kcmd.ProcessKcmdArgs(&conf)
+	_, err = kcmd.ProcessKcmdArgs(&conf) // TODO: Fix this failing step
 	if err != nil {
-		t.Fatalf("InjectToFile failed: %v", err)
+		t.Fatalf("ProcessKcmdArgs failed: %v", err)
 	}
 
 	// Verify default-grub updates
