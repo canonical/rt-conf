@@ -61,7 +61,8 @@ func (m *Model) Validation() bool {
 	case enableDynticks:
 
 		if value == "" {
-			validationErrors[enableDynticks].err = "ERROR: value cannot be empty\n"
+			validationErrors[enableDynticks].err =
+				"ERROR: (nohz) value cannot be empty, expected: y or n\n"
 			validationErrors[enableDynticks].exist = true
 			break
 		}
