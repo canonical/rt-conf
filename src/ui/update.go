@@ -40,8 +40,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currMenu = mainMenu
 
 			case key.Matches(msg, m.keys.Help):
-				// TODO: Disable text input here
+				// Once detected the key "?" toggle the help message
+				// but first disable the text input
+				m.inputs[m.focusIndex].Blur()
 				m.help.ShowAll = !m.help.ShowAll
+				return m, m.inputs[m.focusIndex].Focus()
 
 			case key.Matches(msg, m.keys.CursorMode):
 				m.cursorMode++
