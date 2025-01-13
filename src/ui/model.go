@@ -35,12 +35,16 @@ func newTextInputs() []textinput.Model {
 		switch i {
 		case 0:
 			t.Prompt = "Isolate CPUs from general execution (isolcpus) > "
-			t.Placeholder = "a CPU list like: 4-n or 3-5"
+			/* The placeholder is necessary only in the first, because the
+			dynamic placeholders start to work after the first
+			move of the cursor */
+			// TODO: investigate the dynamic placeholder refresh
+			t.Placeholder = firstPlaceholder
 			t.Focus()
 			t.PromptStyle = styles.FocusedStyle
 			t.TextStyle = styles.FocusedStyle
 		case 1:
-			t.Prompt = "Enable dyntick mode (nohz) [y/n] > "
+			t.Prompt = "Enable dyntick mode (nohz) > "
 			// t.Placeholder = "y"
 			t.CharLimit = 1
 		case 2:
@@ -129,6 +133,7 @@ func NewModel(c *data.InternalConfig) Model {
 		keys:          listKeys,
 		delegateKeys:  delegateKeys,
 		itemGenerator: &menuOpts,
+		cursorMode:    cursor.CursorBlink,
 	}
 }
 

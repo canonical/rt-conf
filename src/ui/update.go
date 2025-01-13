@@ -5,16 +5,15 @@ import (
 
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/ui/styles"
-	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// TODO: FOCUS ON THE [ APPLY ] FUNCTIONALITY
+const firstPlaceholder = "a CPU list like: 4-n or 3-5"
 
 var placeholders_text = []string{
-	"a CPU list like: 4-n or 3-5",
+	firstPlaceholder,
 	"y or n",
 	"a CPU list like: 4-n or 3-5 or 2,4,5 ",
 }
@@ -57,17 +56,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					cmd = m.inputs[m.focusIndex].Focus()
 				}
 				return m, cmd
-
-			case key.Matches(msg, m.keys.CursorMode):
-				m.cursorMode++
-				if m.cursorMode > cursor.CursorHide {
-					m.cursorMode = cursor.CursorBlink
-				}
-				cmds := make([]tea.Cmd, len(m.inputs))
-				for i := range m.inputs {
-					cmds[i] = m.inputs[i].Cursor.SetMode(m.cursorMode)
-				}
-				return m, tea.Batch(cmds...)
 
 			case key.Matches(msg, m.keys.Select),
 				key.Matches(msg, m.keys.Up),
