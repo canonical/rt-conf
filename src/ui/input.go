@@ -42,12 +42,12 @@ func (m *Model) Validation() bool {
 
 	// TODO: fetch value from YAML file and SetValue()
 	// m.inputs[m.focusIndex].SetValue(value)
+	if value == "" {
+		return true
+	}
 
 	switch m.focusIndex {
 	case isolatecpus, adaptiveCPUs:
-		if value == "" {
-			return true
-		}
 		err = cpu.ValidateList(value, m.iconf.TotalCPUs)
 		log.Println("Isolated CPU List: ", value)
 		if err != nil {
@@ -60,12 +60,6 @@ func (m *Model) Validation() bool {
 
 	case enableDynticks:
 
-		if value == "" {
-			validationErrors[enableDynticks].err =
-				"ERROR: (nohz) value cannot be empty, expected: y or n\n"
-			validationErrors[enableDynticks].exist = true
-			break
-		}
 		if value == "y" || value == "Y" {
 			value = "true"
 		} else if value == "n" || value == "N" {

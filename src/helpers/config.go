@@ -37,7 +37,6 @@ func TranslateConfig(cfg *data.Config) []string {
 		result = append(result, Parameters[0].TransformFn(cfg.KernelCmdline.IsolCPUs))
 	}
 
-	// TODO: Make this optional
 	result = append(result, Parameters[1].TransformFn(cfg.KernelCmdline.DyntickIdle))
 
 	if cfg.KernelCmdline.AdaptiveTicks != "" {

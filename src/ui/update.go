@@ -87,23 +87,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					valid := m.Validation()
 
-					var dyntickIdle bool
-
 					// TODO: move this away from here
 					if m.inputs[enableDynticks].Value() == "y" || m.inputs[enableDynticks].Value() == "Y" {
-						dyntickIdle = true
+						m.iconf.Data.KernelCmdline.DyntickIdle = true
 					} else if m.inputs[enableDynticks].Value() == "n" || m.inputs[enableDynticks].Value() == "N" {
-						dyntickIdle = false
+						m.iconf.Data.KernelCmdline.DyntickIdle = false
 					} else {
-						m.errorMsg = "ERROR: expected Yes or No value (y|n) got: " + m.inputs[enableDynticks].Value()
-						break
+						// m.errorMsg = "ERROR: expected Yes or No value (y|n) got: " +
+						// 	m.inputs[enableDynticks].Value()
 					}
 
 					if !valid {
 						break
 					}
 					// TODO: Improve this logic
-					m.iconf.Data.KernelCmdline.DyntickIdle = dyntickIdle
+
 					m.iconf.Data.KernelCmdline.IsolCPUs = m.inputs[isolatecpus].Value()
 					m.iconf.Data.KernelCmdline.AdaptiveTicks = m.inputs[adaptiveCPUs].Value()
 
