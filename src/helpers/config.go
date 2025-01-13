@@ -30,13 +30,14 @@ func LoadConfigFile(confPath string) (*data.Config, error) {
 }
 
 // translateConfig translates YAML configuration into kernel command-line parameters.
-func TranslateConfig(cfg data.Config) []string {
+func TranslateConfig(cfg *data.Config) []string {
 	var result []string
 
 	if cfg.KernelCmdline.IsolCPUs != "" {
 		result = append(result, Parameters[0].TransformFn(cfg.KernelCmdline.IsolCPUs))
 	}
 
+	// TODO: Make this optional
 	result = append(result, Parameters[1].TransformFn(cfg.KernelCmdline.DyntickIdle))
 
 	if cfg.KernelCmdline.AdaptiveTicks != "" {

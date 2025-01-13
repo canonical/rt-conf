@@ -65,7 +65,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,
 		Pattern:  cfg.GrubDefault.Pattern,
-		Params:   helpers.TranslateConfig(cfg.Data),
+		Params:   helpers.TranslateConfig(&cfg.Data),
 	}
 
 	if err := helpers.ProcessFile(grubDefault); err != nil {
