@@ -13,6 +13,12 @@ import (
 
 // TODO: FOCUS ON THE [ APPLY ] FUNCTIONALITY
 
+var placeholders_text = []string{
+	"a CPU list like: 4-n or 3-5",
+	"y or n",
+	"a CPU list like: 4-n or 3-5 or 2,4,5 ",
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmdInput tea.Cmd
@@ -42,9 +48,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, m.keys.Help):
 				// Once detected the key "?" toggle the help message
 				// but first disable the text input
-				m.inputs[m.focusIndex].Blur()
+				var cmd tea.Cmd
+				if m.focusIndex < len(m.inputs) {
+					m.inputs[m.focusIndex].Blur()
+				}
 				m.help.ShowAll = !m.help.ShowAll
-				return m, m.inputs[m.focusIndex].Focus()
+				if m.focusIndex < len(m.inputs) {
+					cmd = m.inputs[m.focusIndex].Focus()
+				}
+				return m, cmd
 
 			case key.Matches(msg, m.keys.CursorMode):
 				m.cursorMode++
@@ -132,12 +144,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						cmds[i] = m.inputs[i].Focus()
 						m.inputs[i].PromptStyle = styles.FocusedStyle
 						m.inputs[i].TextStyle = styles.FocusedStyle
+						m.inputs[i].Placeholder = placeholders_text[i]
 						continue
 					}
 					// Remove focused state
 					m.inputs[i].Blur()
 					m.inputs[i].PromptStyle = styles.NoStyle
 					m.inputs[i].TextStyle = styles.NoStyle
+					m.inputs[i].Placeholder = ""
 				}
 
 				return m, tea.Batch(cmds...)

@@ -35,17 +35,17 @@ func newTextInputs() []textinput.Model {
 		switch i {
 		case 0:
 			t.Prompt = "Isolate CPUs from general execution (isolcpus) > "
-			t.Placeholder = "2-n"
+			t.Placeholder = "a CPU list like: 4-n or 3-5"
 			t.Focus()
 			t.PromptStyle = styles.FocusedStyle
 			t.TextStyle = styles.FocusedStyle
 		case 1:
 			t.Prompt = "Enable dyntick mode (nohz) [y/n] > "
-			t.Placeholder = "y"
+			// t.Placeholder = "y"
 			t.CharLimit = 1
 		case 2:
 			t.Prompt = "Adaptive ticks CPUs (nohz_full) > "
-			t.Placeholder = "2-n"
+			// t.Placeholder = "2-n"
 			// t.EchoMode = textinput.EchoPassword
 			// t.EchoCharacter = '•'
 		}
