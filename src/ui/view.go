@@ -56,6 +56,7 @@ func (m Model) kcmdlineView() string {
 	// The help view
 	helpView := m.help.View(m.keys)
 
+	// TODO: fix this mess
 	height := (m.height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -

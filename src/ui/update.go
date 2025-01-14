@@ -80,8 +80,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.currMenu = kcmdlineMenu
 				}
 
-				// Did the user press enter while the submit button was focused?
-				// If so, exit.
+				// Did the user press enter while the apply button was focused?
+				// TODO: improve mapping of len(m.inputs) to the apply button
 				if key.Matches(msg, m.keys.Select) &&
 					m.focusIndex == len(m.inputs) {
 
@@ -94,9 +94,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.iconf.Data.KernelCmdline.DyntickIdle = true
 					} else if m.inputs[enableDynticks].Value() == "n" || m.inputs[enableDynticks].Value() == "N" {
 						m.iconf.Data.KernelCmdline.DyntickIdle = false
-					} else {
-						// m.errorMsg = "ERROR: expected Yes or No value (y|n) got: " +
-						// 	m.inputs[enableDynticks].Value()
 					}
 
 					if !valid {
@@ -120,7 +117,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// TODO: this needs to return a tea.Cmd (or maybe not)
 
 					// TODO: Apply the changes call the kcmdline funcs
-					// TODO: Present a new view (maybe a new block with text)
 				}
 
 				log.Println("Focus index is: ", m.focusIndex)

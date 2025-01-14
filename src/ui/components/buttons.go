@@ -29,7 +29,6 @@ func (b *Button) Render() *string {
 	return &b.button
 }
 
-// BlurredButton returns a blurred button
 func BlurredButton(text string) string {
 	s := lipgloss.NewStyle().
 		Padding(styles.ButtonPadding...).
@@ -41,7 +40,6 @@ func BlurredButton(text string) string {
 	return s
 }
 
-// FocusedButton returns a focused button
 func FocusedButton(text string) string {
 	s := styles.FocusedStyle.
 		Padding(styles.ButtonPadding...).
