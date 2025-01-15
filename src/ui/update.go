@@ -10,6 +10,25 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// TODO: The values of kcmdline menu should come from the YAML file
+
+// TODO: Improve navigation on kcmdline menu.
+// * NOTE: For now, the kcmdline menu navigation is shared between components
+// * that are part of a multiple text input form and two buttons.
+// * The indexing is done by the focusIndex variable, which is incremented or
+// * decremented by the NextIndex() and PrevIndex() functions.
+// * But once it's needed to apply functions specific  to the text inputs, the
+// * it's necessary to check everytime for overflow and underflow of the
+// * focusIndex
+
+const (
+	isolcpusIndex = iota
+	nohzIndex
+	nohzFullIndex
+	applyButtonIndex
+	backButtonIndex
+)
+
 const firstPlaceholder = "a CPU list like: 4-n or 3-5"
 
 var placeholders_text = []string{
