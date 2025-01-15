@@ -108,13 +108,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					valid := m.Validation()
 
-					// TODO: move this away from here
-					if m.inputs[enableDynticks].Value() == "y" || m.inputs[enableDynticks].Value() == "Y" {
-						m.iconf.Data.KernelCmdline.DyntickIdle = true
-					} else if m.inputs[enableDynticks].Value() == "n" || m.inputs[enableDynticks].Value() == "N" {
-						m.iconf.Data.KernelCmdline.DyntickIdle = false
-					}
-
 					if !valid {
 						break
 					}
