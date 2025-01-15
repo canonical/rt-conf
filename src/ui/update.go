@@ -67,11 +67,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Once detected the key "?" toggle the help message
 				// but first disable the text input
 				var cmd tea.Cmd
-				if m.focusIndex < len(m.inputs) {
+
+				/* Checking for overflow since the apply button isn't a
+				text input */
+				if m.focusIndex < applyButtonIndex {
 					m.inputs[m.focusIndex].Blur()
 				}
 				m.help.ShowAll = !m.help.ShowAll
-				if m.focusIndex < len(m.inputs) {
+
+				if m.focusIndex < applyButtonIndex {
 					cmd = m.inputs[m.focusIndex].Focus()
 				}
 				return m, cmd
@@ -87,7 +91,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				log.Println("isValid: ", isValid)
 
 				// Handle [ Back ] button
-				if m.focusIndex == len(m.inputs)+1 &&
+				if m.focusIndex == backButtonIndex &&
 					key.Matches(msg, m.keys.Select) {
 					m.currMenu = mainMenu
 				}
@@ -111,14 +115,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if !valid {
 						break
 					}
-					// TODO: Improve this logic
 
-					m.iconf.Data.KernelCmdline.IsolCPUs = m.inputs[isolatecpus].Value()
-					m.iconf.Data.KernelCmdline.AdaptiveTicks = m.inputs[adaptiveCPUs].Value()
+					// TODO: Improve this logic
+					m.iconf.Data.KernelCmdline.IsolCPUs =
+						m.inputs[isolcpusIndex].Value()
+
+					m.iconf.Data.KernelCmdline.AdaptiveTicks =
+						m.inputs[nohzFullIndex].Value()
 
 					msgs, err := kcmd.ProcessKcmdArgs(&m.iconf)
 					if err != nil {
-						m.errorMsg = "Failed to process kernel cmdline args: " + err.Error()
+						m.errorMsg = "Failed to process kernel cmdline args: " +
+							err.Error()
 						break
 					}
 					m.infoMsg = "\n" // Doesn't show the info message
@@ -141,7 +149,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.PrevIndex()
 				}
 
-				if key.Matches(msg, m.keys.Down) || key.Matches(msg, m.keys.Select) {
+				if key.Matches(msg, m.keys.Down) ||
+					key.Matches(msg, m.keys.Select) {
 					m.NextIndex()
 				}
 
@@ -221,8 +230,8 @@ func (m *Model) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, len(m.inputs))
 
 	if m.currMenu == kcmdlineMenu {
-		// Only text inputs with Focus() set will respond, so it's safe to simply
-		// update all of them here without any further logic.
+		// Only text inputs with Focus() set will respond, so it's safe
+		// to simply update all of them here without any further logic.
 		for i := range m.inputs {
 			m.inputs[i], cmds[i] = m.inputs[i].Update(msg)
 		}

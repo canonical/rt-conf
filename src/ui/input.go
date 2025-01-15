@@ -6,21 +6,15 @@ import (
 	"github.com/canonical/rt-conf/src/cpu"
 )
 
-const (
-	isolatecpus = iota
-	enableDynticks
-	adaptiveCPUs
-)
-
 type ErrValidation struct {
 	err   string
 	exist bool
 }
 
 var validationErrors = []ErrValidation{
-	isolatecpus:    {err: "\n", exist: false},
-	enableDynticks: {err: "\n", exist: false},
-	adaptiveCPUs:   {err: "\n", exist: false},
+	isolcpusIndex: {err: "\n", exist: false},
+	nohzIndex:     {err: "\n", exist: false},
+	nohzFullIndex: {err: "\n", exist: false},
 }
 
 // TODO: Think in a way to handle if the user wants empty values
@@ -47,7 +41,7 @@ func (m *Model) Validation() bool {
 	}
 
 	switch m.focusIndex {
-	case isolatecpus, adaptiveCPUs:
+	case isolcpusIndex, nohzFullIndex:
 		err = cpu.ValidateList(value, m.iconf.TotalCPUs)
 		log.Println("Isolated CPU List: ", value)
 		if err != nil {
@@ -58,30 +52,31 @@ func (m *Model) Validation() bool {
 			validationErrors[m.focusIndex].exist = false
 		}
 
-	case enableDynticks:
+	case nohzIndex:
 
 		if value == "y" || value == "Y" {
 			value = "true"
 		} else if value == "n" || value == "N" {
 			value = "false"
 		} else {
-			validationErrors[enableDynticks].err =
+			validationErrors[nohzIndex].err =
 				"ERROR: expected Yes or No value (y|n) got: " + value + "\n"
-			validationErrors[enableDynticks].exist = true
+			validationErrors[nohzIndex].exist = true
 			break
 		}
 
-		// dyntickMode, err = strconv.ParseBool(value)
 		log.Println("Dyntick Mode: ", dyntickMode)
 		if err != nil {
-			validationErrors[enableDynticks].err =
+			validationErrors[nohzIndex].err =
 				"ERROR: expected Yes or No value (y|n) got: " +
 					value + "\n"
-			validationErrors[enableDynticks].exist = true
+			validationErrors[nohzIndex].exist = true
 		} else {
-			validationErrors[enableDynticks].err = "\n"
-			validationErrors[enableDynticks].exist = false
+			validationErrors[nohzIndex].err = "\n"
+			validationErrors[nohzIndex].exist = false
 		}
+	default:
+		break
 
 	}
 
