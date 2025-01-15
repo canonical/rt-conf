@@ -45,13 +45,9 @@ func newTextInputs() []textinput.Model {
 			t.TextStyle = styles.FocusedStyle
 		case 1:
 			t.Prompt = "Enable dyntick mode (nohz) > "
-			// t.Placeholder = "y"
 			t.CharLimit = 1
 		case 2:
 			t.Prompt = "Adaptive ticks CPUs (nohz_full) > "
-			// t.Placeholder = "2-n"
-			// t.EchoMode = textinput.EchoPassword
-			// t.EchoCharacter = '•'
 		}
 
 		m[i] = t
@@ -106,10 +102,6 @@ func NewModel(c *data.InternalConfig) Model {
 	menuList.AdditionalFullHelpKeys = func() []key.Binding {
 
 		return []key.Binding{
-			// listKeys.toggleSpinner,
-			// listKeys.insertItem,
-			// listKeys.toggleTitleBar,
-			// listKeys.togglePagination,
 			listKeys.goHome,
 			listKeys.Help,
 		}
@@ -127,7 +119,7 @@ func NewModel(c *data.InternalConfig) Model {
 		infoMsg:       "Please fill all fields before submit\n",
 		logMsg:        logmsg[:],
 		inputs:        newTextInputs(),
-		help:          help.New(), // TODO: Check need for custom style
+		help:          help.New(), // TODO: Check NEED for custom style
 		iconf:         *c,
 		list:          menuList,
 		keys:          listKeys,
@@ -138,6 +130,7 @@ func NewModel(c *data.InternalConfig) Model {
 }
 
 // TODO: figure out what is wrong with this
+// * NOTE: For some reason this update function isn't working properlly *
 // func (m *Model) updateKcmdlineMenu(msg tea.Msg) tea.Cmd {
 // 	cmds := make([]tea.Cmd, len(m.inputs))
 // 	switch msg := msg.(type) {
