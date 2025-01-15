@@ -37,7 +37,7 @@ func newTextInputs() []textinput.Model {
 			t.Prompt = "Isolate CPUs from general execution (isolcpus) > "
 			/* The placeholder is necessary only in the first, because the
 			dynamic placeholders start to work after the first
-			move of the cursor */
+			move of the cursor (either to up or down) */
 			// TODO: investigate the dynamic placeholder refresh
 			t.Placeholder = firstPlaceholder
 			t.Focus()
