@@ -68,8 +68,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// but first disable the text input
 				var cmd tea.Cmd
 
-				/* Checking for overflow since the apply button isn't a
-				text input */
+				// Checking for overflow since the buttons aren't text inputs
 				if m.focusIndex < applyButtonIndex {
 					m.inputs[m.focusIndex].Blur()
 				}
