@@ -110,7 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					log.Println("Apply changes")
 
-					valid := m.Validation()
+					valid := m.AreValidInputs()
 
 					if !valid {
 						break
