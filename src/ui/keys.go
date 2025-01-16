@@ -29,19 +29,6 @@ func (k listKeyMap) ShortHelp() []key.Binding {
 
 func newListKeyMap() *listKeyMap {
 	return &listKeyMap{
-		// insertItem: key.NewBinding(
-		// 	key.WithKeys("a"),
-		// 	key.WithHelp("a", "add item"),
-		// ),
-		// toggleTitleBar: key.NewBinding(
-		// 	key.WithKeys("T"),
-		// 	key.WithHelp("T", "toggle title"),
-		// ),
-
-		CursorMode: key.NewBinding(
-			key.WithKeys("ctrl+r"),
-			key.WithHelp("ctrl+r", "toggle cursor mode"),
-		),
 
 		Up: key.NewBinding(
 			key.WithKeys("up", "k"),
@@ -63,14 +50,6 @@ func newListKeyMap() *listKeyMap {
 			key.WithKeys("q", "ctl+c"),
 			key.WithHelp("q/ctrl+c", "quit"),
 		),
-		// toggleSpinner: key.NewBinding(
-		// 	key.WithKeys("s"),
-		// 	key.WithHelp("s", "toggle spinner"),
-		// ),
-		// togglePagination: key.NewBinding(
-		// 	key.WithKeys("P"),
-		// 	key.WithHelp("P", "toggle pagination"),
-		// ),
 		Help: key.NewBinding(
 			key.WithKeys("?"),
 			key.WithHelp("?", "toggle help"),
