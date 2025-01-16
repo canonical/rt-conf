@@ -4,12 +4,6 @@ import (
 	"fmt"
 )
 
-// NOTE: THESE MESSAGES MUST ALWAYS BE THE SAME NUMBER OF LINES SO IT DOESN'T
-// BROKE THE TUI
-
-const lineNums = 6
-
-// NOTE: These messages should be serialized into a struct/json for future use of TUI app
 func GrubConclusion() []string {
 	s := []string{
 		"\n",                   // 1
@@ -18,9 +12,6 @@ func GrubConclusion() []string {
 		"\tsudo update-grub\n", // 4
 		"\n",                   // 5
 		"to apply the changes to your bootloader.\n", // 6
-	}
-	if len(s) != lineNums {
-		panic("GrubConclusion: invalid number of lines")
 	}
 	return s
 }
@@ -39,8 +30,5 @@ func RpiConclusion(cmdline []string) []string {
 	s = append(s, fmt.Sprintf("%s\n", kcmdline)) // 5
 	s = append(s, "\n")                          // 6
 
-	if len(s) != lineNums {
-		panic("RpiConclusion: invalid number of lines")
-	}
 	return s
 }
