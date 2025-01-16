@@ -117,13 +117,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 
 					// TODO: Improve this logic
-					m.iconf.Data.KernelCmdline.IsolCPUs =
+
+					m.iConf.Data.KernelCmdline.IsolCPUs =
 						m.inputs[isolcpusIndex].Value()
 
-					m.iconf.Data.KernelCmdline.AdaptiveTicks =
+					m.iConf.Data.KernelCmdline.AdaptiveTicks =
 						m.inputs[nohzFullIndex].Value()
 
-					msgs, err := kcmd.ProcessKcmdArgs(&m.iconf)
+					msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
 					if err != nil {
 						m.errorMsg = "Failed to process kernel cmdline args: " +
 							err.Error()

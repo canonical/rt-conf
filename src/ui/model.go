@@ -64,7 +64,7 @@ type Model struct {
 	delegateKeys  *selectKeyMap
 	width         int
 	height        int
-	iconf         data.InternalConfig
+	iConf         data.InternalConfig
 	inputs        []textinput.Model
 	focusIndex    int
 	cursorMode    cursor.Mode
@@ -120,7 +120,7 @@ func NewModel(c *data.InternalConfig) Model {
 		logMsg:        logmsg[:],
 		inputs:        newTextInputs(),
 		help:          help.New(), // TODO: Check NEED for custom style
-		iconf:         *c,
+		iConf:         *c,
 		list:          menuList,
 		keys:          listKeys,
 		delegateKeys:  delegateKeys,

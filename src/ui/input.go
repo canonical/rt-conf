@@ -57,7 +57,7 @@ func (m *Model) checkInputs(value string) {
 
 	switch m.focusIndex {
 	case isolcpusIndex, nohzFullIndex:
-		err = cpu.ValidateList(value, m.iconf.TotalCPUs)
+		err = cpu.ValidateList(value, m.iConf.TotalCPUs)
 		log.Println("Isolated CPU List: ", value)
 		if err != nil {
 			validationErrors[m.focusIndex].err = "ERROR: " + err.Error() + "\n"
