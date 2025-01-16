@@ -63,8 +63,6 @@ var (
 	AppStyle = lipgloss.
 			NewStyle().
 			Padding(1, 2)
-		// Foreground(lipgloss.Color("#ED3146"))
-		//Foreground(lipgloss.Color("#2D3748"))
 
 	TitleStyle = lipgloss.
 			NewStyle().
@@ -73,14 +71,6 @@ var (
 			Padding(0, 1).
 			Bold(true)
 
-	// statusMessageStyle = lipgloss.NewStyle().
-	// 			Foreground(
-	// 		lipgloss.AdaptiveColor{
-	// 			Light: green,
-	// 			Dark:  green,
-	// 		},
-	// 	).
-	// 	Render
 	InfoMessageStyle = lipgloss.NewStyle().
 				Foreground(
 			lipgloss.AdaptiveColor{

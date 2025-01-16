@@ -14,7 +14,6 @@ import (
 
 func (m Model) kcmdlineView() string {
 	var s string // the view
-	// m.infoMsg = "\n"
 
 	title := styles.InnerMenuStyle("Configuring Kernel Cmdline Parameters")
 
@@ -49,15 +48,9 @@ func (m Model) kcmdlineView() string {
 			apply_button.Render(),
 		))
 
-	// Cursor mode message //TODO: MAYBE use this to display info
-	// b.WriteString(styles.HelpStyle.Render("cursor mode is "))
-	// b.WriteString(styles.CursorModeHelpStyle.Render(m.cursorMode.String()))
-	// b.WriteString(styles.HelpStyle.Render(" (ctrl+r to change style)"))
-
 	body := b.String()
 	// TODO: Adding padding to the bottom and top of [body] and remove new lines
 
-	// The help view
 	helpView := m.help.View(m.keys)
 
 	// TODO: fix this mess

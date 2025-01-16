@@ -10,7 +10,6 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
-// TODO: Refact this HORRIBLE code
 // TODO: Fix menu navigation
 // TODO: Fix inner menu help view
 

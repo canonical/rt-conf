@@ -99,7 +99,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.focusIndex = applyButtonIndex
 				}
 
-				// s := msg.String()
 				log.Println("focusIndex on Update: ", m.focusIndex)
 
 				// Validate the inputs
