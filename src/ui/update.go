@@ -117,6 +117,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 
 					// TODO: Improve this logic
+					nohzVal := m.inputs[nohzIndex].Value()
+					if nohzVal == "y" || nohzVal == "Y" {
+						m.iConf.Data.KernelCmdline.DyntickIdle = true
+					} else {
+						m.iConf.Data.KernelCmdline.DyntickIdle = false
+					}
 
 					m.iConf.Data.KernelCmdline.IsolCPUs =
 						m.inputs[isolcpusIndex].Value()
