@@ -82,7 +82,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case key.Matches(msg, m.keys.Select),
 				key.Matches(msg, m.keys.Up),
-				key.Matches(msg, m.keys.Down):
+				key.Matches(msg, m.keys.Down),
+				key.Matches(msg, m.keys.Left),
+				key.Matches(msg, m.keys.Right):
+
+				// Handle navigation between the buttons
+				if m.focusIndex == applyButtonIndex &&
+					key.Matches(msg, m.keys.Left) {
+					m.focusIndex = backButtonIndex
+				}
+				if m.focusIndex == backButtonIndex &&
+					key.Matches(msg, m.keys.Up) {
+					m.focusIndex--
+				}
+				if m.focusIndex == backButtonIndex &&
+					key.Matches(msg, m.keys.Right) {
+					m.focusIndex = applyButtonIndex
+				}
+
 				// s := msg.String()
 				log.Println("focusIndex on Update: ", m.focusIndex)
 
