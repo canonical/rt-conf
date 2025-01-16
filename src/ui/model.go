@@ -39,7 +39,7 @@ func newTextInputs() []textinput.Model {
 			dynamic placeholders start to work after the first
 			move of the cursor (either to up or down) */
 			// TODO: investigate the dynamic placeholder refresh
-			t.Placeholder = firstPlaceholder
+			t.Placeholder = cpuListPlaceholder
 			t.Focus()
 			t.PromptStyle = styles.FocusedStyle
 			t.TextStyle = styles.FocusedStyle

@@ -29,12 +29,12 @@ const (
 	backButtonIndex
 )
 
-const firstPlaceholder = "a CPU list like: 4-n or 3-5"
+const cpuListPlaceholder = "Enter a CPU list like: 4-n or 3-5 or 2,4,5 "
 
 var placeholders_text = []string{
-	firstPlaceholder,
-	"y or n",
-	"a CPU list like: 4-n or 3-5 or 2,4,5 ",
+	cpuListPlaceholder,
+	"Enter y or n",
+	cpuListPlaceholder,
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
