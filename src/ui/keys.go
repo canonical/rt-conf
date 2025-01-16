@@ -40,7 +40,7 @@ func newListKeyMap() *listKeyMap {
 		),
 		goHome: key.NewBinding(
 			key.WithKeys("g", "home"),
-			key.WithHelp("g", "Home screen"),
+			key.WithHelp("home/g", "Main menu"),
 		),
 		Select: key.NewBinding(
 			key.WithKeys("enter", "space"),
