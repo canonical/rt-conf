@@ -8,6 +8,10 @@ import (
 	"github.com/canonical/rt-conf/src/ui/styles"
 )
 
+// TODO: fix the padding of the kcmline view
+// * NOTE: in comparison with the main menu, the title is shifted to left
+// * Not only the tittle but the hole view is shifted to the left
+
 func (m Model) kcmdlineView() string {
 	var s string // the view
 	// m.infoMsg = "\n"
