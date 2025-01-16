@@ -58,17 +58,11 @@ func (m Model) kcmdlineView() string {
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
 		strings.Count(m.errorMsg, "\n") -
-		strings.Count(body, "\n") - 6) / 2 // TODO: fix those magic numbers
+		strings.Count(body, "\n") - 4) / 2 // TODO: fix those magic numbers
 
-	// NOTE: *- 6 * because:
-	// "\n\n" (jumps 2 lines)
-
-	// there is the line with the [ Back ] [ Apply ] buttons
-	// between the m.infoMsg and m.errorMsg there is 1 line
-	// between the m.logMsg and m.infoMsg there is 1 line
-
-	// NOTE: *- 8 * because:
-	// There is 8 lines of output when processing the kcmdline functions
+	// NOTE: *- 4 * because:
+	// "\n\n" (jumps 2 lines) after the title
+	// Before the line with the [ Back ] [ Apply ] buttons there are 2 lines
 
 	// NOTE: * / 2 * (divide by two) because:
 	// we want to add padding between to the top
@@ -83,10 +77,6 @@ func (m Model) kcmdlineView() string {
 			"\n\n" +
 			body +
 			strings.Repeat("\n", height) +
-			// logMessageStyle(m.logMsg) +
-			"\n" +
-			// styles.InfoMessageStyle(m.infoMsg) +
-			"\n" +
 			"\n" +
 			styles.ErrorMessageStyle(m.errorMsg) +
 			strings.Repeat("\n", height) +
