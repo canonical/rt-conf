@@ -71,7 +71,6 @@ type Model struct {
 	prevMenu      menuOpt
 	currMenu      menuOpt
 	errorMsg      string
-	infoMsg       string
 	logMsg        []string
 	renderLog     bool
 }
@@ -116,7 +115,6 @@ func NewModel(c *data.InternalConfig) Model {
 
 	return Model{
 		// TODO: Fix this info msg, put in a better place
-		infoMsg:       "Please fill all fields before submit\n",
 		logMsg:        logmsg[:],
 		inputs:        newTextInputs(),
 		help:          help.New(), // TODO: Check NEED for custom style

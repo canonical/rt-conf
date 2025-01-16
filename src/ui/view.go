@@ -60,14 +60,13 @@ func (m Model) kcmdlineView() string {
 	height := (m.height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
-		// strings.Count(m.logMsg, "\n") -
-		strings.Count(m.infoMsg, "\n") -
 		strings.Count(m.errorMsg, "\n") -
-		strings.Count(body, "\n") - 5) / 2 // TODO: fix those magic numbers
+		strings.Count(body, "\n") - 6) / 2 // TODO: fix those magic numbers
 
-	// NOTE: *- 5 * because:
+	// NOTE: *- 6 * because:
 	// "\n\n" (jumps 2 lines)
-	// m.infoMsg is always 1 line
+
+	// there is the line with the [ Back ] [ Apply ] buttons
 	// between the m.infoMsg and m.errorMsg there is 1 line
 	// between the m.logMsg and m.infoMsg there is 1 line
 

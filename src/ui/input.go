@@ -47,7 +47,6 @@ func (m *Model) Validation() []ErrValidation {
 		m.errorMsg += v.err
 	}
 
-	m.infoMsg = "Press 'enter' to apply changes\n"
 	return validationErrors
 }
 

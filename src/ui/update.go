@@ -136,7 +136,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							err.Error()
 						break
 					}
-					m.infoMsg = "\n" // Doesn't show the info message
 
 					m.logMsg = msgs
 					m.renderLog = true
