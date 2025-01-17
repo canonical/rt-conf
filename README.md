@@ -2,7 +2,7 @@
 
 # rt-conf - Real-Time Configuration Tool
 
-This is a terminal ui (TUI) tool designed to help users to configure and tune real-time systems.
+This is a tool to help with configuration and tuning of real-time Ubuntu.
 
 ## Installation
 
