@@ -15,7 +15,7 @@ sudo snap install rt-conf
 This snap is confined, which means that it can access a limited set of resources on the system.
 Additional access is granted via [snap interfaces](https://snapcraft.io/docs/interfaces).
 
-After the Installation it's necessary to connect the interfaces:
+After the installation it's necessary to connect the interfaces:
 
 - [hardware-observe](https://snapcraft.io/docs/hardware-observe-interface)
 - [home](https://snapcraft.io/docs/home-interface) - only if on Ubuntu Core
