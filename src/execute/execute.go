@@ -4,22 +4,31 @@ import (
 	"fmt"
 )
 
-// NOTE: These messages should be serialized into a struct/json for future use of TUI app
-func GrubConclusion() {
-	// TODO: Add system detection functionality to print the message for each system
-	fmt.Println("Successfully injected to file")
-	fmt.Println("Please run:")
-	fmt.Println("")
-	fmt.Println("sudo update-grub")
-	fmt.Println("")
-	fmt.Println("to apply the changes")
+func GrubConclusion() []string {
+	s := []string{
+		"\n",                   // 1
+		"Please run:\n",        // 2
+		"\n",                   // 3
+		"\tsudo update-grub\n", // 4
+		"\n",                   // 5
+		"to apply the changes to your bootloader.\n", // 6
+	}
+	return s
 }
 
-func RpiConclusion(cmdline []string) {
-	fmt.Println("Please, append the following to /boot/firmware/cmdline.txt:")
-	fmt.Printf("In case of old style boot partition, \nappend to /boot/cmdline.txt\n\n")
-	for _, param := range cmdline {
-		fmt.Printf("%s ", param)
+func RpiConclusion(cmdline []string) []string {
+	s := []string{
+		"\n", //1
+		"Please, append the following to /boot/firmware/cmdline.txt:\n", // 2
+		"In case of old style boot partition,\n",                        // 3
+		"append to /boot/cmdline.txt\n",                                 // 4
 	}
-	fmt.Printf("\n")
+	kcmdline := ""
+	for _, param := range cmdline {
+		kcmdline += fmt.Sprintf("%s ", param)
+	}
+	s = append(s, fmt.Sprintf("%s\n", kcmdline)) // 5
+	s = append(s, "\n")                          // 6
+
+	return s
 }
