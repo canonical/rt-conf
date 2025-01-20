@@ -62,6 +62,14 @@ func TestInjectToFile(t *testing.T) {
 		conf.Data = *d
 	}
 
+	conf.CfgFile = tempConfigPath
+	conf.GrubDefault = data.Grub{
+		File:    tempGrubPath,
+		Pattern: data.PatternGrubDefault,
+	}
+
+	fmt.Printf("Config: %+v\n", conf)
+
 	// Run the InjectToFile method
 	_, err = kcmd.ProcessKcmdArgs(&conf) // TODO: Fix this failing step
 	if err != nil {
