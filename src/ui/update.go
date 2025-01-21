@@ -133,16 +133,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					// TODO: Improve this logic
 					nohzVal := m.inputs[nohzIndex].Value()
-					if nohzVal == "y" || nohzVal == "Y" {
-						m.iConf.Data.KernelCmdline.DyntickIdle = true
-					} else {
-						m.iConf.Data.KernelCmdline.DyntickIdle = false
+					if nohzVal == "on" {
+						m.iConf.Data.KernelCmdline.Nohz = "on"
+					} else if nohzVal == "off" {
+						m.iConf.Data.KernelCmdline.Nohz = "off"
 					}
 
 					m.iConf.Data.KernelCmdline.IsolCPUs =
 						m.inputs[isolcpusIndex].Value()
 
-					m.iConf.Data.KernelCmdline.AdaptiveTicks =
+					m.iConf.Data.KernelCmdline.NohzFull =
 						m.inputs[nohzFullIndex].Value()
 
 					msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
