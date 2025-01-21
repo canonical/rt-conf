@@ -2,36 +2,30 @@ package helpers
 
 import (
 	"fmt"
-
-	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/validator"
+	"reflect"
 )
 
-var Parameters = []data.Param{
-	{
-		YAMLName:    "isolcpus",
-		CmdlineName: "isolcpus",
-		TransformFn: func(value interface{}) string {
-			return fmt.Sprintf("isolcpus=%s", value)
-		},
-	},
-	{
-		YAMLName:    "dyntick-idle",
-		CmdlineName: "nohz",
-		TransformFn: func(value interface{}) string {
-			validator.ValidateType(validator.TypeEnum["bool"], "dyntick-idle",
-				value)
-			if v, ok := value.(bool); ok && v {
-				return "nohz=on"
-			}
-			return "nohz=off"
-		},
-	},
-	{
-		YAMLName:    "adaptive-ticks",
-		CmdlineName: "nohz_full",
-		TransformFn: func(value interface{}) string {
-			return fmt.Sprintf("nohz_full=%s", value)
-		},
-	},
+// translateConfig converts YAML configuration into kernel cmd-line parameters
+func ReconstructKeyValuePairs(v interface{}) ([]string, error) {
+	var keyValuePairs []string
+
+	val := reflect.TypeOf(v)
+	valValue := reflect.ValueOf(v)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+		valValue = valValue.Elem()
+	}
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		key := field.Tag.Get("yaml")
+		value := valValue.Field(i).String()
+		if key == "" || value == "" {
+			continue
+		}
+
+		keyValuePairs = append(keyValuePairs, fmt.Sprintf("%s=%s", key, value))
+	}
+
+	return keyValuePairs, nil
 }

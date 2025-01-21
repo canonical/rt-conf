@@ -21,10 +21,12 @@ GRUB_CMDLINE_LINUX=""
 `
 
 	configSample = `
-kernel-cmdline:
-  isolcpus: "8-9"
-  dyntick-idle: true
-  adaptive-ticks: "8-9"
+kernel_cmdline:
+  isolcpus: "3-n"
+  nohz: "on"
+  nohz_full: "3-n"
+  kthread_cpus: "0-2"
+  irqaffinity: "0-2"
 `
 )
 
@@ -81,13 +83,17 @@ func TestInjectToFile(t *testing.T) {
 		t.Fatalf("Failed to read modified grub file: %v", err)
 	}
 
+	fmt.Println("\nGrub file: ", string(updatedGrub))
+
 	testCases := []struct {
 		param string
 		value string
 	}{
-		{"isolcpus", "8-9"},
+		{"isolcpus", "3-n"},
 		{"nohz", "on"},
-		{"nohz_full", "8-9"},
+		{"nohz_full", "3-n"},
+		{"kthread_cpus", "0-2"},
+		{"irqaffinity", "0-2"},
 	}
 	for _, tc := range testCases {
 		if !strings.Contains(string(updatedGrub), fmt.Sprintf("%s=%s", tc.param, tc.value)) {
