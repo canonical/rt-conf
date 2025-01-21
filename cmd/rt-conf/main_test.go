@@ -22,11 +22,11 @@ GRUB_CMDLINE_LINUX=""
 
 	configSample = `
 kernel_cmdline:
-  isolcpus: "3-n"
+  isolcpus: "0-n"
   nohz: "on"
-  nohz_full: "3-n"
-  kthread_cpus: "0-2"
-  irqaffinity: "0-2"
+  nohz_full: "0-n"
+  kthread_cpus: "0-n"
+  irqaffinity: "0-n"
 `
 )
 
@@ -89,11 +89,11 @@ func TestInjectToFile(t *testing.T) {
 		param string
 		value string
 	}{
-		{"isolcpus", "3-n"},
+		{"isolcpus", "0-n"},
 		{"nohz", "on"},
-		{"nohz_full", "3-n"},
-		{"kthread_cpus", "0-2"},
-		{"irqaffinity", "0-2"},
+		{"nohz_full", "0-n"},
+		{"kthread_cpus", "0-n"},
+		{"irqaffinity", "0-n"},
 	}
 	for _, tc := range testCases {
 		if !strings.Contains(string(updatedGrub), fmt.Sprintf("%s=%s", tc.param, tc.value)) {
