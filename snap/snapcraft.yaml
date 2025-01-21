@@ -15,6 +15,8 @@ parts:
     plugin: go
     build-snaps:
       - go
+    stage-packages:
+      - util-linux
 
   config:
     plugin: dump
