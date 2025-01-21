@@ -25,6 +25,8 @@ const (
 	isolcpusIndex = iota
 	nohzIndex
 	nohzFullIndex
+	kthreadsCPUsIndex
+	irqaffinityIndex
 	applyButtonIndex
 	backButtonIndex
 )
@@ -33,7 +35,9 @@ const cpuListPlaceholder = "Enter a CPU list like: 4-n or 3-5 or 2,4,5 "
 
 var placeholders_text = []string{
 	cpuListPlaceholder,
-	"Enter y or n",
+	"Enter on or off",
+	cpuListPlaceholder,
+	cpuListPlaceholder,
 	cpuListPlaceholder,
 }
 
@@ -102,8 +106,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				log.Println("focusIndex on Update: ", m.focusIndex)
 
 				// Validate the inputs
-				isValid := m.Validation()
-				log.Println("isValid: ", isValid)
+				log.Println("isValid: ", m.AreValidInputs())
 
 				// Handle [ Back ] button
 				if m.focusIndex == backButtonIndex &&
@@ -131,19 +134,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						break
 					}
 
-					// TODO: Improve this logic
-					nohzVal := m.inputs[nohzIndex].Value()
-					if nohzVal == "on" {
-						m.iConf.Data.KernelCmdline.Nohz = "on"
-					} else if nohzVal == "off" {
-						m.iConf.Data.KernelCmdline.Nohz = "off"
-					}
-
 					m.iConf.Data.KernelCmdline.IsolCPUs =
 						m.inputs[isolcpusIndex].Value()
 
+					m.iConf.Data.KernelCmdline.Nohz =
+						m.inputs[nohzIndex].Value()
+
 					m.iConf.Data.KernelCmdline.NohzFull =
 						m.inputs[nohzFullIndex].Value()
+
+					m.iConf.Data.KernelCmdline.KthreadCPUs =
+						m.inputs[kthreadsCPUsIndex].Value()
+
+					m.iConf.Data.KernelCmdline.IRQaffinity =
+						m.inputs[irqaffinityIndex].Value()
 
 					msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
 					if err != nil {
@@ -160,10 +164,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// TODO: Apply the changes call the kcmdline funcs
 				}
 
-				log.Println("Focus index is: ", m.focusIndex)
-				if m.focusIndex < len(m.inputs) {
-					log.Println("Value: ", m.inputs[m.focusIndex].Value())
-				}
+				// log.Println("Focus index is: ", m.focusIndex)
+				// if m.focusIndex < len(m.inputs) {
+				// 	log.Println("Value: ", m.inputs[m.focusIndex].Value())
+				// }
 
 				// Cycle indexes
 				if key.Matches(msg, m.keys.Up) {

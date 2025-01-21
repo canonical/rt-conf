@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/cursor"
@@ -23,7 +25,7 @@ func (i item) Description() string { return i.description }
 func (i item) FilterValue() string { return i.title }
 
 func newTextInputs() []textinput.Model {
-	m := make([]textinput.Model, 3)
+	m := make([]textinput.Model, 5)
 
 	var t textinput.Model
 	for i := range m {
@@ -32,7 +34,7 @@ func newTextInputs() []textinput.Model {
 		t.CharLimit = 32
 
 		switch i {
-		case 0:
+		case isolcpusIndex:
 			t.Prompt = "Isolate CPUs from general execution (isolcpus) > "
 			/* The placeholder is necessary only in the first, because the
 			dynamic placeholders start to work after the first
@@ -42,11 +44,15 @@ func newTextInputs() []textinput.Model {
 			t.Focus()
 			t.PromptStyle = styles.FocusedStyle
 			t.TextStyle = styles.FocusedStyle
-		case 1:
+		case nohzIndex:
 			t.Prompt = "Enable dyntick mode (nohz) > "
-			t.CharLimit = 1
-		case 2:
+			t.CharLimit = 3
+		case nohzFullIndex:
 			t.Prompt = "Adaptive ticks CPUs (nohz_full) > "
+		case kthreadsCPUsIndex:
+			t.Prompt = "CPUs to handle kernel threads (kthread_cpus) > "
+		case irqaffinityIndex:
+			t.Prompt = "CPUs to handle IRQs (irqaffinity) > "
 		}
 
 		m[i] = t
@@ -105,21 +111,15 @@ func NewModel(c *data.InternalConfig) Model {
 		}
 	}
 
-	var logmsg [8]string
-	for i := range 8 {
-		logmsg[i] = "\n"
-	}
-	// NOTE: * 8 * because:
-	// There is 8 lines of output when processing the kcmdline functions
-
 	return Model{
 		// TODO: Fix this info msg, put in a better place
-		logMsg:        logmsg[:],
+		// logMsg:        logmsg[:],
 		inputs:        newTextInputs(),
 		help:          help.New(), // TODO: Check NEED for custom style
 		iConf:         *c,
 		list:          menuList,
 		keys:          listKeys,
+		errorMsg:      strings.Repeat("\n", len(validationErrors)),
 		delegateKeys:  delegateKeys,
 		itemGenerator: &menuOpts,
 		cursorMode:    cursor.CursorBlink,
