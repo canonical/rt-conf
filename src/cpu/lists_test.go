@@ -273,7 +273,8 @@ func TestMutualExclusionCheck(t *testing.T) {
 	for _, tt := range tst {
 		t.Run(tt.s1, func(t *testing.T) {
 
-			check, err := i.MutuallyExclusive(tt.s1, tt.s2, tt.ncpus)
+			check, err := i.AreCPUListsExclusiveWithMaxCPUs(tt.s1,
+				tt.s2, tt.ncpus)
 			if err != nil {
 				t.Fatalf("MutuallyExclusive check failed: %v", err)
 			}

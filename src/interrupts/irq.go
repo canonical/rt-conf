@@ -39,11 +39,6 @@ type ProcInterrupts struct {
 }
 
 func ProcessIRQIsolation(cfg *data.InternalConfig) error {
-	maxcpus, err := cpu.TotalAvailable()
-	if err != nil {
-		return fmt.Errorf("error getting total CPUs: %v", err)
-	}
-
 	irqs, err := systemIRQs()
 	if err != nil {
 		return fmt.Errorf("error mapping IRQs: %v", err)
@@ -53,12 +48,12 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 	newAffinity := cfg.Data.Interrupts.IRQHandler
 	if newAffinity == "" {
 		var err error
-		newAffinity, err = cpu.GenerateComplementCPUList(isolCPUs, maxcpus)
+		newAffinity, err = cpu.ComplementCPUList(isolCPUs)
 		if err != nil {
 			return fmt.Errorf("error generating complement CPU list: %v", err)
 		}
 	} else {
-		excl, err := cpu.MutuallyExclusive(isolCPUs, newAffinity, maxcpus)
+		excl, err := cpu.AreCPUListsExclusive(isolCPUs, newAffinity)
 		if err != nil {
 			return fmt.Errorf("error checking cpu list mutual exclusion: %v", err)
 		}

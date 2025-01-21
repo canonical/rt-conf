@@ -54,8 +54,7 @@ func TestInjectToFile(t *testing.T) {
 	fmt.Printf("tempConfigPath: %s\n", tempConfigPath)
 	fmt.Printf("tempGrubPath: %s\n", tempGrubPath)
 
-	var err error
-	conf := *data.NewInternCfg()
+	var conf data.InternalConfig
 	if d, err := helpers.LoadConfigFile(tempConfigPath); err != nil {
 		t.Fatalf("Failed to load config file: %v", err)
 	} else {
@@ -71,7 +70,7 @@ func TestInjectToFile(t *testing.T) {
 	fmt.Printf("Config: %+v\n", conf)
 
 	// Run the InjectToFile method
-	_, err = kcmd.ProcessKcmdArgs(&conf) // TODO: Fix this failing step
+	_, err := kcmd.ProcessKcmdArgs(&conf) // TODO: Fix this failing step
 	if err != nil {
 		t.Fatalf("ProcessKcmdArgs failed: %v", err)
 	}
