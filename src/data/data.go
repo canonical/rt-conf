@@ -1,18 +1,14 @@
 package data
 
 import (
-	"log"
 	"regexp"
-
-	"github.com/canonical/rt-conf/src/cpu"
 )
 
 var PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
 
 type InternalConfig struct {
-	TotalCPUs int
-	CfgFile   string
-	Data      Config
+	CfgFile string
+	Data    Config
 
 	GrubDefault Grub
 }
@@ -58,15 +54,4 @@ type Param struct {
 	YAMLName    string
 	CmdlineName string
 	TransformFn func(interface{}) string // Function to transform value to string
-}
-
-func NewInternCfg() *InternalConfig {
-
-	c, err := cpu.TotalAvailable()
-	if err != nil {
-		log.Fatalf("Failed to get total available CPUs: %v", err)
-	}
-	return &InternalConfig{
-		TotalCPUs: c,
-	}
 }

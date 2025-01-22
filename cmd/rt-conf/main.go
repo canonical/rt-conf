@@ -46,7 +46,7 @@ func main() {
 		log.Fatalf("Failed to load config file: config path not set")
 	}
 
-	conf := *data.NewInternCfg()
+	var conf data.InternalConfig
 	if d, err := helpers.LoadConfigFile(*configPath); err != nil {
 		log.Fatalf("Failed to load config file: %v", err)
 	} else {

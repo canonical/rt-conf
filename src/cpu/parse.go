@@ -6,32 +6,6 @@ import (
 	"strings"
 )
 
-type CPUs map[int]bool
-
-// Generate Complement (list') given the list
-//
-// returns list'
-func GenerateComplementCPUList(list string, maxcpus int) (string, error) {
-	var listprime []string
-	cpus, err := ParseCPUs(list, maxcpus)
-	if err != nil {
-		return "", err
-	}
-	// OBS: This doesn't generate the most optimized CPU list
-	// (only generates comma separated values) but it's good enough for now
-	for i := 0; i < maxcpus; i++ {
-		if _, exists := cpus[i]; !exists {
-			listprime = append(listprime, strconv.Itoa(i))
-		}
-	}
-	if len(listprime) == 0 {
-		return "", fmt.Errorf(
-			"unable to complement cpu list '%s' for total of %d CPUs", list, maxcpus,
-		)
-	}
-	return strings.Join(listprime, ","), nil
-}
-
 // ParseCPUs parses a CPU list into a set of integers, supporting all formats
 // Inspired in the Kernel documentation:
 // https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists
@@ -165,25 +139,4 @@ func handleSingleCPU(item string, cpus CPUs, t int) error {
 	}
 	cpus[cpu] = true
 	return nil
-}
-
-// MutuallyExclusive:
-// checks if two CPU lists are mutually exclusive
-func MutuallyExclusive(list1, list2 string, totalCPUs int) (bool, error) {
-	set1, err := ParseCPUs(list1, totalCPUs)
-	if err != nil {
-		return false, err
-	}
-	set2, err := ParseCPUs(list2, totalCPUs)
-	if err != nil {
-		return false, err
-	}
-
-	for cpu := range set1 {
-		if _, exists := set2[cpu]; exists {
-			return false, nil
-		}
-	}
-
-	return true, nil
 }
