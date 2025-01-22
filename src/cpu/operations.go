@@ -40,9 +40,9 @@ func ComplementCPUList(list string) (string, error) {
 	return GenerateComplementCPUList(list, maxcpus)
 }
 
-// AreCPUListsExclusiveWithMaxCPUs:
+// CPUListsExclusiveWithMaxCPUs:
 // checks if two CPU lists are mutually exclusive
-func AreCPUListsExclusiveWithMaxCPUs(list1,
+func CPUListsExclusiveWithMaxCPUs(list1,
 	list2 string, totalCPUs int) (bool, error) {
 
 	set1, err := ParseCPUs(list1, totalCPUs)
@@ -63,10 +63,10 @@ func AreCPUListsExclusiveWithMaxCPUs(list1,
 	return true, nil
 }
 
-func AreCPUListsExclusive(list1, list2 string) (bool, error) {
+func CPUListsExclusive(list1, list2 string) (bool, error) {
 	maxcpus, err := TotalAvailable()
 	if err != nil {
 		return false, err
 	}
-	return AreCPUListsExclusiveWithMaxCPUs(list1, list2, maxcpus)
+	return CPUListsExclusiveWithMaxCPUs(list1, list2, maxcpus)
 }

@@ -53,7 +53,7 @@ func ProcessIRQIsolation(cfg *data.InternalConfig) error {
 			return fmt.Errorf("error generating complement CPU list: %v", err)
 		}
 	} else {
-		excl, err := cpu.AreCPUListsExclusive(isolCPUs, newAffinity)
+		excl, err := cpu.CPUListsExclusive(isolCPUs, newAffinity)
 		if err != nil {
 			return fmt.Errorf("error checking cpu list mutual exclusion: %v", err)
 		}
