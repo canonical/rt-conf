@@ -1,17 +1,15 @@
-package cpu_test
+package cpu
 
 import (
 	"reflect"
 	"testing"
-
-	i "github.com/canonical/rt-conf/src/cpu"
 )
 
 func TestParseCPUSlistsHappy(t *testing.T) {
 	type test struct {
 		input  string
 		tCores int
-		output i.CPUs
+		output CPUs
 	}
 
 	var tst = []test{
@@ -19,53 +17,53 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 		{
 			"4",
 			8,
-			i.CPUs{4: true},
+			CPUs{4: true},
 		},
 		// 3 single CPUs
 		{
 			"4,5,9",
 			10,
-			i.CPUs{4: true, 5: true, 9: true},
+			CPUs{4: true, 5: true, 9: true},
 		},
 		// CPU range
 		{
 			"0-7",
 			10,
-			i.CPUs{0: true, 1: true, 2: true, 3: true, 4: true,
+			CPUs{0: true, 1: true, 2: true, 3: true, 4: true,
 				5: true, 6: true, 7: true},
 		},
 		// two CPUs ranges
 		{
 			"0-2,4-7",
 			10,
-			i.CPUs{0: true, 1: true, 2: true, 4: true,
+			CPUs{0: true, 1: true, 2: true, 4: true,
 				5: true, 6: true, 7: true},
 		},
 		// CPU range + single CPU
 		{
 			"0-2,3",
 			4,
-			i.CPUs{0: true, 1: true, 2: true, 3: true},
+			CPUs{0: true, 1: true, 2: true, 3: true},
 		},
 		// Formated CPU list
 		{
 			"0-20:2/5",
 			24,
-			i.CPUs{0: true, 1: true, 5: true, 6: true,
+			CPUs{0: true, 1: true, 5: true, 6: true,
 				10: true, 11: true, 15: true, 16: true, 20: true},
 		},
 		// Formated CPU list + a single CPU
 		{
 			"0-20:2/5,23",
 			24,
-			i.CPUs{0: true, 1: true, 5: true, 6: true, 10: true,
+			CPUs{0: true, 1: true, 5: true, 6: true, 10: true,
 				11: true, 15: true, 16: true, 20: true, 23: true},
 		},
 	}
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			res, err := i.ParseCPUs(tt.input, tt.tCores)
+			res, err := ParseCPUs(tt.input, tt.tCores)
 			if err != nil {
 				t.Fatalf("ParseCPUs failed: %v", err)
 			}
@@ -171,7 +169,7 @@ func TestParseCPUSlistsUnhappy(t *testing.T) {
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			_, err := i.ParseCPUs(tt.input, tt.tCores)
+			_, err := ParseCPUs(tt.input, tt.tCores)
 			if err == nil {
 				t.Fatalf("expected error, got nil")
 			}

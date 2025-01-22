@@ -1,9 +1,7 @@
-package cpu_test
+package cpu
 
 import (
 	"testing"
-
-	i "github.com/canonical/rt-conf/src/cpu"
 )
 
 func TestComplement(t *testing.T) {
@@ -43,7 +41,7 @@ func TestComplement(t *testing.T) {
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			res, err := i.GenerateComplementCPUList(tt.input, tt.tCores)
+			res, err := GenerateComplementCPUList(tt.input, tt.tCores)
 			if err != nil {
 				t.Fatalf("Failed GenerateComplementCPUList: %v", err)
 			}
@@ -97,7 +95,7 @@ func TestMutualExclusionCheck(t *testing.T) {
 	for _, tt := range tst {
 		t.Run(tt.s1, func(t *testing.T) {
 
-			check, err := i.CPUListsExclusiveWithMaxCPUs(tt.s1,
+			check, err := cpuListsExclusive(tt.s1,
 				tt.s2, tt.ncpus)
 			if err != nil {
 				t.Fatalf("MutuallyExclusive check failed: %v", err)

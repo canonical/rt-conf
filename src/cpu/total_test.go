@@ -1,13 +1,11 @@
-package cpu_test
+package cpu
 
 import (
 	"testing"
-
-	"github.com/canonical/rt-conf/src/cpu"
 )
 
 func TestTotalAvailable(t *testing.T) {
-	c, err := cpu.TotalAvailable()
+	c, err := TotalAvailable()
 	if err != nil {
 		t.Fatalf("Failed TotalAvailable: %v", err)
 	}
