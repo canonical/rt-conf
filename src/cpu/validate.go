@@ -8,32 +8,32 @@ import (
 )
 
 func ValidateList(s string) error {
-
 	max, err := TotalAvailable()
 	if err != nil {
 		return fmt.Errorf("failed to get total available CPUs: %v", err)
 	}
-	_, err = ParseCPUs(s, max)
+	return validateList(s, max)
+}
+
+func validateList(s string, max int) error {
+	_, err := ParseCPUs(s, max)
 	return err
 }
 
 func ValidateListWithFlags(s string, f []string) error {
-
 	max, err := TotalAvailable()
 	if err != nil {
 		return fmt.Errorf("failed to get total available CPUs: %v", err)
 	}
-
 	return validateListWithFlags(s, f, max)
 }
 
 func validateListWithFlags(s string, f []string, max int) error {
-
 	hasFlag := true
-
 	// Split the string into two parts by the first comma
 	parts := strings.SplitN(s, ",", 2)
 
+	// If it converts to a number, it's not a flag
 	_, err := strconv.Atoi(parts[0])
 
 	// Check if the first part isn't a flag
@@ -52,9 +52,8 @@ func validateListWithFlags(s string, f []string, max int) error {
 	var errCPU error
 	if hasFlag {
 		_, errCPU = ParseCPUs(parts[1], max)
-	} else if len(parts) == 2 {
-		_, errCPU = ParseCPUs(parts[0], max)
+		return errCPU
 	}
-
+	_, errCPU = ParseCPUs(parts[0], max)
 	return errCPU
 }
