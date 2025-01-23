@@ -50,7 +50,6 @@ type Config struct {
 }
 
 func (c Config) Validate() error {
-	fmt.Println("\n\n----------------[DEBUG]Validating config----------------")
 	return c.KernelCmdline.Validate()
 }
 
@@ -83,13 +82,10 @@ func (c KernelCmdline) Validate() error {
 	v := reflect.ValueOf(c)
 	t := reflect.TypeOf(c)
 
-	fmt.Println("\n[DEBUG] Value of KernelCmdline: ", v)
-
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 
 		tag := field.Tag.Get("validation")
-		fmt.Println("\n[DEBUG] Tag: ", tag)
 		if tag == "" {
 			continue // No validation tag, skip
 		}
@@ -100,7 +96,6 @@ func (c KernelCmdline) Validate() error {
 		if !ok {
 			return fmt.Errorf("value for field %s is not a string", value)
 		}
-		fmt.Println("\n[DEBUG] Value: ", value)
 
 		if value == "" {
 			continue
