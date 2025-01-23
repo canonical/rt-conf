@@ -65,7 +65,7 @@ type IRQs struct {
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
 	// Isolate CPUs
-	IsolCPUs string `yaml:"isolcpus" validation:"cpulist"`
+	IsolCPUs string `yaml:"isolcpus" validation:"isolcpus"`
 
 	// Enable/Disable dyntick idle
 	Nohz string `yaml:"nohz" validation:"oneof:on,off"`
@@ -125,22 +125,36 @@ func (k *Config) Marshal(in interface{}) (out []byte, err error) {
 	return yaml.Marshal(in)
 }
 
-// validateField validates a field based on the tag
 func validateField(name string, value interface{}, tag string) error {
-	parts := strings.Split(tag, ",")
-	for _, rule := range parts {
-		switch {
-		case rule == "cpulist":
-			err := cpu.ValidateList(value.(string))
-			if err != nil {
-				return fmt.Errorf("on field %v: invalid cpulist: %v", name, err)
-			}
-		case strings.HasPrefix(rule, "oneof:"):
-			options := strings.Split(rule[len("oneof:"):], "|")
-			if !slices.Contains(options, fmt.Sprintf("%v", value)) {
-				return fmt.Errorf("value must be one of %v", options)
-			}
+
+	switch {
+	case tag == "cpulist":
+		err := cpu.ValidateList(value.(string))
+		if err != nil {
+			return fmt.Errorf("on field %v: invalid cpulist: %v", name, err)
 		}
+
+	case tag == "isolcpus":
+		flags := []string{
+			"domain",
+			"nohz",
+			"managed_irq",
+		}
+		err := cpu.ValidateListWithFlags(value.(string), flags)
+		if err != nil {
+			return fmt.Errorf("on field %v: invalid isolcpus: %v", name, err)
+		}
+
+	case strings.HasPrefix(tag, "oneof:"):
+		options := strings.Split(tag[len("oneof:"):], ",")
+		strValue, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("value for field %s is not a string", name)
+		}
+		if !slices.Contains(options, strValue) {
+			return fmt.Errorf("value must be one of %v", options)
+		}
+
 	}
 	return nil
 }
