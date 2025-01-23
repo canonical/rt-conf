@@ -8,7 +8,13 @@ import (
 
 // TODO: move this file to a separate module
 
+// NOTE: This function it will only panic during development
 func init() {
+	// TODO: Find a better way of doing this
+	// the struct validationErrors and placeholders_text are coupled
+	// they both should have the same length, since it's about the
+	// number of kernel parameters to be inserted
+
 	NumParams = len(validationErrors)
 
 	if len(validationErrors) != NumParams {
