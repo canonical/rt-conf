@@ -26,5 +26,5 @@ func LoadConfigFile(confPath string) (*data.Config, error) {
 			- key=value
 			- flag
 	*/
-	return &content, nil
+	return content, nil
 }

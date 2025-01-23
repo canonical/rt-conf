@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/cpu"
-	"gopkg.in/yaml.v3"
 )
 
 var PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
@@ -44,17 +43,9 @@ type Config struct {
 	KernelCmdline KernelCmdline `yaml:"kernel_cmdline"`
 }
 
-func (c *Config) UnmarshalYAML(node *yaml.Node) error {
-
-	type rawConfig Config
-	var raw rawConfig
-	// Decode YAML normally into KernelCmdline
-	if err := node.Decode(&raw); err != nil {
-		return err
-	}
-	*c = Config(raw)
-
-	return nil
+func (c Config) Validate() error {
+	fmt.Println("\n\n----------------[DEBUG]Validating config----------------")
+	return c.KernelCmdline.Validate()
 }
 
 type IRQs struct {
@@ -81,55 +72,46 @@ type KernelCmdline struct {
 }
 
 // Custom unmarshal function with validation
-func (k *KernelCmdline) UnmarshalYAML(node *yaml.Node) error {
-	// Decode YAML normally
-	type rawKernelCmdline KernelCmdline // To avoid recursion
-	var raw rawKernelCmdline
-	if err := node.Decode(&raw); err != nil {
-		return err
-	}
-
+func (c KernelCmdline) Validate() error {
 	// Validate fields based on struct tags
-	v := reflect.ValueOf(raw)
-	t := reflect.TypeOf(raw)
+	v := reflect.ValueOf(c)
+	t := reflect.TypeOf(c)
+
+	fmt.Println("\n[DEBUG] Value of KernelCmdline: ", v)
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 
 		tag := field.Tag.Get("validation")
+		fmt.Println("\n[DEBUG] Tag: ", tag)
 		if tag == "" {
 			continue // No validation tag, skip
 		}
 
 		// * * NOTE: For now it's okay to cast to string
 		// * * since ther is only strings on KernelCmdline struct
-		value := v.Field(i).Interface().(string)
+		value, ok := v.Field(i).Interface().(string)
+		if !ok {
+			return fmt.Errorf("value for field %s is not a string", value)
+		}
+		fmt.Println("\n[DEBUG] Value: ", value)
 
 		if value == "" {
 			continue
 		}
-
 		err := validateField(field.Name, value, tag)
 		if err != nil {
 			return fmt.Errorf("validation failed for field %s: %v",
 				field.Name, err)
 		}
 	}
-
-	// Assign validated values
-	*k = KernelCmdline(raw)
 	return nil
 }
 
-func (k *Config) Marshal(in interface{}) (out []byte, err error) {
-	return yaml.Marshal(in)
-}
-
-func validateField(name string, value interface{}, tag string) error {
-
+func validateField(name string, value string, tag string) error {
 	switch {
 	case tag == "cpulist":
-		err := cpu.ValidateList(value.(string))
+		err := cpu.ValidateList(value)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid cpulist: %v", name, err)
 		}
@@ -140,18 +122,14 @@ func validateField(name string, value interface{}, tag string) error {
 			"nohz",
 			"managed_irq",
 		}
-		err := cpu.ValidateListWithFlags(value.(string), flags)
+		err := cpu.ValidateListWithFlags(value, flags)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid isolcpus: %v", name, err)
 		}
 
 	case strings.HasPrefix(tag, "oneof:"):
 		options := strings.Split(tag[len("oneof:"):], ",")
-		strValue, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("value for field %s is not a string", name)
-		}
-		if !slices.Contains(options, strValue) {
+		if !slices.Contains(options, value) {
 			return fmt.Errorf("value must be one of %v", options)
 		}
 
