@@ -134,20 +134,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						break
 					}
 
-					m.iConf.Data.KernelCmdline.IsolCPUs =
-						m.inputs[isolcpusIndex].Value()
+					m.iConf.Data.KernelCmdline.IsolCPUs = m.inputs[isolcpusIndex].Value()
 
-					m.iConf.Data.KernelCmdline.Nohz =
-						m.inputs[nohzIndex].Value()
+					m.iConf.Data.KernelCmdline.Nohz = m.inputs[nohzIndex].Value()
 
-					m.iConf.Data.KernelCmdline.NohzFull =
-						m.inputs[nohzFullIndex].Value()
+					m.iConf.Data.KernelCmdline.NohzFull = m.inputs[nohzFullIndex].Value()
 
-					m.iConf.Data.KernelCmdline.KthreadCPUs =
-						m.inputs[kthreadsCPUsIndex].Value()
+					m.iConf.Data.KernelCmdline.KthreadCPUs = m.inputs[kthreadsCPUsIndex].Value()
 
-					m.iConf.Data.KernelCmdline.IRQaffinity =
-						m.inputs[irqaffinityIndex].Value()
+					m.iConf.Data.KernelCmdline.IRQaffinity = m.inputs[irqaffinityIndex].Value()
 
 					msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
 					if err != nil {
@@ -163,11 +158,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					// TODO: Apply the changes call the kcmdline funcs
 				}
-
-				// log.Println("Focus index is: ", m.focusIndex)
-				// if m.focusIndex < len(m.inputs) {
-				// 	log.Println("Value: ", m.inputs[m.focusIndex].Value())
-				// }
 
 				// Cycle indexes
 				if key.Matches(msg, m.keys.Up) {
@@ -243,9 +233,7 @@ func (m *Model) updateMainMenu(msg tea.Msg) tea.Cmd {
 				m.list.SetShowHelp(!m.list.ShowHelp())
 				// return m, nil
 			}
-
 		}
-
 	}
 
 	return tea.Batch(cmds...)
