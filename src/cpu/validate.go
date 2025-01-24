@@ -59,3 +59,11 @@ func validateListWithFlags(s string, f []string, max int) error {
 	_, errCPU = ParseCPUs(parts[0], max)
 	return errCPU
 }
+
+func ValidateIsolCPUs(s string) error {
+	max, err := TotalAvailable()
+	if err != nil {
+		return fmt.Errorf("failed to get total available CPUs: %v", err)
+	}
+	return validateListWithFlags(s, isolcpuFlags, max)
+}

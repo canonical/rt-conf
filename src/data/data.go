@@ -118,12 +118,7 @@ func validateField(name string, value string, tag string) error {
 		}
 
 	case tag == "isolcpus":
-		flags := []string{
-			"domain",
-			"nohz",
-			"managed_irq",
-		}
-		err := cpu.ValidateListWithFlags(value, flags)
+		err := cpu.ValidateIsolCPUs(value)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid isolcpus: %v", name, err)
 		}
