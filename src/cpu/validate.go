@@ -47,17 +47,18 @@ func validateListWithFlags(s string, f []string, max int) error {
 		hasFlag = false
 	}
 
-	if hasFlag && err != nil && !slices.Contains(f, parts[0]) {
-		return fmt.Errorf("invalid flag: %s", parts[0])
+	// If it's a flag, check if it's a valid flag
+	if hasFlag {
+		if !slices.Contains(f, parts[0]) {
+			return fmt.Errorf("invalid flag: %s", parts[0])
+		}
+
+		_, err := ParseCPUs(parts[1], max)
+		return err
 	}
 
-	var errCPU error
-	if hasFlag {
-		_, errCPU = ParseCPUs(parts[1], max)
-		return errCPU
-	}
-	_, errCPU = ParseCPUs(parts[0], max)
-	return errCPU
+	_, err = ParseCPUs(s, max)
+	return err
 }
 
 func ValidateIsolCPUs(s string) error {
