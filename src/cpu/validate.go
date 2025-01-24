@@ -22,14 +22,6 @@ func validateList(s string, max int) error {
 	return err
 }
 
-func ValidateListWithFlags(s string, f []string) error {
-	max, err := TotalAvailable()
-	if err != nil {
-		return fmt.Errorf("failed to get total available CPUs: %v", err)
-	}
-	return validateListWithFlags(s, f, max)
-}
-
 func validateListWithFlags(s string, f []string, max int) error {
 	hasFlag := true
 	// Split the string into two parts by the first comma
