@@ -42,7 +42,8 @@ func validateListWithFlags(s string, f []string, max int) error {
 	// If it's a flag, check if it's a valid flag
 	if hasFlag {
 		if !slices.Contains(f, parts[0]) {
-			return fmt.Errorf("invalid flag: %s", parts[0])
+			return fmt.Errorf("invalid flag: %s, expected one of %v",
+				parts[0], f)
 		}
 
 		_, err := ParseCPUs(parts[1], max)
