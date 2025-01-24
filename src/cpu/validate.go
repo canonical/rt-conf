@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var isolcpuFlags []string = []string{"domain", "nohz", "managed_irq"}
+
 func ValidateList(s string) error {
 	max, err := TotalAvailable()
 	if err != nil {

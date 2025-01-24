@@ -10,28 +10,28 @@ func TestHappyValidationWithFlags(t *testing.T) {
 		flags []string
 	}{
 		// Test CPU list with range
-		{"0-1", max, []string{"domain", "nohz", "managed_irq"}},
-		{"nohz,0-1", max, []string{"domain", "nohz", "managed_irq"}},
-		{"domain,0-1", max, []string{"domain", "nohz", "managed_irq"}},
-		{"managed_irq,0-1", max, []string{"domain", "nohz", "managed_irq"}},
+		{"0-1", max, isolcpuFlags},
+		{"nohz,0-1", max, isolcpuFlags},
+		{"domain,0-1", max, isolcpuFlags},
+		{"managed_irq,0-1", max, isolcpuFlags},
 
 		// Test single CPU on CPU list
-		{"0", max, []string{"domain", "nohz", "managed_irq"}},
-		{"nohz,0", max, []string{"domain", "nohz", "managed_irq"}},
-		{"domain,0", max, []string{"domain", "nohz", "managed_irq"}},
-		{"managed_irq,0", max, []string{"domain", "nohz", "managed_irq"}},
+		{"0", max, isolcpuFlags},
+		{"nohz,0", max, isolcpuFlags},
+		{"domain,0", max, isolcpuFlags},
+		{"managed_irq,0", max, isolcpuFlags},
 
 		// Test comma separated CPU list
-		{"0,n", max, []string{"domain", "nohz", "managed_irq"}},
-		{"nohz,0,n", max, []string{"domain", "nohz", "managed_irq"}},
-		{"domain,0,n", max, []string{"domain", "nohz", "managed_irq"}},
-		{"managed_irq,0,n", max, []string{"domain", "nohz", "managed_irq"}},
+		{"0,n", max, isolcpuFlags},
+		{"nohz,0,n", max, isolcpuFlags},
+		{"domain,0,n", max, isolcpuFlags},
+		{"managed_irq,0,n", max, isolcpuFlags},
 
 		// Test comma separated CPU list
-		{"0,n", max, []string{"domain", "nohz", "managed_irq"}},
-		{"nohz,0,n", max, []string{"domain", "nohz", "managed_irq"}},
-		{"domain,0,n", max, []string{"domain", "nohz", "managed_irq"}},
-		{"managed_irq,0,n", max, []string{"domain", "nohz", "managed_irq"}},
+		{"0,n", max, isolcpuFlags},
+		{"nohz,0,n", max, isolcpuFlags},
+		{"domain,0,n", max, isolcpuFlags},
+		{"managed_irq,0,n", max, isolcpuFlags},
 	}
 
 	for _, tc := range testCases {
