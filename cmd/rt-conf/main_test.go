@@ -50,11 +50,13 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	// Set up temporary config-file, grub.cfg and default-grub files
 	tempConfigPath := setupTempFile(t, c.Yaml, i)
 	tempGrubPath := setupTempFile(t, grubSample, i)
-	defer os.Remove(tempConfigPath)
-	defer os.Remove(tempGrubPath)
+	t.Cleanup(func() {
+		os.Remove(tempConfigPath)
+		os.Remove(tempGrubPath)
+	})
 
-	fmt.Printf("tempConfigPath: %s\n", tempConfigPath)
-	fmt.Printf("tempGrubPath: %s\n", tempGrubPath)
+	t.Logf("tempConfigPath: %s\n", tempConfigPath)
+	t.Logf("tempGrubPath: %s\n", tempGrubPath)
 
 	var conf data.InternalConfig
 	if d, err := helpers.LoadConfigFile(tempConfigPath); err != nil {
@@ -69,7 +71,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		Pattern: data.PatternGrubDefault,
 	}
 
-	fmt.Printf("Config: %+v\n", conf)
+	t.Logf("Config: %+v\n", conf)
 
 	// Run the InjectToFile method
 	_, err := kcmd.ProcessKcmdArgs(&conf)
@@ -83,7 +85,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		return "", fmt.Errorf("failed to read modified grub file: %v", err)
 	}
 
-	fmt.Println("\nGrub file: ", string(updatedGrub))
+	t.Log("\nGrub file: ", string(updatedGrub))
 
 	return string(updatedGrub), nil
 }
