@@ -61,7 +61,7 @@ type IRQs struct {
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
 	// Isolate CPUs
-	IsolCPUs string `yaml:"isolcpus" validation:"isolcpus"`
+	IsolCPUs string `yaml:"isolcpus" validation:"cpulist:isolcpus"`
 
 	// Enable/Disable dyntick idle
 	Nohz string `yaml:"nohz" validation:"oneof:on,off"`
@@ -111,16 +111,17 @@ func (c KernelCmdline) Validate() error {
 
 func validateField(name string, value string, tag string) error {
 	switch {
-	case tag == "cpulist":
-		err := cpu.ValidateList(value)
-		if err != nil {
-			return fmt.Errorf("on field %v: invalid cpulist: %v", name, err)
-		}
-
-	case tag == "isolcpus":
-		err := cpu.ValidateIsolCPUs(value)
-		if err != nil {
-			return fmt.Errorf("on field %v: invalid isolcpus: %v", name, err)
+	case strings.HasPrefix(tag, "cpulist"):
+		if strings.HasSuffix(tag, "isolcpus") {
+			err := cpu.ValidateIsolCPUs(value)
+			if err != nil {
+				return fmt.Errorf("on field %v: invalid isolcpus: %v", name, err)
+			}
+		} else {
+			err := cpu.ValidateList(value)
+			if err != nil {
+				return fmt.Errorf("on field %v: invalid cpulist: %v", name, err)
+			}
 		}
 
 	case strings.HasPrefix(tag, "oneof:"):
