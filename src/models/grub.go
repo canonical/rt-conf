@@ -63,7 +63,7 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 	var msgs []string
 
-	params, err := helpers.ReconstructKeyValuePairs(&cfg.Data.KernelCmdline)
+	params, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reconstruct key-value pairs: %v", err)
 	}
