@@ -5,7 +5,6 @@ import (
 	"reflect"
 )
 
-// translateConfig converts YAML configuration into kernel cmd-line parameters
 func ReconstructKeyValuePairs(v interface{}) ([]string, error) {
 	var keyValuePairs []string
 
