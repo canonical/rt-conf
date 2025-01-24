@@ -61,19 +61,19 @@ type IRQs struct {
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
 	// Isolate CPUs
-	IsolCPUs string `yaml:"isolcpus" validation:"cpulist:isolcpus"`
+	IsolCPUs string `yaml:"isolcpus" kcmd:"isolcpus" validation:"cpulist:isolcpus"`
 
 	// Enable/Disable dyntick idle
-	Nohz string `yaml:"nohz" validation:"oneof:on,off"`
+	Nohz string `yaml:"nohz" kcmd:"nohz" validation:"oneof:on,off"`
 
 	// CPUs for adaptive ticks
-	NohzFull string `yaml:"nohz_full" validation:"cpulist"`
+	NohzFull string `yaml:"nohz_full" kcmd:"nohz_full" "validation:"cpulist"`
 
 	// CPUs for kthreads
-	KthreadCPUs string `yaml:"kthread_cpus" validation:"cpulist"`
+	KthreadCPUs string `yaml:"kthread_cpus" kcmd:"kthread_cpus" validation:"cpulist"`
 
 	// CPUs for IRQs
-	IRQaffinity string `yaml:"irqaffinity" validation:"cpulist"`
+	IRQaffinity string `yaml:"irqaffinity" kcmd:"irqaffinity" validation:"cpulist"`
 }
 
 func ConstructKeyValuePairs(v *KernelCmdline) ([]string, error) {
@@ -88,7 +88,7 @@ func ConstructKeyValuePairs(v *KernelCmdline) ([]string, error) {
 
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
-		key := field.Tag.Get("yaml")
+		key := field.Tag.Get("kcmd")
 		value := valValue.Field(i).String()
 		if key == "" || value == "" {
 			continue
