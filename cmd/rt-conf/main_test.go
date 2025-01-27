@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
 )
 
@@ -28,7 +30,85 @@ type TestCase struct {
 	}
 }
 
+func setupSysCopy(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "tempdir")
+	if err != nil {
+		t.Fatalf("Failed to create temporary directory: %v", err)
+	}
+
+	err = os.CopyFS(tmpDir, os.DirFS("/sys/kernel/irq"))
+	if err != nil {
+		t.Fatalf("Failed to copy directory: %v", err)
+	}
+
+	err = os.CopyFS(tmpDir, os.DirFS("/proc/irq"))
+	if err != nil {
+		t.Fatalf("Failed to copy directory: %v", err)
+	}
+}
+
+type IRQTestCase struct {
+	Yaml   string
+	Writer interrupts.IRQWriter
+	Reader interrupts.IRQReader
+}
+
+func TestHappyIRQtunning(t *testing.T) {
+	mockWriter := &interrupts.MockIRQWriter{}
+	mockReader := &interrupts.MockIRQReader{
+		IRQs: map[string]interrupts.IRQInfo{
+			"10": {
+				Number: 10,
+			},
+		},
+	}
+
+	var happyCases = []IRQTestCase{
+		{
+			Yaml: `
+irq_tunning:
+- cpus: 0
+  filter:
+    number: 10
+`,
+			Writer: mockWriter,
+			Reader: mockReader,
+		},
+	}
+	t.Log("HappyCases:\n", happyCases)
+
+	for i, c := range happyCases {
+		t.Run("Happy Cases", func(t *testing.T) {
+			_, err := mainLogicIRQ(t, c, i)
+			if err != nil {
+				t.Fatalf("On YAML: \n%v\nError: %v", c.Yaml, err)
+			}
+		})
+	}
+}
+
+func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
+	tempConfigPath := setupTempFile(t, c.Yaml, i)
+	t.Cleanup(func() {
+		os.Remove(tempConfigPath)
+	})
+	var conf data.InternalConfig
+	if d, err := data.LoadConfigFile(tempConfigPath); err != nil {
+		return "", fmt.Errorf("failed to load config file: %v", err)
+	} else {
+		conf.Data = *d
+	}
+
+	err := interrupts.ApplyIRQConfig(&conf, c.Reader, c.Writer)
+	if err != nil {
+		log.Fatalf("Failed to process interrupts: %v", err)
+	}
+	return "", nil
+}
+
 func setupTempFile(t *testing.T, content string, idex int) string {
+	t.Helper()
+
 	tmpFile, err := os.CreateTemp("", fmt.Sprintf("tempfile-%d", idex))
 	if err != nil {
 		t.Fatalf("Failed to create temporary file: %v", err)

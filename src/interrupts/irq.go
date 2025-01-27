@@ -2,8 +2,9 @@ package interrupts
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -31,88 +32,199 @@ import (
 // About SMI (System Management Interrupt):
 // https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
 
-type ProcInterrupts struct {
-	Number int
-	CPUs   cpu.CPUs
-	Name   string
+// TODO: THis needs to be superseed in the unit tests
+const (
+	sysKernelIRQ = "/sys/kernel/irq"
+	procIRQ      = "/proc/irq"
+)
+
+// RealIRQWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
+type RealIRQWriter struct{}
+
+// RealIRQReader reads IRQs from the real `/sys/kernel/irq` directory.
+type RealIRQReader struct{}
+
+// Write IRQ affinity
+func (w *RealIRQWriter) WriteCPUAffinity(irqNum, cpus string) error {
+	affinityFile :=
+		fmt.Sprintf("/proc/irq/%s/smp_affinity_list", irqNum)
+	return os.WriteFile(affinityFile, []byte(cpus), 0644)
 }
 
-func ProcessIRQIsolation(cfg *data.InternalConfig) error {
+func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
+	var irqInfos []IRQInfo
 
-	//TODO: Maybe drop this
-	// irqs, err := systemIRQs()
-	// if err != nil {
-	// 	return fmt.Errorf("error mapping IRQs: %v", err)
-	// }
-
-	// isolCPUs := cfg.Data.Interrupts.IsolateCPU
-	// newAffinity := cfg.Data.Interrupts.IRQHandler
-	// if newAffinity == "" {
-	// 	var err error
-	// 	newAffinity, err = cpu.ComplementCPUList(isolCPUs)
-	// 	if err != nil {
-	// 		return fmt.Errorf("error generating complement CPU list: %v", err)
-	// 	}
-	// } else {
-	// 	excl, err := cpu.CPUListsExclusive(isolCPUs, newAffinity)
-	// 	if err != nil {
-	// 		return fmt.Errorf("error checking cpu list mutual exclusion: %v", err)
-	// 	}
-	// 	if !excl {
-	// 		return fmt.Errorf("invalid input: cpu lists not mutually excluded: '%v', '%v'", isolCPUs, newAffinity)
-	// 	}
-	// }
-
-	// if err := remapIRQsAffinity(newAffinity, irqs); err != nil {
-	// 	return fmt.Errorf("error performing CPU isolation: %v", err)
-	// }
-
-	return nil
-}
-
-func remapIRQsAffinity(newAffinity string, irq []uint) error {
-	maxcpus, err := cpu.TotalAvailable()
+	// Read the directories in /sys/kernel/irq
+	dirEntries, err := os.ReadDir(sysKernelIRQ)
 	if err != nil {
-		return fmt.Errorf("error getting total CPUs: %v", err)
-	}
-	fmt.Println("Total CPUs:", maxcpus)
-	for _, i := range irq {
-		f := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", i)
-		err := data.WriteToFile(f, newAffinity)
-		if err == nil {
-			continue
-		}
-		// SMI IRQs are not allowed to be written to from userspace.
-		// It fails with "input/output error"
-		if !strings.Contains(err.Error(), "input/output error") {
-			return fmt.Errorf("error writing to %s: %v", f, err)
-		}
-		log.Printf("Managed IRQ %d, skipped\n", i)
-	}
-	return nil
-}
-
-// Get IRQs from /proc/irq
-func systemIRQs() ([]uint, error) {
-	dirEntries, err := os.ReadDir("/proc/irq")
-	if err != nil {
-		return nil, fmt.Errorf("error reading /proc/irq directory: %v", err)
+		return nil, err
 	}
 
-	var irqNumbers []uint
 	for _, entry := range dirEntries {
-		if !entry.IsDir() {
+		if entry.IsDir() {
+			number, err := strconv.ParseUint(entry.Name(), 10, 32)
+			if err != nil {
+				/* This may happen if the kernel IRQ structure
+				evolves sometime or somehow in the future */
+				continue // Skip if not a valid number
+			}
+			var irqInfo IRQInfo
+			irqInfo.Number = uint(number)
+
+			// Read files in the IRQ directory
+			files := []string{
+				"actions", "chip_name", "name", "type", "wakeup",
+			}
+			for _, file := range files {
+				filePath := filepath.Join(sysKernelIRQ, entry.Name(), file)
+				content, err := os.ReadFile(filePath)
+				if err != nil {
+					// TODO: Log warning here
+					continue
+				}
+				c := strings.TrimSuffix(
+					strings.TrimSpace(string(content)), "\n")
+				switch file {
+				case "actions":
+					irqInfo.Actions = c
+				case "chip_name":
+					irqInfo.ChipName = c
+				case "name":
+					irqInfo.Name = c
+				case "type":
+					irqInfo.Type = c
+				case "wakeup":
+					irqInfo.Wakeup = c
+				}
+			}
+			irqInfos = append(irqInfos, irqInfo)
+		}
+	}
+	return irqInfos, err
+}
+
+// Apply changes based on YAML config
+func ApplyIRQConfig(
+	config *data.InternalConfig,
+	reader IRQReader,
+	writer IRQWriter,
+) error {
+
+	irqs, err := reader.ReadIRQs()
+	if err != nil {
+		return err
+	}
+
+	// Range over IRQ tunning array
+	for _, irqTuning := range config.Data.Interrupts {
+		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
+		if err != nil {
+			return err
+		}
+
+		for _, irqNum := range matchingIRQs {
+			err := writer.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// TODO: Refact this function to shrink the size
+// Filter IRQs by criteria
+func filterIRQs(
+	irqs []IRQInfo,
+	filter data.IRQFilter) ([]string, error) {
+	var matchingIRQs []string
+
+	for _, entry := range irqs {
+		if !strings.HasPrefix(entry.Name, "irq") {
+			continue
+		}
+		irqNum := entry.Name
+		irqPath := filepath.Join(sysKernelIRQ, irqNum)
+
+		// Apply filters
+		match, err := matchFilter(filepath.Base(irqPath), filter.Number)
+		if err != nil {
+			return nil, err
+		}
+		if filter.Number != "" && !match {
 			continue
 		}
 
-		irqNumber, err := strconv.Atoi(entry.Name())
+		match, err = matchFile(filepath.Join(irqPath, "smp_affinity_list"),
+			filter.Action)
 		if err != nil {
-			return nil, fmt.Errorf("error converting %s to int: %v",
-				entry.Name(), err)
+			return nil, err
+		}
+		if filter.Action != "" && !match {
+			continue
 		}
 
-		irqNumbers = append(irqNumbers, uint(irqNumber))
-	}
+		match, err = matchFile(filepath.Join(irqPath, "chip_name"),
+			filter.ChipName)
+		if err != nil {
+			return nil, err
+		}
+		if filter.Action != "" && !match {
+			continue
+		}
 
-	return irqNumbers, nil
+		match, err = matchFile(filepath.Join(irqPath, "name"), filter.Name)
+		if err != nil {
+			return nil, err
+		}
+		if filter.ChipName != "" && !match {
+			continue
+		}
+
+		match, err = matchFile(filepath.Join(irqPath, "type"), filter.Type)
+		if err != nil {
+			return nil, err
+		}
+		if filter.Name != "" && !match {
+			continue
+		}
+
+		match, err = matchFile(filepath.Join(irqPath, "type"), filter.Type)
+		if err != nil {
+			return nil, err
+		}
+		if filter.Type != "" && !match {
+			continue
+		}
+
+		matchingIRQs = append(matchingIRQs, irqNum)
+	}
+	return matchingIRQs, nil
+}
+
+func matchFilter(irqPath, filter string) (bool, error) {
+	// NOTE: The here the filter is already valited as a cpulist
+	irqs, err := cpu.ParseCPUs(filter)
+	if err != nil {
+		return false, err
+	}
+	for irq := range irqs {
+		if strings.Contains(irqPath, strconv.Itoa(irq)) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// Match criteria in a file
+func matchFile(filePath, pattern string) (bool, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return false, err
+	}
+	match, err := regexp.MatchString(pattern, string(content))
+	if err != nil {
+		return false, err
+	}
+	return match, nil
 }
