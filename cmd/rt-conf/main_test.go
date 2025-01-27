@@ -19,17 +19,18 @@ GRUB_TIMEOUT=0
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
 GRUB_CMDLINE_LINUX=""
 `
-
-	configSample = `
-kernel-cmdline:
-  isolcpus: "8-9"
-  dyntick-idle: true
-  adaptive-ticks: "8-9"
-`
 )
 
-func setupTempFile(t *testing.T, content string) string {
-	tmpFile, err := os.CreateTemp("", "test")
+type TestCase struct {
+	Yaml        string
+	Validations []struct {
+		param string
+		value string
+	}
+}
+
+func setupTempFile(t *testing.T, content string, idex int) string {
+	tmpFile, err := os.CreateTemp("", fmt.Sprintf("tempfile-%d", idex))
 	if err != nil {
 		t.Fatalf("Failed to create temporary file: %v", err)
 	}
@@ -44,19 +45,22 @@ func setupTempFile(t *testing.T, content string) string {
 	return tmpFile.Name()
 }
 
-func TestInjectToFile(t *testing.T) {
-	// Set up temporary config-file, grub.cfg and default-grub files
-	tempConfigPath := setupTempFile(t, configSample)
-	tempGrubPath := setupTempFile(t, grubSample)
-	defer os.Remove(tempConfigPath)
-	defer os.Remove(tempGrubPath)
+func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 
-	fmt.Printf("tempConfigPath: %s\n", tempConfigPath)
-	fmt.Printf("tempGrubPath: %s\n", tempGrubPath)
+	// Set up temporary config-file, grub.cfg and default-grub files
+	tempConfigPath := setupTempFile(t, c.Yaml, i)
+	tempGrubPath := setupTempFile(t, grubSample, i)
+	t.Cleanup(func() {
+		os.Remove(tempConfigPath)
+		os.Remove(tempGrubPath)
+	})
+
+	t.Logf("tempConfigPath: %s\n", tempConfigPath)
+	t.Logf("tempGrubPath: %s\n", tempGrubPath)
 
 	var conf data.InternalConfig
 	if d, err := helpers.LoadConfigFile(tempConfigPath); err != nil {
-		t.Fatalf("Failed to load config file: %v", err)
+		return "", fmt.Errorf("failed to load config file: %v", err)
 	} else {
 		conf.Data = *d
 	}
@@ -67,31 +71,144 @@ func TestInjectToFile(t *testing.T) {
 		Pattern: data.PatternGrubDefault,
 	}
 
-	fmt.Printf("Config: %+v\n", conf)
+	t.Logf("Config: %+v\n", conf)
 
 	// Run the InjectToFile method
-	_, err := kcmd.ProcessKcmdArgs(&conf) // TODO: Fix this failing step
+	_, err := kcmd.ProcessKcmdArgs(&conf)
 	if err != nil {
-		t.Fatalf("ProcessKcmdArgs failed: %v", err)
+		return "", fmt.Errorf("ProcessKcmdArgs failed: %v", err)
 	}
 
 	// Verify default-grub updates
 	updatedGrub, err := os.ReadFile(tempGrubPath)
 	if err != nil {
-		t.Fatalf("Failed to read modified grub file: %v", err)
+		return "", fmt.Errorf("failed to read modified grub file: %v", err)
 	}
 
-	testCases := []struct {
-		param string
-		value string
-	}{
-		{"isolcpus", "8-9"},
-		{"nohz", "on"},
-		{"nohz_full", "8-9"},
+	t.Log("\nGrub file: ", string(updatedGrub))
+
+	return string(updatedGrub), nil
+}
+
+func TestHappyMainLogic(t *testing.T) {
+	var happyCases = []TestCase{
+		{
+			Yaml: `
+kernel_cmdline:
+  isolcpus: "0-n"
+  nohz: "on"
+  nohz_full: "0-n"
+  kthread_cpus: "0-n"
+  irqaffinity: "0-n"
+`,
+			Validations: []struct {
+				param string
+				value string
+			}{
+				{"isolcpus", "0-n"},
+				{"nohz", "on"},
+				{"nohz_full", "0-n"},
+				{"kthread_cpus", "0-n"},
+				{"irqaffinity", "0-n"},
+			},
+		},
+		{
+			Yaml: `
+kernel_cmdline:
+  isolcpus: "0"
+  nohz: "off"
+  nohz_full: "0-n"
+  kthread_cpus: "0-n"
+  irqaffinity: "0-n"
+`,
+			Validations: []struct {
+				param string
+				value string
+			}{
+				{"isolcpus", "0"},
+				{"nohz", "off"},
+				{"nohz_full", "0-n"},
+				{"kthread_cpus", "0-n"},
+				{"irqaffinity", "0-n"},
+			},
+		},
 	}
-	for _, tc := range testCases {
-		if !strings.Contains(string(updatedGrub), fmt.Sprintf("%s=%s", tc.param, tc.value)) {
-			t.Errorf("\nExpected %s=%s in grub file, but not found", tc.param, tc.value)
-		}
+	for i, c := range happyCases {
+		t.Run("HappyCases", func(t *testing.T) {
+			for _, tc := range c.Validations {
+
+				s, err := mainLogic(t, c, i)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !strings.Contains(s,
+					fmt.Sprintf("%s=%s", tc.param, tc.value)) {
+					t.Errorf("\nExpected %s=%s in grub file, but not found",
+						tc.param, tc.value)
+				}
+			}
+		})
+	}
+}
+
+func TestUnhappyMainLogic(t *testing.T) {
+	var UnhappyCases = []TestCase{
+		{
+			// isolcpus: "a" is valid
+			Yaml: `
+kernel_cmdline:
+  isolcpus: "a"
+  nohz: "on"
+  nohz_full: "0-n"
+  kthread_cpus: "0"
+  irqaffinity: "0-n"
+`,
+			Validations: nil,
+		},
+		{
+			// irqaffinity: "z" is valid
+			Yaml: `
+kernel_cmdline:
+  isolcpus: "0"
+  nohz: "on"
+  nohz_full: "0-n"
+  kthread_cpus: "z"
+  irqaffinity: "0-n"
+`,
+			Validations: nil,
+		},
+		{
+			// nohz: "true" is valid it should be 'on' or 'off'
+			Yaml: `
+kernel_cmdline:
+  isolcpus: "0"
+  nohz: "true"
+  nohz_full: "0-n"
+  kthread_cpus: "0-n"
+  irqaffinity: "0-n"
+`,
+			Validations: nil,
+		},
+		{
+			// isolcpus: "100000000" is invalid
+			Yaml: `
+kernel_cmdline:
+  isolcpus: "100000000"
+  nohz: "off"
+  nohz_full: "0-n"
+  kthread_cpus: "0-n"
+  irqaffinity: "0-n"
+`,
+			Validations: nil,
+		},
+	}
+	for i, c := range UnhappyCases {
+		t.Run("UnhappyCases", func(t *testing.T) {
+			_, err := mainLogic(t, c, i)
+			if err == nil {
+				t.Fatalf("Expected error, but got nil on YAML: \n%v",
+					c.Yaml)
+			}
+		})
 	}
 }

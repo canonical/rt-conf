@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// TODO: support all
+
 // ParseCPUs parses a CPU list into a set of integers, supporting all formats
 // Inspired in the Kernel documentation:
 // https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists

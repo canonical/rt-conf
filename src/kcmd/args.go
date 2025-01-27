@@ -17,7 +17,10 @@ func ProcessKcmdArgs(c *data.InternalConfig) ([]string, error) {
 	switch sys {
 	case system.Rpi:
 		msgs = append(msgs, "Detected bootloader: Raspberry Pi\n")
-		tmp := models.UpdateRPi(c)
+		tmp, err := models.UpdateRPi(c)
+		if err != nil {
+			return nil, err
+		}
 		msgs = append(msgs, tmp...)
 	case system.Grub:
 		msgs = append(msgs, "Detected bootloader: GRUB\n")
