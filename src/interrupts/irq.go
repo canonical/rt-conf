@@ -9,7 +9,6 @@ import (
 
 	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/helpers"
 )
 
 // NOTE: to be able to remap IRQs:
@@ -39,32 +38,34 @@ type ProcInterrupts struct {
 }
 
 func ProcessIRQIsolation(cfg *data.InternalConfig) error {
-	irqs, err := systemIRQs()
-	if err != nil {
-		return fmt.Errorf("error mapping IRQs: %v", err)
-	}
 
-	isolCPUs := cfg.Data.Interrupts.IsolateCPU
-	newAffinity := cfg.Data.Interrupts.IRQHandler
-	if newAffinity == "" {
-		var err error
-		newAffinity, err = cpu.ComplementCPUList(isolCPUs)
-		if err != nil {
-			return fmt.Errorf("error generating complement CPU list: %v", err)
-		}
-	} else {
-		excl, err := cpu.CPUListsExclusive(isolCPUs, newAffinity)
-		if err != nil {
-			return fmt.Errorf("error checking cpu list mutual exclusion: %v", err)
-		}
-		if !excl {
-			return fmt.Errorf("invalid input: cpu lists not mutually excluded: '%v', '%v'", isolCPUs, newAffinity)
-		}
-	}
+	//TODO: Maybe drop this
+	// irqs, err := systemIRQs()
+	// if err != nil {
+	// 	return fmt.Errorf("error mapping IRQs: %v", err)
+	// }
 
-	if err := remapIRQsAffinity(newAffinity, irqs); err != nil {
-		return fmt.Errorf("error performing CPU isolation: %v", err)
-	}
+	// isolCPUs := cfg.Data.Interrupts.IsolateCPU
+	// newAffinity := cfg.Data.Interrupts.IRQHandler
+	// if newAffinity == "" {
+	// 	var err error
+	// 	newAffinity, err = cpu.ComplementCPUList(isolCPUs)
+	// 	if err != nil {
+	// 		return fmt.Errorf("error generating complement CPU list: %v", err)
+	// 	}
+	// } else {
+	// 	excl, err := cpu.CPUListsExclusive(isolCPUs, newAffinity)
+	// 	if err != nil {
+	// 		return fmt.Errorf("error checking cpu list mutual exclusion: %v", err)
+	// 	}
+	// 	if !excl {
+	// 		return fmt.Errorf("invalid input: cpu lists not mutually excluded: '%v', '%v'", isolCPUs, newAffinity)
+	// 	}
+	// }
+
+	// if err := remapIRQsAffinity(newAffinity, irqs); err != nil {
+	// 	return fmt.Errorf("error performing CPU isolation: %v", err)
+	// }
 
 	return nil
 }
@@ -77,7 +78,7 @@ func remapIRQsAffinity(newAffinity string, irq []uint) error {
 	fmt.Println("Total CPUs:", maxcpus)
 	for _, i := range irq {
 		f := fmt.Sprintf("/proc/irq/%d/smp_affinity_list", i)
-		err := helpers.WriteToFile(f, newAffinity)
+		err := data.WriteToFile(f, newAffinity)
 		if err == nil {
 			continue
 		}

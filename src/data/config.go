@@ -1,13 +1,11 @@
-package helpers
+package data
 
 import (
 	"fmt"
 	"os"
-
-	"github.com/canonical/rt-conf/src/data"
 )
 
-func LoadConfigFile(confPath string) (*data.Config, error) {
+func LoadConfigFile(confPath string) (*Config, error) {
 	_, err := os.Stat(confPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find file: %v", err)

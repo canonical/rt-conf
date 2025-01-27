@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/ui"
@@ -47,7 +46,7 @@ func main() {
 	}
 
 	var conf data.InternalConfig
-	if d, err := helpers.LoadConfigFile(*configPath); err != nil {
+	if d, err := data.LoadConfigFile(*configPath); err != nil {
 		log.Fatalf("Failed to load config file: %v", err)
 	} else {
 		conf.Data = *d

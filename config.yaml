@@ -1,11 +1,30 @@
 # Real time options for the kernel
 
-interrupts:
-  # CPUs to be isolated from IRQs
-  remove-from-cpus: "8-9"
+# runtime options
+irq_tunning:
+- cpus: <cpu_list1>
+  filter:
+    number: <cpu_list_syntax1>
+    action: <regex>
+    chip_name: <regex>
+    name: <regex>
+    type: <regex>
 
-  # CPUs to handle IRQs
-  handle-on-cpus: "0-1" # OPTIONAL
+- cpus: <cpu_list2>
+  filter:
+    number: <cpu_list_syntax1>
+    action: <regex>
+    chip_name: <regex>
+    name: <regex>
+    type: <regex>
+
+
+# interrupts:
+#   # CPUs to be isolated from IRQs
+#   remove-from-cpus: "8-9"
+
+#   # CPUs to handle IRQs
+#   handle-on-cpus: "0-1" # OPTIONAL
 
 kernel_cmdline:
   # Isolate a given set of CPUs from disturbance.

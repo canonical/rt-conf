@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/helpers"
 	"github.com/canonical/rt-conf/src/kcmd"
 )
 
@@ -59,7 +58,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	t.Logf("tempGrubPath: %s\n", tempGrubPath)
 
 	var conf data.InternalConfig
-	if d, err := helpers.LoadConfigFile(tempConfigPath); err != nil {
+	if d, err := data.LoadConfigFile(tempConfigPath); err != nil {
 		return "", fmt.Errorf("failed to load config file: %v", err)
 	} else {
 		conf.Data = *d
@@ -134,13 +133,14 @@ kernel_cmdline:
 		},
 	}
 	for i, c := range happyCases {
+		s, err := mainLogic(t, c, i)
+		if err != nil {
+			t.Fatal(err)
+		}
 		t.Run("HappyCases", func(t *testing.T) {
-			for _, tc := range c.Validations {
-
-				s, err := mainLogic(t, c, i)
-				if err != nil {
-					t.Fatal(err)
-				}
+			for j, tc := range c.Validations {
+				t.Log("Test case: ", j)
+				fmt.Println("Test case: ", j)
 				if !strings.Contains(s,
 					fmt.Sprintf("%s=%s", tc.param, tc.value)) {
 					t.Errorf("\nExpected %s=%s in grub file, but not found",
