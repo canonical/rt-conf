@@ -11,7 +11,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		{
 			name: "valid test",
 			c: IRQTunning{
-				CPUs: "1,2,3",
+				CPUs: "0,1",
 				Filter: IRQFilter{
 					Number:   `1`,
 					Action:   `action`,
@@ -25,7 +25,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		{
 			name: "valid regex",
 			c: IRQTunning{
-				CPUs: "1,2,4",
+				CPUs: "0-n",
 				Filter: IRQFilter{
 					Number:   `1-n`,
 					Action:   `nvme`,
@@ -39,7 +39,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		{
 			name: "valid regex",
 			c: IRQTunning{
-				CPUs: "1,2,4",
+				CPUs: "0,n",
 				Filter: IRQFilter{
 					Number:   `1-n`,
 					Action:   `nvme`,
@@ -53,7 +53,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		{
 			name: "invalid regex",
 			c: IRQTunning{
-				CPUs: "1,2,4",
+				CPUs: "0,1",
 				Filter: IRQFilter{
 					Number:   `1`,
 					Action:   `(?!abc)def`, // Negative lookahead
