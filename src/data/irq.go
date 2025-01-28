@@ -2,8 +2,11 @@ package data
 
 import (
 	"fmt"
+	"os"
 	"regexp"
+	"strconv"
 
+	"github.com/canonical/rt-conf/src/common"
 	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/helpers"
 )
@@ -47,7 +50,11 @@ func (c IRQFilter) Validate() error {
 func (c IRQFilter) validateIRQField(name string, value string, tag string) error {
 	switch {
 	case tag == "cpulist":
-		err := cpu.ValidateIsolCPUs(value)
+		num, err := GetHigherIRQ()
+		if err != nil {
+			return err
+		}
+		err = cpu.ValidateCPUListSyntax(value, num)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid irq list: %v", name,
 				err)
@@ -61,4 +68,31 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 		return fmt.Errorf("on field %v: invalid tag: %v", name, tag)
 	}
 	return nil
+}
+
+func GetHigherIRQ() (int, error) {
+	files, err := os.ReadDir(common.SysKernelIRQ)
+	if err != nil {
+		return 0, err
+	}
+	var irqs []int
+	for _, file := range files {
+		num, err := strconv.Atoi(file.Name())
+		if err != nil {
+			continue
+		}
+		if file.IsDir() {
+			irqs = append(irqs, num)
+		}
+	}
+	if len(irqs) == 0 {
+		return 0, fmt.Errorf("no IRQs found")
+	}
+	bigger := irqs[0]
+	for _, irq := range irqs {
+		if irq > bigger {
+			bigger = irq
+		}
+	}
+	return bigger, nil
 }

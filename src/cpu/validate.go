@@ -22,6 +22,10 @@ func validateList(s string, max int) error {
 	return err
 }
 
+func ValidateCPUListSyntax(s string, max int) error {
+	return validateList(s, max)
+}
+
 func validateListWithFlags(s string, f []string, max int) error {
 	hasFlag := true
 	// Split the string into two parts by the first comma
