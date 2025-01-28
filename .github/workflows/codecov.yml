@@ -1,0 +1,72 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  DEFAULT_BRANCH: 'main'
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the main branch to calculate its coverage
+      - name: Checkout ${{ env.DEFAULT_BRANCH }} branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEFAULT_BRANCH }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.x'
+
+      - name: Install dependencies for ${{ env.DEFAULT_BRANCH }} branch
+        run: go mod tidy
+
+      - name: Run tests with coverage on ${{ env.DEFAULT_BRANCH }} branch
+        run: |
+          go test ./... -coverprofile=coverage.out
+
+      - name: Extract coverage percentage for main branch
+        id: extract-main-coverage
+        run: |
+          main_coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          echo "Main branch coverage: $main_coverage%"
+          echo "main_coverage=$main_coverage" >> $GITHUB_ENV
+
+      # Checkout the PR branch to calculate its coverage
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Install dependencies for PR branch
+        run: go mod tidy
+
+      - name: Run tests with coverage on PR branch
+        run: |
+          go test ./... -coverprofile=coverage.out
+
+      - name: Extract coverage percentage for PR branch
+        id: extract-pr-coverage
+        run: |
+          pr_coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          echo "PR branch coverage: $pr_coverage%"
+          echo "pr_coverage=$pr_coverage" >> $GITHUB_ENV
+
+      # Compare coverage between main and PR branches
+      - name: Compare coverage
+        run: |
+          echo "$DEFAULT_BRANCH branch coverage: $main_coverage%"
+          echo "$GITHUB_HEAD_REF branch coverage: $pr_coverage%"
+
+          if (( $(echo "$pr_coverage < $main_coverage" | bc -l) )); then
+            echo "Code coverage decreased from $main_coverage% to $pr_coverage%"
+            exit 1
+          else
+            echo "Code coverage increased or remained the same: $pr_coverage%"
+          fi
+        shell: bash
