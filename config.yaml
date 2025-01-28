@@ -18,14 +18,6 @@ irq_tunning:
     name: <regex>
     type: <regex>
 
-
-# interrupts:
-#   # CPUs to be isolated from IRQs
-#   remove-from-cpus: "8-9"
-
-#   # CPUs to handle IRQs
-#   handle-on-cpus: "0-1" # OPTIONAL
-
 kernel_cmdline:
   # Isolate a given set of CPUs from disturbance.
   isolcpus: "3-n" # <cpu_list>
