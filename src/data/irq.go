@@ -42,6 +42,8 @@ func (c IRQFilter) Validate() error {
 	return helpers.Validate(c, c.validateIRQField)
 }
 
+// TODO: Validate mutual exclusive cpu lists
+
 func (c IRQFilter) validateIRQField(name string, value string, tag string) error {
 	switch {
 	case tag == "cpulist":
