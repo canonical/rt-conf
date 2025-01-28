@@ -30,22 +30,24 @@ type TestCase struct {
 	}
 }
 
-func setupSysCopy(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "tempdir")
-	if err != nil {
-		t.Fatalf("Failed to create temporary directory: %v", err)
-	}
+// ** NOTE: this approach will be dropped in favor of using the Mocks
 
-	err = os.CopyFS(tmpDir, os.DirFS("/sys/kernel/irq"))
-	if err != nil {
-		t.Fatalf("Failed to copy directory: %v", err)
-	}
+// func setupSysCopy(t *testing.T) {
+// 	tmpDir, err := os.MkdirTemp("", "tempdir")
+// 	if err != nil {
+// 		t.Fatalf("Failed to create temporary directory: %v", err)
+// 	}
 
-	err = os.CopyFS(tmpDir, os.DirFS("/proc/irq"))
-	if err != nil {
-		t.Fatalf("Failed to copy directory: %v", err)
-	}
-}
+// 	err = os.CopyFS(tmpDir, os.DirFS("/sys/kernel/irq"))
+// 	if err != nil {
+// 		t.Fatalf("Failed to copy directory: %v", err)
+// 	}
+
+// 	err = os.CopyFS(tmpDir, os.DirFS("/proc/irq"))
+// 	if err != nil {
+// 		t.Fatalf("Failed to copy directory: %v", err)
+// 	}
+// }
 
 type IRQTestCase struct {
 	Yaml   string
