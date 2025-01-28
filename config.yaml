@@ -2,21 +2,22 @@
 
 # runtime options
 irq_tunning:
-  - cpus: <cpu_list1>
+  - cpus: "4-5"
     filter:
-      number: <cpu_list_syntax1>
-      action: <regex>
-      chip_name: <regex>
-      name: <regex>
-      type: <regex>
+      # number: 8
+      # action: <regex>
+      chip_name: "APIC"
+      # name: <regex>
+      # type: <regex>
 
-  - cpus: <cpu_list2>
-    filter:
-      number: <cpu_list_syntax1>
-      action: <regex>
-      chip_name: <regex>
-      name: <regex>
-      type: <regex>
+  # As many occurencies as you want
+  # - cpus: <cpu_list2>
+  #   filter:
+  #     number: <cpu_list_syntax1>
+  #     action: <regex>
+  #     chip_name: <regex>
+  #     name: <regex>
+  #     type: <regex>
 
 kernel_cmdline:
   # Isolate a given set of CPUs from disturbance.
