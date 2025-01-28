@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"testing"
@@ -31,7 +30,6 @@ type TestCase struct {
 }
 
 // ** NOTE: this approach will be dropped in favor of using the Mocks
-
 // func setupSysCopy(t *testing.T) {
 // 	tmpDir, err := os.MkdirTemp("", "tempdir")
 // 	if err != nil {
@@ -56,14 +54,6 @@ type IRQTestCase struct {
 }
 
 func TestHappyIRQtunning(t *testing.T) {
-	mockWriter := &interrupts.MockIRQWriter{}
-	mockReader := &interrupts.MockIRQReader{
-		IRQs: map[string]interrupts.IRQInfo{
-			"10": {
-				Number: 10,
-			},
-		},
-	}
 
 	var happyCases = []IRQTestCase{
 		{
@@ -73,11 +63,16 @@ irq_tunning:
   filter:
     number: 10
 `,
-			Writer: mockWriter,
-			Reader: mockReader,
+			Writer: &interrupts.MockIRQWriter{},
+			Reader: &interrupts.MockIRQReader{
+				IRQs: map[uint]interrupts.IRQInfo{
+					10: {
+						Number: 10,
+					},
+				},
+			},
 		},
 	}
-	t.Log("HappyCases:\n", happyCases)
 
 	for i, c := range happyCases {
 		t.Run("Happy Cases", func(t *testing.T) {
@@ -89,7 +84,49 @@ irq_tunning:
 	}
 }
 
+func TestUnhappyIRQtunning(t *testing.T) {
+
+	var UnhappyCases = []IRQTestCase{
+		{
+			// Invalid number
+			Yaml: `
+irq_tunning:
+- cpus: 0
+  filter:
+    number: a
+`,
+			Writer: &interrupts.MockIRQWriter{},
+			Reader: &interrupts.MockIRQReader{},
+		},
+		{
+			// Invalid RegEx
+			Yaml: `
+irq_tunning:
+- cpus: 0
+  filter:
+    number: 0
+    action: "*"
+`,
+			Writer: &interrupts.MockIRQWriter{},
+			Reader: &interrupts.MockIRQReader{},
+		},
+	}
+
+	for i, c := range UnhappyCases {
+		t.Run("Unhappy Cases", func(t *testing.T) {
+			_, err := mainLogicIRQ(t, c, i)
+			// if err != nil {
+			// 	t.Fatalf("On YAML: \n%v\nError: %v", c.Yaml, err)
+			// }
+			if err == nil {
+				t.Fatalf("Expected error, got nil on YAML %v", c.Yaml)
+			}
+		})
+	}
+}
+
 func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
+	fmt.Println("[DEBUG] mainLogicIRQ")
 	tempConfigPath := setupTempFile(t, c.Yaml, i)
 	t.Cleanup(func() {
 		os.Remove(tempConfigPath)
@@ -103,7 +140,7 @@ func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
 
 	err := interrupts.ApplyIRQConfig(&conf, c.Reader, c.Writer)
 	if err != nil {
-		log.Fatalf("Failed to process interrupts: %v", err)
+		return "", fmt.Errorf("Failed to process interrupts: %v", err)
 	}
 	return "", nil
 }
