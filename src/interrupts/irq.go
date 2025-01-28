@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/canonical/rt-conf/src/common"
 	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/data"
 )
@@ -32,12 +33,6 @@ import (
 // About SMI (System Management Interrupt):
 // https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
 
-// TODO: THis needs to be superseed in the unit tests
-const (
-	sysKernelIRQ = "/sys/kernel/irq"
-	procIRQ      = "/proc/irq"
-)
-
 // RealIRQWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
 type RealIRQWriter struct{}
 
@@ -47,7 +42,7 @@ type RealIRQReader struct{}
 // Write IRQ affinity
 func (w *RealIRQWriter) WriteCPUAffinity(irqNum, cpus string) error {
 	affinityFile :=
-		fmt.Sprintf("/proc/irq/%s/smp_affinity_list", irqNum)
+		fmt.Sprintf("%s/%s/smp_affinity_list", common.ProcIRQ, irqNum)
 	return os.WriteFile(affinityFile, []byte(cpus), 0644)
 }
 
@@ -55,7 +50,7 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 	var irqInfos []IRQInfo
 
 	// Read the directories in /sys/kernel/irq
-	dirEntries, err := os.ReadDir(sysKernelIRQ)
+	dirEntries, err := os.ReadDir(common.SysKernelIRQ)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +71,9 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 				"actions", "chip_name", "name", "type", "wakeup",
 			}
 			for _, file := range files {
-				filePath := filepath.Join(sysKernelIRQ, entry.Name(), file)
+				filePath := filepath.Join(
+					common.SysKernelIRQ, entry.Name(), file,
+				)
 				content, err := os.ReadFile(filePath)
 				if err != nil {
 					// TODO: Log warning here
@@ -144,7 +141,7 @@ func filterIRQs(
 			continue
 		}
 		irqNum := entry.Name
-		irqPath := filepath.Join(sysKernelIRQ, irqNum)
+		irqPath := filepath.Join(common.SysKernelIRQ, irqNum)
 
 		// Apply filters
 		match, err := matchFilter(filepath.Base(irqPath), filter.Number)
