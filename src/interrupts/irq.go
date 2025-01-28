@@ -40,10 +40,20 @@ type RealIRQWriter struct{}
 type RealIRQReader struct{}
 
 // Write IRQ affinity
-func (w *RealIRQWriter) WriteCPUAffinity(irqNum, cpus string) error {
+func (w *RealIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+	fmt.Println("[DEBUG] REAL WriteCPUAffinity")
 	affinityFile :=
-		fmt.Sprintf("%s/%s/smp_affinity_list", common.ProcIRQ, irqNum)
-	return os.WriteFile(affinityFile, []byte(cpus), 0644)
+		fmt.Sprintf("%s/%d/smp_affinity_list", common.ProcIRQ, irqNum)
+
+	err := os.WriteFile(affinityFile, []byte(cpus), 0644)
+	// SMI are not allowed to be written to from userspace.
+	// It fails with "input/output error" this error can be ignored.
+	if err != nil {
+		if !strings.Contains(err.Error(), "input/output error") {
+			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
+		}
+	}
+	return nil
 }
 
 func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
@@ -64,7 +74,7 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 				continue // Skip if not a valid number
 			}
 			var irqInfo IRQInfo
-			irqInfo.Number = uint(number)
+			irqInfo.Number = int(number)
 
 			// Read files in the IRQ directory
 			files := []string{
@@ -106,6 +116,7 @@ func ApplyIRQConfig(
 	reader IRQReader,
 	writer IRQWriter,
 ) error {
+	fmt.Println("[DEBUG] Applying IRQ config")
 
 	irqs, err := reader.ReadIRQs()
 	if err != nil {
@@ -119,7 +130,16 @@ func ApplyIRQConfig(
 			return err
 		}
 
+		fmt.Printf("[DEBUG] Applying IRQ tuning for %d IRQs\n", len(matchingIRQs))
+
+		//TODO: log warning here
+		if len(matchingIRQs) == 0 {
+			return fmt.Errorf("no IRQs matched the filter: %v",
+				irqTuning.Filter)
+		}
+
 		for _, irqNum := range matchingIRQs {
+			fmt.Println("[DEBUG] Applying IRQ tuning for IRQ", irqNum)
 			err := writer.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
@@ -133,15 +153,20 @@ func ApplyIRQConfig(
 // Filter IRQs by criteria
 func filterIRQs(
 	irqs []IRQInfo,
-	filter data.IRQFilter) ([]string, error) {
-	var matchingIRQs []string
+	filter data.IRQFilter) ([]int, error) {
+	var matchingIRQs []int
+
+	fmt.Println("[DEBUG] Filtering IRQs")
 
 	for _, entry := range irqs {
-		if !strings.HasPrefix(entry.Name, "irq") {
-			continue
-		}
-		irqNum := entry.Name
-		irqPath := filepath.Join(common.SysKernelIRQ, irqNum)
+		// if !strings.HasPrefix(entry.Name, "irq") {
+		// 	continue
+		// }
+		irqNum := entry.Number
+		irqPath := filepath.Join(common.SysKernelIRQ, strconv.Itoa(irqNum))
+
+		fmt.Println("[DEBUG] Filtering IRQ: ", irqNum)
+		fmt.Println("[DEBUG] IRQ path: ", irqPath)
 
 		// Apply filters
 		match, err := matchFilter(filepath.Base(irqPath), filter.Number)
@@ -152,7 +177,7 @@ func filterIRQs(
 			continue
 		}
 
-		match, err = matchFile(filepath.Join(irqPath, "smp_affinity_list"),
+		match, err = matchFile(filepath.Join(irqPath, "actions"),
 			filter.Action)
 		if err != nil {
 			return nil, err
@@ -200,8 +225,15 @@ func filterIRQs(
 }
 
 func matchFilter(irqPath, filter string) (bool, error) {
+	// ** NOTE: this is weird, but its about the syntax and not CPUs
+	var irqs cpu.CPUs
+	num, err := data.GetHigherIRQ()
+	if err != nil {
+		return false, err
+	}
+
 	// NOTE: The here the filter is already valited as a cpulist
-	irqs, err := cpu.ParseCPUs(filter)
+	irqs, err = cpu.ValidateCPUListSyntax(filter, num)
 	if err != nil {
 		return false, err
 	}

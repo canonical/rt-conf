@@ -1,8 +1,10 @@
 package interrupts
 
+import "fmt"
+
 // MockIRQReader is a mock implementation of IRQReader for testing.
 type MockIRQReader struct {
-	IRQs   map[string]IRQInfo
+	IRQs   map[uint]IRQInfo
 	Errors map[string]error
 }
 
@@ -19,17 +21,20 @@ func (m *MockIRQReader) ReadIRQs() ([]IRQInfo, error) {
 
 // MockIRQWriter is a mock implementation of IRQWriter for testing.
 type MockIRQWriter struct {
-	WrittenAffinity map[string]string
+	WrittenAffinity map[int]string
 	Errors          map[string]error
 }
 
-func (m *MockIRQWriter) WriteCPUAffinity(irqNum, cpus string) error {
+func (m *MockIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+	fmt.Println("[DEBUG] MOCK WriteCPUAffinity")
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
 		return err
 	}
 	if m.WrittenAffinity == nil {
-		m.WrittenAffinity = make(map[string]string)
+		m.WrittenAffinity = make(map[int]string)
 	}
+	// TODO: Find a way to expose this to the test
+	fmt.Printf("Writing affinity for IRQ %d: %s", irqNum, cpus)
 	m.WrittenAffinity[irqNum] = cpus
 	return nil
 }

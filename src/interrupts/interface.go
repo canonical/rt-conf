@@ -7,13 +7,13 @@ type IRQReader interface {
 
 // IRQWriter is an interface for writing IRQ affinity to the filesystem.
 type IRQWriter interface {
-	WriteCPUAffinity(irqNum, cpus string) error
+	WriteCPUAffinity(irqNum int, cpus string) error
 }
 
 // IRQInfo represents information about an IRQ.
 type IRQInfo struct {
 	// TODO: review these data types
-	Number   uint
+	Number   int
 	Actions  string
 	ChipName string
 	Name     string

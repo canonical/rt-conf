@@ -22,8 +22,8 @@ func validateList(s string, max int) error {
 	return err
 }
 
-func ValidateCPUListSyntax(s string, max int) error {
-	return validateList(s, max)
+func ValidateCPUListSyntax(s string, max int) (CPUs, error) {
+	return parseCPUs(s, max)
 }
 
 func validateListWithFlags(s string, f []string, max int) error {
