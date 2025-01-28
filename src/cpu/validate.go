@@ -19,7 +19,7 @@ func ValidateList(s string) error {
 }
 
 func validateList(s string, max int) error {
-	_, err := ParseCPUs(s, max)
+	_, err := parseCPUs(s, max)
 	return err
 }
 
@@ -47,11 +47,11 @@ func validateListWithFlags(s string, f []string, max int) error {
 				parts[0], f)
 		}
 
-		_, err := ParseCPUs(parts[1], max)
+		_, err := parseCPUs(parts[1], max)
 		return err
 	}
 
-	_, err = ParseCPUs(s, max)
+	_, err = parseCPUs(s, max)
 	return err
 }
 

@@ -13,7 +13,7 @@ type CPUs map[int]bool
 // returns list'
 func GenerateComplementCPUList(list string, maxcpus int) (string, error) {
 	var listprime []string
-	cpus, err := ParseCPUs(list, maxcpus)
+	cpus, err := parseCPUs(list, maxcpus)
 	if err != nil {
 		return "", err
 	}
@@ -45,11 +45,11 @@ func ComplementCPUList(list string) (string, error) {
 func cpuListsExclusive(list1,
 	list2 string, totalCPUs int) (bool, error) {
 
-	set1, err := ParseCPUs(list1, totalCPUs)
+	set1, err := parseCPUs(list1, totalCPUs)
 	if err != nil {
 		return false, err
 	}
-	set2, err := ParseCPUs(list2, totalCPUs)
+	set2, err := parseCPUs(list2, totalCPUs)
 	if err != nil {
 		return false, err
 	}
