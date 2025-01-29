@@ -47,5 +47,6 @@ apps:
       - proc-irq
       - hardware-observe
     command: bin/rt-conf
+    daemon: oneshot
     environment:
       COMMON_CONFIG_PATH: $SNAP_COMMON/config.yaml
