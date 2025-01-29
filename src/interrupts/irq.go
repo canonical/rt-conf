@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/common"
-	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/data"
 )
 
@@ -33,6 +32,12 @@ import (
 // About SMI (System Management Interrupt):
 // https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
 
+// ** From experiments:
+// ** Non active IRQs (not shown in /proc/interrupts) are the ones which
+// ** doesn't have an action (/sys/kernel/irq/<num>/action) associated with them
+
+type IRQs map[int]bool // use the same logic as CPUs lists
+
 // RealIRQWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
 type RealIRQWriter struct{}
 
@@ -41,7 +46,6 @@ type RealIRQReader struct{}
 
 // Write IRQ affinity
 func (w *RealIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
-	fmt.Println("[DEBUG] REAL WriteCPUAffinity")
 	affinityFile :=
 		fmt.Sprintf("%s/%d/smp_affinity_list", common.ProcIRQ, irqNum)
 
@@ -116,30 +120,31 @@ func ApplyIRQConfig(
 	reader IRQReader,
 	writer IRQWriter,
 ) error {
-	fmt.Println("[DEBUG] Applying IRQ config")
 
 	irqs, err := reader.ReadIRQs()
 	if err != nil {
 		return err
 	}
 
+	if len(irqs) == 0 {
+		return fmt.Errorf("no IRQs found")
+	}
+
 	// Range over IRQ tunning array
 	for _, irqTuning := range config.Data.Interrupts {
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to filter IRQs: %v", err)
 		}
 
-		fmt.Printf("[DEBUG] Applying IRQ tuning for %d IRQs\n", len(matchingIRQs))
-
-		//TODO: log warning here
 		if len(matchingIRQs) == 0 {
+			//TODO: log warning here
+			// TODO: confirm if it should fail when nothing is matched
 			return fmt.Errorf("no IRQs matched the filter: %v",
 				irqTuning.Filter)
 		}
 
-		for _, irqNum := range matchingIRQs {
-			fmt.Println("[DEBUG] Applying IRQ tuning for IRQ", irqNum)
+		for irqNum := range matchingIRQs {
 			err := writer.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
@@ -149,111 +154,40 @@ func ApplyIRQConfig(
 	return nil
 }
 
-// TODO: Refact this function to shrink the size
-// Filter IRQs by criteria
-func filterIRQs(
-	irqs []IRQInfo,
-	filter data.IRQFilter) ([]int, error) {
-	var matchingIRQs []int
+// filterIRQs filters IRQs based on the provided filters (matches any filter).
+func filterIRQs(irqs []IRQInfo, filter data.IRQFilter) (IRQs, error) {
+	matchingIRQs := make(IRQs)
 
-	fmt.Println("[DEBUG] Filtering IRQs")
-
-	for _, entry := range irqs {
-		// if !strings.HasPrefix(entry.Name, "irq") {
-		// 	continue
-		// }
-		irqNum := entry.Number
-		irqPath := filepath.Join(common.SysKernelIRQ, strconv.Itoa(irqNum))
-
-		fmt.Println("[DEBUG] Filtering IRQ: ", irqNum)
-		fmt.Println("[DEBUG] IRQ path: ", irqPath)
-
-		// Apply filters
-		match, err := matchFilter(filepath.Base(irqPath), filter.Number)
-		if err != nil {
-			return nil, err
+	for _, irq := range irqs {
+		if matchesAnyFilter(irq, filter) {
+			matchingIRQs[irq.Number] = true
 		}
-		if filter.Number != "" && !match {
-			continue
-		}
-
-		match, err = matchFile(filepath.Join(irqPath, "actions"),
-			filter.Action)
-		if err != nil {
-			return nil, err
-		}
-		if filter.Action != "" && !match {
-			continue
-		}
-
-		match, err = matchFile(filepath.Join(irqPath, "chip_name"),
-			filter.ChipName)
-		if err != nil {
-			return nil, err
-		}
-		if filter.Action != "" && !match {
-			continue
-		}
-
-		match, err = matchFile(filepath.Join(irqPath, "name"), filter.Name)
-		if err != nil {
-			return nil, err
-		}
-		if filter.ChipName != "" && !match {
-			continue
-		}
-
-		match, err = matchFile(filepath.Join(irqPath, "type"), filter.Type)
-		if err != nil {
-			return nil, err
-		}
-		if filter.Name != "" && !match {
-			continue
-		}
-
-		match, err = matchFile(filepath.Join(irqPath, "type"), filter.Type)
-		if err != nil {
-			return nil, err
-		}
-		if filter.Type != "" && !match {
-			continue
-		}
-
-		matchingIRQs = append(matchingIRQs, irqNum)
 	}
 	return matchingIRQs, nil
 }
 
-func matchFilter(irqPath, filter string) (bool, error) {
-	// ** NOTE: this is weird, but its about the syntax and not CPUs
-	var irqs cpu.CPUs
-	num, err := data.GetHigherIRQ()
-	if err != nil {
-		return false, err
-	}
-
-	// NOTE: The here the filter is already valited as a cpulist
-	irqs, err = cpu.ValidateCPUListSyntax(filter, num)
-	if err != nil {
-		return false, err
-	}
-	for irq := range irqs {
-		if strings.Contains(irqPath, strconv.Itoa(irq)) {
-			return true, nil
-		}
-	}
-	return false, nil
+// matchesAnyFilter checks if an IRQ matches any of the given filters.
+func matchesAnyFilter(irq IRQInfo, filter data.IRQFilter) bool {
+	return matchesFilter(irq.Number, filter.Number) ||
+		matchesRegex(irq.Actions, filter.Action) ||
+		matchesRegex(irq.ChipName, filter.ChipName) ||
+		matchesRegex(irq.Name, filter.Name) ||
+		matchesRegex(irq.Type, filter.Type)
 }
 
-// Match criteria in a file
-func matchFile(filePath, pattern string) (bool, error) {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return false, err
+// matchesFilter checks if an IRQ number matches the filter.
+func matchesFilter(irqNumber int, filter string) bool {
+	if filter == "" {
+		return false
 	}
-	match, err := regexp.MatchString(pattern, string(content))
-	if err != nil {
-		return false, err
+	return strconv.Itoa(irqNumber) == filter
+}
+
+// matchesRegex checks if a field matches a regex pattern.
+func matchesRegex(value, pattern string) bool {
+	if pattern == "" {
+		return false
 	}
-	return match, nil
+	match, err := regexp.MatchString(pattern, value)
+	return err == nil && match
 }

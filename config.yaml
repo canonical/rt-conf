@@ -2,13 +2,32 @@
 
 # runtime options
 irq_tunning:
-  - cpus: "4-5"
+  - cpus: "0-3"
     filter:
       # number: 8
-      # action: <regex>
-      chip_name: "APIC"
-      # name: <regex>
-      # type: <regex>
+      # action: "floppy"
+      action: "ttyS0"
+      # chip_name: "APIC"
+      name: "fasteoi"
+      # type: "level"
+
+  - cpus: "4-6"
+    filter:
+      # number: 8
+      action: "floppy"
+      # action: "ttyS0"
+      # chip_name: "APIC"
+      # name: "fasteoi"
+      # type: "level"
+
+  # - cpus: "0-7"
+  #   filter:
+  #     # number: 8
+  #     # action: "floppy"
+  #     # action: "ttyS0"
+  #     chip_name: "APIC"
+  #     # name: "fasteoi"
+  #     # type: "level"
 
   # As many occurencies as you want
   # - cpus: <cpu_list2>
@@ -19,20 +38,20 @@ irq_tunning:
   #     name: <regex>
   #     type: <regex>
 
-kernel_cmdline:
-  # Isolate a given set of CPUs from disturbance.
-  isolcpus: "3-n" # <cpu_list>
-
-  # Boottime enable/disable dynamic ticks.
-  nohz: "on" # on | off
-
-  # CPUs to be isolated.
-  # Reduces the number of scheduling-clock interrupts,
-  # improving energy efficiency and reducing OS jitter.
-  nohz_full: "3-n" # <cpu_list>
-
-  # List of CPUs specifically allocated for kernel usage
-  kthread_cpus: "0-2" # <cpu_list>
-
-  # List of CPUs specifically allocated for IRQ handling
-  irqaffinity: "0-2"  # <cpu_list>
+# kernel_cmdline:
+#   # Isolate a given set of CPUs from disturbance.
+#   isolcpus: "3-n" # <cpu_list>
+#
+#   # Boottime enable/disable dynamic ticks.
+#   nohz: "on" # on | off
+#
+#   # CPUs to be isolated.
+#   # Reduces the number of scheduling-clock interrupts,
+#   # improving energy efficiency and reducing OS jitter.
+#   nohz_full: "3-n" # <cpu_list>
+#
+#   # List of CPUs specifically allocated for kernel usage
+#   kthread_cpus: "0-2" # <cpu_list>
+#
+#   # List of CPUs specifically allocated for IRQ handling
+#   irqaffinity: "0-2"  # <cpu_list>
