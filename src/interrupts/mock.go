@@ -26,7 +26,6 @@ type MockIRQWriter struct {
 }
 
 func (m *MockIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
-	fmt.Println("[DEBUG] MOCK WriteCPUAffinity")
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
 		return err
 	}

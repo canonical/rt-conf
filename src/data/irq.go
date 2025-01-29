@@ -48,11 +48,9 @@ func (c IRQFilter) Validate() error {
 // TODO: Validate mutual exclusive cpu lists
 
 func (c IRQFilter) validateIRQField(name string, value string, tag string) error {
-	fmt.Println("[DEBUG] Validating IRQ field")
 	switch {
 	case tag == "cpulist":
 		num, err := GetHigherIRQ()
-		fmt.Printf("[DEBUG] Higher IRQ num: %v\n", num)
 		if err != nil {
 			return err
 		}
