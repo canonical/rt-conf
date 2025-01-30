@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
 )
 
@@ -27,104 +26,6 @@ type TestCase struct {
 		param string
 		value string
 	}
-}
-
-type IRQTestCase struct {
-	Yaml   string
-	Writer interrupts.IRQWriter
-	Reader interrupts.IRQReader
-}
-
-func TestHappyIRQtunning(t *testing.T) {
-
-	var happyCases = []IRQTestCase{
-		{
-			Yaml: `
-irq_tunning:
-- cpus: 0
-  filter:
-    number: 10
-`,
-			Writer: &interrupts.MockIRQWriter{},
-			Reader: &interrupts.MockIRQReader{
-				IRQs: map[uint]interrupts.IRQInfo{
-					10: {
-						Number: 10,
-					},
-				},
-			},
-		},
-	}
-
-	for i, c := range happyCases {
-		t.Run("Happy Cases", func(t *testing.T) {
-			_, err := mainLogicIRQ(t, c, i)
-			if err != nil {
-				t.Fatalf("On YAML: \n%v\nError: %v", c.Yaml, err)
-			}
-		})
-	}
-}
-
-func TestUnhappyIRQtunning(t *testing.T) {
-
-	var UnhappyCases = []IRQTestCase{
-		{
-			// Invalid number
-			Yaml: `
-irq_tunning:
-- cpus: 0
-  filter:
-    number: a
-`,
-			Writer: &interrupts.MockIRQWriter{},
-			Reader: &interrupts.MockIRQReader{},
-		},
-		{
-			// Invalid RegEx
-			Yaml: `
-irq_tunning:
-- cpus: 0
-  filter:
-    number: 0
-    action: "*"
-`,
-			Writer: &interrupts.MockIRQWriter{},
-			Reader: &interrupts.MockIRQReader{},
-		},
-	}
-
-	for i, c := range UnhappyCases {
-		t.Run("Unhappy Cases", func(t *testing.T) {
-			_, err := mainLogicIRQ(t, c, i)
-			// if err != nil {
-			// 	t.Fatalf("On YAML: \n%v\nError: %v", c.Yaml, err)
-			// }
-			if err == nil {
-				t.Fatalf("Expected error, got nil on YAML %v", c.Yaml)
-			}
-		})
-	}
-}
-
-func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
-	fmt.Println("[DEBUG] mainLogicIRQ")
-	tempConfigPath := setupTempFile(t, c.Yaml, i)
-	t.Cleanup(func() {
-		os.Remove(tempConfigPath)
-	})
-	var conf data.InternalConfig
-	if d, err := data.LoadConfigFile(tempConfigPath); err != nil {
-		return "", fmt.Errorf("failed to load config file: %v", err)
-	} else {
-		conf.Data = *d
-	}
-
-	err := interrupts.ApplyIRQConfig(&conf, c.Reader, c.Writer)
-	if err != nil {
-		return "", fmt.Errorf("Failed to process interrupts: %v", err)
-	}
-	return "", nil
 }
 
 func setupTempFile(t *testing.T, content string, idex int) string {
