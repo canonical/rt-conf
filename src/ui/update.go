@@ -43,7 +43,13 @@ var placeholders_text = []string{
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
-	var cmdInput tea.Cmd
+
+	// Menu update handlers
+	menuHandlers := map[menuOpt]func(tea.KeyMsg) tea.Cmd{
+		mainMenu:        m.updateMainMenu,
+		kcmdlineMenu:    m.updateKcmdlineMenu,
+		irqAffinityMenu: m.updateIRQMenu,
+	}
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -59,14 +65,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		// Don't match any of the keys below if we're actively filtering.
 
-		if m.currMenu != mainMenu {
 			switch {
+		// This is genertic for all menus
 			case key.Matches(msg, m.keys.Quit):
 				return m, tea.Quit
 
 			case key.Matches(msg, m.keys.goHome):
 				m.currMenu = mainMenu
+		default:
+			if handler, exists := menuHandlers[m.currMenu]; exists {
+				cmds = append(cmds, handler(msg))
+			}
+		}
+	}
 
+	newListModel, cmd := m.list.Update(msg)
+	m.list = newListModel
+	cmds = append(cmds, cmd)
+	return m, tea.Batch(cmds...)
+}
+
+// TODO: fix the problem with the j,k keys being logged
+func (m *Model) updateKcmdlineMenu(msg tea.KeyMsg) tea.Cmd {
+	cmds := make([]tea.Cmd, len(m.kcmdInputs))
+
+	switch {
 			case key.Matches(msg, m.keys.Help):
 				// Once detected the key "?" toggle the help message
 				// but first disable the text input
@@ -81,7 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.focusIndex < applyButtonIndex {
 			cmd = m.kcmdInputs[m.focusIndex].Focus()
 				}
-				return m, cmd
+		return cmd
 
 			case key.Matches(msg, m.keys.Select),
 				key.Matches(msg, m.keys.Up),
@@ -185,31 +208,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.kcmdInputs[i].TextStyle = styles.NoStyle
 			m.kcmdInputs[i].Placeholder = ""
 				}
-
-				return m, tea.Batch(cmds...)
-
-			}
-		}
 	}
-
-	cmdMainMenu := m.updateMainMenu(msg)
-	cmdInput = m.updateInputs(msg)
-	newListModel, cmd := m.list.Update(msg)
-	m.list = newListModel
-	cmds = append(cmds, cmd, cmdInput, cmdMainMenu)
-
-	return m, tea.Batch(cmds...)
+	for i := range m.kcmdInputs {
+		m.kcmdInputs[i], cmds[i] = m.kcmdInputs[i].Update(msg)
+	}
+	return tea.Batch(cmds...)
 }
 
-func (m *Model) updateMainMenu(msg tea.Msg) tea.Cmd {
-	cmds := make([]tea.Cmd, len(m.inputs))
-
-	if m.currMenu == mainMenu {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
+func (m *Model) updateMainMenu(msg tea.KeyMsg) tea.Cmd {
+	cmds := make([]tea.Cmd, len(m.kcmdInputs))
 
 			if m.list.FilterState() == list.Filtering {
-				break
+		return tea.Batch(cmds...)
 			}
 			switch {
 			case key.Matches(msg, m.keys.goHome):
@@ -233,22 +243,5 @@ func (m *Model) updateMainMenu(msg tea.Msg) tea.Cmd {
 				m.list.SetShowHelp(!m.list.ShowHelp())
 				// return m, nil
 			}
-		}
-	}
-
-	return tea.Batch(cmds...)
-}
-
-func (m *Model) updateInputs(msg tea.Msg) tea.Cmd {
-	cmds := make([]tea.Cmd, len(m.kcmdInputs))
-
-	if m.currMenu == kcmdlineMenu {
-		// Only text inputs with Focus() set will respond, so it's safe
-		// to simply update all of them here without any further logic.
-		for i := range m.kcmdInputs {
-			m.kcmdInputs[i], cmds[i] = m.kcmdInputs[i].Update(msg)
-		}
-	}
-
 	return tea.Batch(cmds...)
 }
