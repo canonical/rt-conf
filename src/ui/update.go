@@ -74,12 +74,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				// Checking for overflow since the buttons aren't text inputs
 				if m.focusIndex < applyButtonIndex {
-					m.inputs[m.focusIndex].Blur()
+			m.kcmdInputs[m.focusIndex].Blur()
 				}
 				m.help.ShowAll = !m.help.ShowAll
 
 				if m.focusIndex < applyButtonIndex {
-					cmd = m.inputs[m.focusIndex].Focus()
+			cmd = m.kcmdInputs[m.focusIndex].Focus()
 				}
 				return m, cmd
 
@@ -124,7 +124,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Did the user press enter while the apply button was focused?
 				// TODO: improve mapping of len(m.inputs) to the apply button
 				if key.Matches(msg, m.keys.Select) &&
-					m.focusIndex == len(m.inputs) {
+			m.focusIndex == len(m.kcmdInputs) {
 
 					log.Println("Apply changes")
 
@@ -134,15 +134,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						break
 					}
 
-					m.iConf.Data.KernelCmdline.IsolCPUs = m.inputs[isolcpusIndex].Value()
+			m.iConf.Data.KernelCmdline.IsolCPUs = m.kcmdInputs[isolcpusIndex].Value()
 
-					m.iConf.Data.KernelCmdline.Nohz = m.inputs[nohzIndex].Value()
+			m.iConf.Data.KernelCmdline.Nohz = m.kcmdInputs[nohzIndex].Value()
 
-					m.iConf.Data.KernelCmdline.NohzFull = m.inputs[nohzFullIndex].Value()
+			m.iConf.Data.KernelCmdline.NohzFull = m.kcmdInputs[nohzFullIndex].Value()
 
-					m.iConf.Data.KernelCmdline.KthreadCPUs = m.inputs[kthreadsCPUsIndex].Value()
+			m.iConf.Data.KernelCmdline.KthreadCPUs = m.kcmdInputs[kthreadsCPUsIndex].Value()
 
-					m.iConf.Data.KernelCmdline.IRQaffinity = m.inputs[irqaffinityIndex].Value()
+			m.iConf.Data.KernelCmdline.IRQaffinity = m.kcmdInputs[irqaffinityIndex].Value()
 
 					msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
 					if err != nil {
@@ -169,21 +169,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.NextIndex()
 				}
 
-				cmds := make([]tea.Cmd, len(m.inputs))
-				for i := 0; i <= len(m.inputs)-1; i++ {
+		cmds := make([]tea.Cmd, len(m.kcmdInputs))
+		for i := 0; i <= len(m.kcmdInputs)-1; i++ {
 					if i == m.focusIndex {
 						// Set focused state
-						cmds[i] = m.inputs[i].Focus()
-						m.inputs[i].PromptStyle = styles.FocusedStyle
-						m.inputs[i].TextStyle = styles.FocusedStyle
-						m.inputs[i].Placeholder = placeholders_text[i]
+				cmds[i] = m.kcmdInputs[i].Focus()
+				m.kcmdInputs[i].PromptStyle = styles.FocusedStyle
+				m.kcmdInputs[i].TextStyle = styles.FocusedStyle
+				m.kcmdInputs[i].Placeholder = placeholders_text[i]
 						continue
 					}
 					// Remove focused state
-					m.inputs[i].Blur()
-					m.inputs[i].PromptStyle = styles.NoStyle
-					m.inputs[i].TextStyle = styles.NoStyle
-					m.inputs[i].Placeholder = ""
+			m.kcmdInputs[i].Blur()
+			m.kcmdInputs[i].PromptStyle = styles.NoStyle
+			m.kcmdInputs[i].TextStyle = styles.NoStyle
+			m.kcmdInputs[i].Placeholder = ""
 				}
 
 				return m, tea.Batch(cmds...)
@@ -240,13 +240,13 @@ func (m *Model) updateMainMenu(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Model) updateInputs(msg tea.Msg) tea.Cmd {
-	cmds := make([]tea.Cmd, len(m.inputs))
+	cmds := make([]tea.Cmd, len(m.kcmdInputs))
 
 	if m.currMenu == kcmdlineMenu {
 		// Only text inputs with Focus() set will respond, so it's safe
 		// to simply update all of them here without any further logic.
-		for i := range m.inputs {
-			m.inputs[i], cmds[i] = m.inputs[i].Update(msg)
+		for i := range m.kcmdInputs {
+			m.kcmdInputs[i], cmds[i] = m.kcmdInputs[i].Update(msg)
 		}
 	}
 

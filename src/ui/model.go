@@ -70,6 +70,7 @@ type Model struct {
 	width         int
 	height        int
 	iConf         data.InternalConfig
+	kcmdInputs    []textinput.Model
 	inputs        []textinput.Model
 	focusIndex    int
 	cursorMode    cursor.Mode
@@ -114,7 +115,7 @@ func NewModel(c *data.InternalConfig) Model {
 	return Model{
 		// TODO: Fix this info msg, put in a better place
 		// logMsg:        logmsg[:],
-		inputs:        newTextInputs(),
+		kcmdInputs:    newKcmdTextInputs(),
 		help:          help.New(), // TODO: Check NEED for custom style
 		iConf:         *c,
 		list:          menuList,

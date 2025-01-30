@@ -19,9 +19,9 @@ func (m Model) kcmdlineView() string {
 
 	// The inputs
 	var b strings.Builder
-	for i := range m.inputs {
-		b.WriteString(m.inputs[i].View())
-		if i < len(m.inputs)-1 {
+	for i := range m.kcmdInputs {
+		b.WriteString(m.kcmdInputs[i].View())
+		if i < len(m.kcmdInputs)-1 {
 			b.WriteRune('\n')
 		}
 	}
@@ -32,11 +32,11 @@ func (m Model) kcmdlineView() string {
 	back_button.SetBlurred()
 
 	// TODO: add space between the [ Apply ] and [ Back ] buttons
-	if m.focusIndex == len(m.inputs) {
+	if m.focusIndex == len(m.kcmdInputs) {
 		apply_button.SetFocused()
 		back_button.SetBlurred()
 
-	} else if m.focusIndex == len(m.inputs)+1 {
+	} else if m.focusIndex == len(m.kcmdInputs)+1 {
 		apply_button.SetBlurred()
 		back_button.SetFocused()
 	}

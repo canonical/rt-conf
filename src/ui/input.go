@@ -49,12 +49,12 @@ func (m *Model) Validation() []ErrValidation {
 
 	// TODO: move this logic to outside this function
 	// If focusIndex is out of range, just return the validationErrors
-	if m.focusIndex < 0 || m.focusIndex >= len(m.inputs) {
+	if m.focusIndex < 0 || m.focusIndex >= len(m.kcmdInputs) {
 		return validationErrors
 	}
 
 	log.Println("focusIndex on Validation: ", m.focusIndex)
-	value := m.inputs[m.focusIndex].Value()
+	value := m.kcmdInputs[m.focusIndex].Value()
 
 	// TODO: fetch value from YAML file and SetValue()
 	// m.inputs[m.focusIndex].SetValue(value)

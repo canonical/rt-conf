@@ -69,7 +69,7 @@ func (navigator *MenuNavigator) Previous() error {
 
 func (m *Model) NextIndex() {
 	m.focusIndex++
-	if m.focusIndex > len(m.inputs)+1 {
+	if m.focusIndex > len(m.kcmdInputs)+1 {
 		m.focusIndex = 0
 	}
 }
@@ -77,6 +77,6 @@ func (m *Model) NextIndex() {
 func (m *Model) PrevIndex() {
 	m.focusIndex--
 	if m.focusIndex == -1 {
-		m.focusIndex = len(m.inputs)
+		m.focusIndex = len(m.kcmdInputs)
 	}
 }
