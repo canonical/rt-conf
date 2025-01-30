@@ -168,6 +168,7 @@ func filterIRQs(irqs []IRQInfo, filter data.IRQFilter) (IRQs, error) {
 
 // matchesAnyFilter checks if an IRQ matches any of the given filters.
 func matchesAnyFilter(irq IRQInfo, filter data.IRQFilter) bool {
+	// TODO: these needs to be AND
 	return matchesFilter(irq.Number, filter.Number) ||
 		matchesRegex(irq.Actions, filter.Action) ||
 		matchesRegex(irq.ChipName, filter.ChipName) ||
@@ -178,6 +179,7 @@ func matchesAnyFilter(irq IRQInfo, filter data.IRQFilter) bool {
 // matchesFilter checks if an IRQ number matches the filter.
 func matchesFilter(irqNumber int, filter string) bool {
 	if filter == "" {
+		// TODO: if empty return true since it's an AND
 		return false
 	}
 	return strconv.Itoa(irqNumber) == filter
@@ -186,6 +188,7 @@ func matchesFilter(irqNumber int, filter string) bool {
 // matchesRegex checks if a field matches a regex pattern.
 func matchesRegex(value, pattern string) bool {
 	if pattern == "" {
+		// TODO: if empty return true since it's an AND
 		return false
 	}
 	match, err := regexp.MatchString(pattern, value)
