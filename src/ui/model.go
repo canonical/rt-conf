@@ -126,16 +126,3 @@ func NewModel(c *data.InternalConfig) Model {
 		cursorMode:    cursor.CursorBlink,
 	}
 }
-
-// TODO: figure out what is wrong with this
-// * NOTE: For some reason this update function isn't working properlly *
-// func (m *Model) updateKcmdlineMenu(msg tea.Msg) tea.Cmd {
-// 	cmds := make([]tea.Cmd, len(m.inputs))
-// 	switch msg := msg.(type) {
-// 	case tea.KeyMsg:
-// 		switch {
-// 		case key.Matches(msg, m.keys.goHome):
-// 			m.currMenu = mainMenu
-// 		}
-// 	return tea.Batch(cmds...)
-// }
