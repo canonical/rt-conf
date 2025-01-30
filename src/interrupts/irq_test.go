@@ -128,8 +128,8 @@ irq_tunning:
 	}
 }
 
-func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
-	tempConfigPath := setupTempFile(t, c.Yaml, i)
+func mainLogicIRQ(t *testing.T, cfg IRQTestCase, i int) (string, error) {
+	tempConfigPath := setupTempFile(t, cfg.Yaml, i)
 	t.Cleanup(func() {
 		os.Remove(tempConfigPath)
 	})
@@ -140,7 +140,7 @@ func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
 		conf.Data = *d
 	}
 
-	err := applyIRQConfig(&conf, c.Handler)
+	err := applyIRQConfig(&conf, cfg.Handler)
 	if err != nil {
 		return "", fmt.Errorf("Failed to process interrupts: %v", err)
 	}
