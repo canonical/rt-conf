@@ -75,13 +75,13 @@ func TestHappyIRQtunning(t *testing.T) {
 irq_tunning:
 - cpus: 0
   filter:
-    number: 10
+    action: floppy
 `,
 			Writer: &mockIRQWriter{},
 			Reader: &mockIRQReader{
 				IRQs: map[uint]IRQInfo{
 					10: {
-						Number: 10,
+						Actions: "floppy",
 					},
 				},
 			},

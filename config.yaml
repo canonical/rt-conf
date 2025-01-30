@@ -4,16 +4,14 @@
 irq_tunning:
   - cpus: "0-3"
     filter:
-      # number: 8
       # action: "floppy"
-      action: "ttyS0"
-      # chip_name: "APIC"
+      # action: "ttyS0"
+      # chip_name: "APIC" # this is a bad idea
       name: "fasteoi"
       # type: "level"
 
   - cpus: "4-6"
     filter:
-      # number: 8
       action: "floppy"
       # action: "ttyS0"
       # chip_name: "APIC"
@@ -22,7 +20,6 @@ irq_tunning:
 
   # - cpus: "0-7"
   #   filter:
-  #     # number: 8
   #     # action: "floppy"
   #     # action: "ttyS0"
   #     chip_name: "APIC"
@@ -32,7 +29,6 @@ irq_tunning:
   # As many occurencies as you want
   # - cpus: <cpu_list2>
   #   filter:
-  #     number: <cpu_list_syntax1>
   #     action: <regex>
   #     chip_name: <regex>
   #     name: <regex>
