@@ -24,7 +24,32 @@ func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.description }
 func (i item) FilterValue() string { return i.title }
 
-func newTextInputs() []textinput.Model {
+func newIRQTextInputs() []textinput.Model {
+	// TODO: the size should be dynamic
+	m := make([]textinput.Model, 2)
+
+	var t textinput.Model
+	for i := range m {
+		t = textinput.New()
+		t.Cursor.Style = styles.CursorStyle
+		if i%2 == 0 {
+			// This is the field for the queries parameters
+			t.CharLimit = 64
+			t.Prompt = "IRQs to be tuned > "
+		} else {
+			// This is the field for the CPUs that will handle the matching IRQs
+			t.CharLimit = 32
+			t.Prompt = "CPU list to be applied > "
+			t.Focus()
+			t.PromptStyle = styles.FocusedStyle
+			t.TextStyle = styles.FocusedStyle
+		}
+		m[i] = t
+	}
+	return m
+}
+
+func newKcmdTextInputs() []textinput.Model {
 	m := make([]textinput.Model, 5)
 
 	var t textinput.Model
@@ -71,7 +96,7 @@ type Model struct {
 	height        int
 	iConf         data.InternalConfig
 	kcmdInputs    []textinput.Model
-	inputs        []textinput.Model
+	irqInputs     []textinput.Model
 	focusIndex    int
 	cursorMode    cursor.Mode
 	prevMenu      menuOpt
@@ -116,6 +141,7 @@ func NewModel(c *data.InternalConfig) Model {
 		// TODO: Fix this info msg, put in a better place
 		// logMsg:        logmsg[:],
 		kcmdInputs:    newKcmdTextInputs(),
+		irqInputs:     newIRQTextInputs(),
 		help:          help.New(), // TODO: Check NEED for custom style
 		iConf:         *c,
 		list:          menuList,

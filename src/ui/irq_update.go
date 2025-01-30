@@ -6,89 +6,26 @@ import (
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// TODO: The values of kcmdline menu should come from the YAML file
+// ** NOTE: The index navigation needs to be dynamic now
+// const (
+// 	irqCPUsIndex = iota
+// 	irqNumberIndex
+// 	irqActionIndex
+// 	irqChipNameIndex
+// 	irqNameIndex
+// 	irqTypeIndex
+// )
 
-// TODO: Improve navigation on kcmdline menu.
-// * NOTE: For now, the kcmdline menu navigation is shared between components
-// * that are part of a multiple text input form and two buttons.
-// * The indexing is done by the focusIndex variable, which is incremented or
-// * decremented by the NextIndex() and PrevIndex() functions.
-// * But once it's needed to apply functions specific  to the text inputs, the
-// * it's necessary to check everytime for overflow and underflow of the
-// * focusIndex
-
-const (
-	isolcpusIndex = iota
-	nohzIndex
-	nohzFullIndex
-	kthreadsCPUsIndex
-	irqaffinityIndex
-	applyButtonIndex
-	backButtonIndex
-)
-
-const cpuListPlaceholder = "Enter a CPU list like: 4-n or 3-5 or 2,4,5 "
-
-var placeholders_text = []string{
-	cpuListPlaceholder,
-	"Enter on or off",
-	cpuListPlaceholder,
-	cpuListPlaceholder,
-	cpuListPlaceholder,
+// TODO: Functions to generate new entries for IRQ affinity menu
+func NewIRQTextInputs() textinput.Model {
+	panic("not implemented")
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-
-	// Menu update handlers
-	menuHandlers := map[menuOpt]func(tea.KeyMsg) tea.Cmd{
-		mainMenu:        m.updateMainMenu,
-		kcmdlineMenu:    m.updateKcmdlineMenu,
-		irqAffinityMenu: m.updateIRQMenu,
-	}
-
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		// TODO: check if this will not break the app
-		h, v := styles.AppStyle.GetFrameSize()
-
-		m.width = msg.Width - h
-		m.height = msg.Height - v
-
-		m.list.SetSize(msg.Width-h, msg.Height-v)
-		m.help.Width = msg.Width
-
-	case tea.KeyMsg:
-		log.Println("Pressed key: ", msg.String())
-		// Don't match any of the keys below if we're actively filtering.
-
-		switch {
-		// This is genertic for all menus
-		case key.Matches(msg, m.keys.Quit):
-			return m, tea.Quit
-
-		case key.Matches(msg, m.keys.goHome):
-			m.currMenu = mainMenu
-		default:
-			if handler, exists := menuHandlers[m.currMenu]; exists {
-				cmds = append(cmds, handler(msg))
-			}
-		}
-	}
-
-	newListModel, cmd := m.list.Update(msg)
-	m.list = newListModel
-	cmds = append(cmds, cmd)
-	return m, tea.Batch(cmds...)
-}
-
-// TODO: fix the problem with the j,k keys being logged
-func (m *Model) updateKcmdlineMenu(msg tea.KeyMsg) tea.Cmd {
-	cmds := make([]tea.Cmd, len(m.kcmdInputs))
+func (m *Model) updateIRQMenu(msg tea.KeyMsg) tea.Cmd {
 
 	switch {
 	case key.Matches(msg, m.keys.Help):
@@ -148,7 +85,7 @@ func (m *Model) updateKcmdlineMenu(msg tea.KeyMsg) tea.Cmd {
 		// Did the user press enter while the apply button was focused?
 		// TODO: improve mapping of len(m.inputs) to the apply button
 		if key.Matches(msg, m.keys.Select) &&
-			m.focusIndex == len(m.kcmdInputs) {
+			m.focusIndex == len(m.irqInputs) {
 
 			log.Println("Apply changes")
 
@@ -158,15 +95,15 @@ func (m *Model) updateKcmdlineMenu(msg tea.KeyMsg) tea.Cmd {
 				break
 			}
 
-			m.iConf.Data.KernelCmdline.IsolCPUs = m.kcmdInputs[isolcpusIndex].Value()
+			m.iConf.Data.KernelCmdline.IsolCPUs = m.irqInputs[isolcpusIndex].Value()
 
-			m.iConf.Data.KernelCmdline.Nohz = m.kcmdInputs[nohzIndex].Value()
+			m.iConf.Data.KernelCmdline.Nohz = m.irqInputs[nohzIndex].Value()
 
-			m.iConf.Data.KernelCmdline.NohzFull = m.kcmdInputs[nohzFullIndex].Value()
+			m.iConf.Data.KernelCmdline.NohzFull = m.irqInputs[nohzFullIndex].Value()
 
-			m.iConf.Data.KernelCmdline.KthreadCPUs = m.kcmdInputs[kthreadsCPUsIndex].Value()
+			m.iConf.Data.KernelCmdline.KthreadCPUs = m.irqInputs[kthreadsCPUsIndex].Value()
 
-			m.iConf.Data.KernelCmdline.IRQaffinity = m.kcmdInputs[irqaffinityIndex].Value()
+			m.iConf.Data.KernelCmdline.IRQaffinity = m.irqInputs[irqaffinityIndex].Value()
 
 			msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
 			if err != nil {
@@ -209,20 +146,8 @@ func (m *Model) updateKcmdlineMenu(msg tea.KeyMsg) tea.Cmd {
 			m.kcmdInputs[i].TextStyle = styles.NoStyle
 			m.kcmdInputs[i].Placeholder = ""
 		}
-	}
-	for i := range m.kcmdInputs {
-		m.kcmdInputs[i], cmds[i] = m.kcmdInputs[i].Update(msg)
-	}
-	return tea.Batch(cmds...)
-}
 
-func (m *Model) updateMainMenu(msg tea.KeyMsg) tea.Cmd {
-	cmds := make([]tea.Cmd, len(m.kcmdInputs))
-
-	if m.list.FilterState() == list.Filtering {
 		return tea.Batch(cmds...)
-	}
-	switch {
 	case key.Matches(msg, m.keys.goHome):
 		m.currMenu = mainMenu
 
@@ -244,5 +169,6 @@ func (m *Model) updateMainMenu(msg tea.KeyMsg) tea.Cmd {
 		m.list.SetShowHelp(!m.list.ShowHelp())
 		// return m, nil
 	}
-	return tea.Batch(cmds...)
+
+	return nil
 }
