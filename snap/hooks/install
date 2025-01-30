@@ -1,4 +1,7 @@
 #!/bin/bash -x
 
+# Because the interfaces aren't connected yet, the service will fail to start.
+snapctl stop --disable "$SNAP_NAME.rt-confd"
+
 # Put the default configuration in place
 cp "$SNAP"/config.yaml "$SNAP_COMMON"/config.yaml
