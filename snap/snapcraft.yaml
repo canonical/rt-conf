@@ -39,7 +39,7 @@ plugs:
       - /proc/irq
 
 apps:
-  rt-conf:
+  rt-conf: &rt-conf
     plugs:
       - home
       - etc-default-grub
@@ -47,6 +47,10 @@ apps:
       - proc-irq
       - hardware-observe
     command: bin/rt-conf
-    daemon: oneshot
     environment:
       COMMON_CONFIG_PATH: $SNAP_COMMON/config.yaml
+
+  rt-confd:
+    <<: *rt-conf
+    daemon: oneshot
+    install-mode: enable
