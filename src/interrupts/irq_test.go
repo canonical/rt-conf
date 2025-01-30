@@ -74,7 +74,7 @@ irq_tunning:
 `,
 			Handler: &mockIRQReaderWriter{
 				IRQs: map[uint]IRQInfo{
-					10: {
+					0: {
 						Actions: "floppy",
 					},
 				},
