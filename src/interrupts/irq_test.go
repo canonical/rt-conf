@@ -121,9 +121,6 @@ irq_tunning:
 	for i, c := range UnhappyCases {
 		t.Run("Unhappy Cases", func(t *testing.T) {
 			_, err := mainLogicIRQ(t, c, i)
-			// if err != nil {
-			// 	t.Fatalf("On YAML: \n%v\nError: %v", c.Yaml, err)
-			// }
 			if err == nil {
 				t.Fatalf("Expected error, got nil on YAML %v", c.Yaml)
 			}
