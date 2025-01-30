@@ -114,8 +114,12 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 	return irqInfos, err
 }
 
+func ApplyIRQConfig(config *data.InternalConfig) error {
+	return applyIRQConfig(config, &RealIRQReader{}, &RealIRQWriter{})
+}
+
 // Apply changes based on YAML config
-func ApplyIRQConfig(
+func applyIRQConfig(
 	config *data.InternalConfig,
 	reader IRQReader,
 	writer IRQWriter,

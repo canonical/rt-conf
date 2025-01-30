@@ -151,7 +151,7 @@ func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
 		conf.Data = *d
 	}
 
-	err := ApplyIRQConfig(&conf, c.Reader, c.Writer)
+	err := applyIRQConfig(&conf, c.Reader, c.Writer)
 	if err != nil {
 		return "", fmt.Errorf("Failed to process interrupts: %v", err)
 	}

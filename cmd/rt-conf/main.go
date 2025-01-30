@@ -79,9 +79,7 @@ func main() {
 		return
 	}
 
-	reader := &interrupts.RealIRQReader{}
-	writer := &interrupts.RealIRQWriter{}
-	err = interrupts.ApplyIRQConfig(&conf, reader, writer)
+	err = interrupts.ApplyIRQConfig(&conf)
 	if err != nil {
 		log.Fatalf("Failed to process interrupts: %v", err)
 	}
