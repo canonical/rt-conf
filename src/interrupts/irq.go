@@ -38,14 +38,14 @@ import (
 
 type IRQs map[int]bool // use the same logic as CPUs lists
 
-// RealIRQWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
-type RealIRQWriter struct{}
+// realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
+type realIRQReaderWriter struct{}
 
 // RealIRQReader reads IRQs from the real `/sys/kernel/irq` directory.
 type RealIRQReader struct{}
 
 // Write IRQ affinity
-func (w *RealIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	affinityFile :=
 		fmt.Sprintf("%s/%d/smp_affinity_list", common.ProcIRQ, irqNum)
 
@@ -60,7 +60,7 @@ func (w *RealIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	return nil
 }
 
-func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
+func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	var irqInfos []IRQInfo
 
 	// Read the directories in /sys/kernel/irq
@@ -115,17 +115,16 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func ApplyIRQConfig(config *data.InternalConfig) error {
-	return applyIRQConfig(config, &RealIRQReader{}, &RealIRQWriter{})
+	return applyIRQConfig(config, &realIRQReaderWriter{})
 }
 
 // Apply changes based on YAML config
 func applyIRQConfig(
 	config *data.InternalConfig,
-	reader IRQReader,
-	writer IRQWriter,
+	handler IRQReaderWriter,
 ) error {
 
-	irqs, err := reader.ReadIRQs()
+	irqs, err := handler.ReadIRQs()
 	if err != nil {
 		return err
 	}
@@ -149,7 +148,7 @@ func applyIRQConfig(
 		}
 
 		for irqNum := range matchingIRQs {
-			err := writer.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
 			}

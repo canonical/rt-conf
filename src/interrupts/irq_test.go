@@ -8,12 +8,14 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 )
 
-type mockIRQReader struct {
-	IRQs   map[uint]IRQInfo
-	Errors map[string]error
+// MockIRQReaderWriter is a mock implementation of IRQReaderWriter for testing.
+type mockIRQReaderWriter struct {
+	IRQs            map[uint]IRQInfo
+	WrittenAffinity map[int]string
+	Errors          map[string]error
 }
 
-func (m *mockIRQReader) ReadIRQs() ([]IRQInfo, error) {
+func (m *mockIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	if err, ok := m.Errors["ReadIRQs"]; ok {
 		return nil, err
 	}
@@ -24,13 +26,7 @@ func (m *mockIRQReader) ReadIRQs() ([]IRQInfo, error) {
 	return irqInfos, nil
 }
 
-// MockIRQWriter is a mock implementation of IRQWriter for testing.
-type mockIRQWriter struct {
-	WrittenAffinity map[int]string
-	Errors          map[string]error
-}
-
-func (m *mockIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
 		return err
 	}
@@ -44,9 +40,8 @@ func (m *mockIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 }
 
 type IRQTestCase struct {
-	Yaml   string
-	Writer IRQWriter
-	Reader IRQReader
+	Yaml    string
+	Handler IRQReaderWriter
 }
 
 func setupTempFile(t *testing.T, content string, idex int) string {
@@ -77,8 +72,7 @@ irq_tunning:
   filter:
     action: floppy
 `,
-			Writer: &mockIRQWriter{},
-			Reader: &mockIRQReader{
+			Handler: &mockIRQReaderWriter{
 				IRQs: map[uint]IRQInfo{
 					10: {
 						Actions: "floppy",
@@ -109,8 +103,7 @@ irq_tunning:
   filter:
     number: a
 `,
-			Writer: &mockIRQWriter{},
-			Reader: &mockIRQReader{},
+			Handler: &mockIRQReaderWriter{},
 		},
 		{
 			// Invalid RegEx
@@ -121,8 +114,7 @@ irq_tunning:
     number: 0
     action: "*"
 `,
-			Writer: &mockIRQWriter{},
-			Reader: &mockIRQReader{},
+			Handler: &mockIRQReaderWriter{},
 		},
 	}
 
@@ -151,7 +143,7 @@ func mainLogicIRQ(t *testing.T, c IRQTestCase, i int) (string, error) {
 		conf.Data = *d
 	}
 
-	err := applyIRQConfig(&conf, c.Reader, c.Writer)
+	err := applyIRQConfig(&conf, c.Handler)
 	if err != nil {
 		return "", fmt.Errorf("Failed to process interrupts: %v", err)
 	}
