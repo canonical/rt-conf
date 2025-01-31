@@ -2,6 +2,7 @@ package interrupts
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -50,7 +51,9 @@ func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	// SMI are not allowed to be written to from userspace.
 	// It fails with "input/output error" this error can be ignored.
 	if err != nil {
-		if !strings.Contains(err.Error(), "input/output error") {
+		if strings.Contains(err.Error(), "input/output error") {
+			log.Printf("Managed IRQ %s, skipped", affinityFile)
+		} else {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
 	}
