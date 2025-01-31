@@ -1,7 +1,22 @@
 #!/bin/bash -x
 
+etcDefaultGrub=$(
+  snapctl is-connected etc-default-grub
+  echo $?
+)
+procDeviceTreeModel=$(
+  snapctl is-connected proc-device-tree-model
+  echo $?
+)
+hardwareObserve=$(
+  snapctl is-connected hardware-observe
+  echo $?
+)
+
 # Because the interfaces aren't connected yet, the service will fail to start.
-snapctl stop --disable "$SNAP_NAME.rt-confd"
+if ! ("$etcDefaultGrub" && "$procDeviceTreeModel" && "$hardwareObserve"); then
+  snapctl stop --disable "$SNAP_NAME.rt-confd"
+fi
 
 # Put the default configuration in place
 cp "$SNAP"/config.yaml "$SNAP_COMMON"/config.yaml
