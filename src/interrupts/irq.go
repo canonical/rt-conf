@@ -57,6 +57,7 @@ func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
 	}
+	log.Printf("Set %s to %s", affinityFile, cpus)
 	return nil
 }
 
