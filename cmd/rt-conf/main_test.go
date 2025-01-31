@@ -241,7 +241,6 @@ kernel_cmdline:
 		t.Run("HappyCases", func(t *testing.T) {
 			for j, tc := range c.Validations {
 				t.Log("Test case: ", j)
-				fmt.Println("Test case: ", j)
 				if !strings.Contains(s,
 					fmt.Sprintf("%s=%s", tc.param, tc.value)) {
 					t.Errorf("\nExpected %s=%s in grub file, but not found",

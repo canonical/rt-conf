@@ -1,12 +1,8 @@
 package interrupts
 
-// IRQReader is an interface for reading IRQ data from the filesystem.
-type IRQReader interface {
+// IRQReaderWriter is an interface for read and write IRQ data from the filesystem.
+type IRQReaderWriter interface {
 	ReadIRQs() ([]IRQInfo, error)
-}
-
-// IRQWriter is an interface for writing IRQ affinity to the filesystem.
-type IRQWriter interface {
 	WriteCPUAffinity(irqNum int, cpus string) error
 }
 

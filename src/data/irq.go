@@ -29,8 +29,7 @@ func (c IRQTunning) Validate() error {
 }
 
 type IRQFilter struct {
-	Number   string `yaml:"number" validation:"cpulist"`
-	Action   string `yaml:"action" validation:"regex"`
+	Actions  string `yaml:"actions" validation:"regex"`
 	ChipName string `yaml:"chip_name" validation:"regex"`
 	Name     string `yaml:"name" validation:"regex"`
 	Type     string `yaml:"type" validation:"regex"`

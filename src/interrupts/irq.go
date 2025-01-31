@@ -38,14 +38,11 @@ import (
 
 type IRQs map[int]bool // use the same logic as CPUs lists
 
-// RealIRQWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
-type RealIRQWriter struct{}
-
-// RealIRQReader reads IRQs from the real `/sys/kernel/irq` directory.
-type RealIRQReader struct{}
+// realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
+type realIRQReaderWriter struct{}
 
 // Write IRQ affinity
-func (w *RealIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	affinityFile :=
 		fmt.Sprintf("%s/%d/smp_affinity_list", common.ProcIRQ, irqNum)
 
@@ -53,14 +50,18 @@ func (w *RealIRQWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	// SMI are not allowed to be written to from userspace.
 	// It fails with "input/output error" this error can be ignored.
 	if err != nil {
-		if !strings.Contains(err.Error(), "input/output error") {
+		if strings.Contains(err.Error(), "input/output error") {
+			log.Printf("Skipped read-only (managed?) IRQ: %s: %s",
+				affinityFile, err)
+		} else {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
 	}
+	log.Printf("Set %s to %s", affinityFile, cpus)
 	return nil
 }
 
-func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
+func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	var irqInfos []IRQInfo
 
 	// Read the directories in /sys/kernel/irq
@@ -71,6 +72,7 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 
 	for _, entry := range dirEntries {
 		if entry.IsDir() {
+			nonActiveIRQ := true
 			number, err := strconv.ParseUint(entry.Name(), 10, 32)
 			if err != nil {
 				/* This may happen if the kernel IRQ structure
@@ -97,6 +99,12 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 					strings.TrimSpace(string(content)), "\n")
 				switch file {
 				case "actions":
+					if c == "" {
+						log.Printf("Ignoring IRQ %s: (no actions)", filePath)
+						nonActiveIRQ = true
+						break
+					}
+					nonActiveIRQ = false
 					irqInfo.Actions = c
 				case "chip_name":
 					irqInfo.ChipName = c
@@ -108,20 +116,26 @@ func (r *RealIRQReader) ReadIRQs() ([]IRQInfo, error) {
 					irqInfo.Wakeup = c
 				}
 			}
-			irqInfos = append(irqInfos, irqInfo)
+			// Only append active IRQs
+			if !nonActiveIRQ {
+				irqInfos = append(irqInfos, irqInfo)
+			}
 		}
 	}
 	return irqInfos, err
 }
 
+func ApplyIRQConfig(config *data.InternalConfig) error {
+	return applyIRQConfig(config, &realIRQReaderWriter{})
+}
+
 // Apply changes based on YAML config
-func ApplyIRQConfig(
+func applyIRQConfig(
 	config *data.InternalConfig,
-	reader IRQReader,
-	writer IRQWriter,
+	handler IRQReaderWriter,
 ) error {
 
-	irqs, err := reader.ReadIRQs()
+	irqs, err := handler.ReadIRQs()
 	if err != nil {
 		return err
 	}
@@ -138,14 +152,14 @@ func ApplyIRQConfig(
 		}
 
 		if len(matchingIRQs) == 0 {
-			//TODO: log warning here
+			log.Println("WARN: no IRQs matched the filter")
 			// TODO: confirm if it should fail when nothing is matched
 			return fmt.Errorf("no IRQs matched the filter: %v",
 				irqTuning.Filter)
 		}
 
 		for irqNum := range matchingIRQs {
-			err := writer.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
 			}
@@ -168,25 +182,16 @@ func filterIRQs(irqs []IRQInfo, filter data.IRQFilter) (IRQs, error) {
 
 // matchesAnyFilter checks if an IRQ matches any of the given filters.
 func matchesAnyFilter(irq IRQInfo, filter data.IRQFilter) bool {
-	return matchesFilter(irq.Number, filter.Number) ||
-		matchesRegex(irq.Actions, filter.Action) ||
-		matchesRegex(irq.ChipName, filter.ChipName) ||
-		matchesRegex(irq.Name, filter.Name) ||
+	return matchesRegex(irq.Actions, filter.Actions) &&
+		matchesRegex(irq.ChipName, filter.ChipName) &&
+		matchesRegex(irq.Name, filter.Name) &&
 		matchesRegex(irq.Type, filter.Type)
-}
-
-// matchesFilter checks if an IRQ number matches the filter.
-func matchesFilter(irqNumber int, filter string) bool {
-	if filter == "" {
-		return false
-	}
-	return strconv.Itoa(irqNumber) == filter
 }
 
 // matchesRegex checks if a field matches a regex pattern.
 func matchesRegex(value, pattern string) bool {
 	if pattern == "" {
-		return false
+		return true
 	}
 	match, err := regexp.MatchString(pattern, value)
 	return err == nil && match
