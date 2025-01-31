@@ -100,7 +100,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 				switch file {
 				case "actions":
 					if c == "" {
-						// Skip IRQs without actions (non active IRQs)
+						log.Printf("Ignoring IRQ %s: (no actions)", filePath)
 						nonActiveIRQ = true
 						break
 					}
