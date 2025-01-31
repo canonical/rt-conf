@@ -12,7 +12,15 @@ import (
 // Inspired in the Kernel documentation:
 // https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists
 // I had nightmares about this function
-func ParseCPUs(cpuList string, totalCPUs int) (CPUs, error) {
+func ParseCPUs(cpuList string) (CPUs, error) {
+	max, err := TotalAvailable()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get total available CPUs: %v", err)
+	}
+	return parseCPUs(cpuList, max)
+}
+
+func parseCPUs(cpuList string, totalCPUs int) (CPUs, error) {
 	cpus := make(CPUs)
 	items := strings.Split(cpuList, ",")
 

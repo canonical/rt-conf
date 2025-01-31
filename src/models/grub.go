@@ -7,7 +7,6 @@ import (
 
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/execute"
-	"github.com/canonical/rt-conf/src/helpers"
 )
 
 // grubCfgTransformer handles transformations for /boot/grub/grub.cfg
@@ -74,7 +73,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 		Params:   params,
 	}
 
-	if err := helpers.ProcessFile(grubDefault); err != nil {
+	if err := data.ProcessFile(grubDefault); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 
