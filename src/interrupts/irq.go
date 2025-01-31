@@ -172,7 +172,7 @@ func filterIRQs(irqs []IRQInfo, filter data.IRQFilter) (IRQs, error) {
 
 // matchesAnyFilter checks if an IRQ matches any of the given filters.
 func matchesAnyFilter(irq IRQInfo, filter data.IRQFilter) bool {
-	return matchesRegex(irq.Actions, filter.Action) &&
+	return matchesRegex(irq.Actions, filter.Actions) &&
 		matchesRegex(irq.ChipName, filter.ChipName) &&
 		matchesRegex(irq.Name, filter.Name) &&
 		matchesRegex(irq.Type, filter.Type)

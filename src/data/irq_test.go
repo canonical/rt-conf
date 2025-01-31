@@ -13,7 +13,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 			c: IRQTunning{
 				CPUs: "0,1",
 				Filter: IRQFilter{
-					Action:   `action`,
+					Actions:  `action`,
 					ChipName: `chip_name`,
 					Name:     `name`,
 					Type:     `type`,
@@ -26,7 +26,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 			c: IRQTunning{
 				CPUs: "0-n",
 				Filter: IRQFilter{
-					Action:   `nvme`,
+					Actions:  `nvme`,
 					ChipName: `-PCI-`,
 					Name:     `name`,
 					Type:     `type`,
@@ -39,7 +39,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 			c: IRQTunning{
 				CPUs: "0,n",
 				Filter: IRQFilter{
-					Action:   `nvme`,
+					Actions:  `nvme`,
 					ChipName: `-PCI-`,
 					Name:     `\d`,
 					Type:     `type`,
@@ -52,7 +52,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 			c: IRQTunning{
 				CPUs: "0,1",
 				Filter: IRQFilter{
-					Action:   `(?!abc)def`, // Negative lookahead
+					Actions:  `(?!abc)def`, // Negative lookahead
 					ChipName: `chip_name`,
 					Name:     `name`,
 					Type:     `type`,
