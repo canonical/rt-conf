@@ -41,9 +41,6 @@ type IRQs map[int]bool // use the same logic as CPUs lists
 // realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
 type realIRQReaderWriter struct{}
 
-// RealIRQReader reads IRQs from the real `/sys/kernel/irq` directory.
-type RealIRQReader struct{}
-
 // Write IRQ affinity
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	affinityFile :=
