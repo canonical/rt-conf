@@ -142,7 +142,7 @@ func applyIRQConfig(
 		}
 
 		if len(matchingIRQs) == 0 {
-			//TODO: log warning here
+			log.Println("WARN: no IRQs matched the filter")
 			// TODO: confirm if it should fail when nothing is matched
 			return fmt.Errorf("no IRQs matched the filter: %v",
 				irqTuning.Filter)
