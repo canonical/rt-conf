@@ -64,4 +64,3 @@ apps:
   rt-confd:
     <<: *rt-conf
     daemon: oneshot
-    install-mode: enable
