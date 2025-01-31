@@ -72,6 +72,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 
 	for _, entry := range dirEntries {
 		if entry.IsDir() {
+			nonActiveIRQ := true
 			number, err := strconv.ParseUint(entry.Name(), 10, 32)
 			if err != nil {
 				/* This may happen if the kernel IRQ structure
@@ -98,6 +99,12 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 					strings.TrimSpace(string(content)), "\n")
 				switch file {
 				case "actions":
+					if c == "" {
+						// Skip IRQs without actions (non active IRQs)
+						nonActiveIRQ = true
+						break
+					}
+					nonActiveIRQ = false
 					irqInfo.Actions = c
 				case "chip_name":
 					irqInfo.ChipName = c
@@ -109,7 +116,10 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 					irqInfo.Wakeup = c
 				}
 			}
-			irqInfos = append(irqInfos, irqInfo)
+			// Only append active IRQs
+			if !nonActiveIRQ {
+				irqInfos = append(irqInfos, irqInfo)
+			}
 		}
 	}
 	return irqInfos, err
