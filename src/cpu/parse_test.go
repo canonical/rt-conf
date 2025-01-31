@@ -63,7 +63,7 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			res, err := ParseCPUs(tt.input, tt.tCores)
+			res, err := parseCPUs(tt.input, tt.tCores)
 			if err != nil {
 				t.Fatalf("ParseCPUs failed: %v", err)
 			}
@@ -169,7 +169,7 @@ func TestParseCPUSlistsUnhappy(t *testing.T) {
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			_, err := ParseCPUs(tt.input, tt.tCores)
+			_, err := parseCPUs(tt.input, tt.tCores)
 			if err == nil {
 				t.Fatalf("expected error, got nil")
 			}
