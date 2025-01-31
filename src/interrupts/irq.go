@@ -52,7 +52,8 @@ func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	// It fails with "input/output error" this error can be ignored.
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
-			log.Printf("Managed IRQ %s, skipped", affinityFile)
+			log.Printf("Skipped read-only (managed?) IRQ: %s: %s",
+				affinityFile, err)
 		} else {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
