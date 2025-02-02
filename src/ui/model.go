@@ -24,28 +24,29 @@ func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.description }
 func (i item) FilterValue() string { return i.title }
 
-func newIRQTextInputs() []textinput.Model {
-	// TODO: the size should be dynamic
-	m := make([]textinput.Model, 2)
+func InitNewIRQTextInputs() []textinput.Model {
+	m := newIRQtextInputs()
+	m[0].Focus()
+	m[0].PromptStyle = styles.FocusedStyle
+	m[0].TextStyle = styles.FocusedStyle
+	m[0].Placeholder = irqFilterPlaceholder
 
-	var t textinput.Model
-	for i := range m {
-		t = textinput.New()
+	return m
+}
+
+func newIRQtextInputs() []textinput.Model {
+	m := make([]textinput.Model, 2)
+	t := textinput.New()
 		t.Cursor.Style = styles.CursorStyle
-		if i%2 == 0 {
-			// This is the field for the queries parameters
+	t.Cursor.SetMode(cursor.CursorBlink) // TODO: check why this isn't working
 			t.CharLimit = 64
-			t.Prompt = "IRQs to be tuned > "
-		} else {
-			// This is the field for the CPUs that will handle the matching IRQs
-			t.CharLimit = 32
-			t.Prompt = "CPU list to be applied > "
-			t.Focus()
-			t.PromptStyle = styles.FocusedStyle
-			t.TextStyle = styles.FocusedStyle
-		}
-		m[i] = t
-	}
+
+	// TODO: This order needs to be reviwed
+	t.Prompt = "Filter > "
+	m[0] = t
+	t.Prompt = "CPU Range > "
+	m[1] = t
+
 	return m
 }
 
@@ -144,7 +145,7 @@ func NewModel(c *data.InternalConfig) Model {
 		// TODO: Fix this info msg, put in a better place
 		// logMsg:        logmsg[:],
 		kcmdInputs:    newKcmdTextInputs(),
-		irqInputs:     newIRQTextInputs(),
+		irqInputs:     InitNewIRQTextInputs(),
 		help:          help.New(), // TODO: Check NEED for custom style
 		iConf:         *c,
 		list:          menuList,
