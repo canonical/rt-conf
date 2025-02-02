@@ -1,6 +1,10 @@
 package ui
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/charmbracelet/bubbles/textinput"
+)
 
 type menuOpt int
 
@@ -67,16 +71,31 @@ func (navigator *MenuNavigator) Previous() error {
 
 // ******************** MENU NAVIGATION ********************
 
-func (m *Model) NextIndex() {
-	m.focusIndex++
-	if m.focusIndex > len(m.kcmdInputs)+1 {
-		m.focusIndex = 0
+func (m *Model) NextIndex(i *int, inputs []textinput.Model) {
+	*i++
+	if *i > len(inputs)+1 {
+		*i = 0
 	}
 }
 
-func (m *Model) PrevIndex() {
-	m.focusIndex--
-	if m.focusIndex == -1 {
-		m.focusIndex = len(m.kcmdInputs)
+func (m *Model) PrevIndex(i *int, inputs []textinput.Model) {
+	*i--
+	if *i == -1 {
+		*i = len(inputs)
 	}
+}
+
+// updateFocusIndex updates the focus index based on the given direction.
+// direction should be +1 (move down) or -1 (move up).
+// total is the total number of navigable items.
+func updateFocusIndex(current *int, total, direction int) {
+	*current = (*current + direction + total) % total
+}
+
+func nextFoxcusIndex(current *int, total int) {
+	updateFocusIndex(current, total, +1)
+}
+
+func prevFocusIndex(current *int, total int) {
+	updateFocusIndex(current, total, -1)
 }
