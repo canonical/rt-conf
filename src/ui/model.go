@@ -58,6 +58,8 @@ func newKcmdTextInputs() []textinput.Model {
 		t = textinput.New()
 		t.Cursor.Style = styles.CursorStyle
 		t.CharLimit = 32
+		// TODO: check why Cursor isn't blinking
+		t.Cursor.SetMode(cursor.CursorBlink)
 
 		switch i {
 		case isolcpusIndex:
