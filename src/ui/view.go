@@ -115,11 +115,11 @@ func (m Model) kcmdlineView() string {
 	back_button.SetBlurred()
 
 	// TODO: add space between the [ Apply ] and [ Back ] buttons
-	if m.focusIndex == len(m.kcmdInputs) {
+	if m.kcmdFocusIndex == len(m.kcmdInputs) {
 		apply_button.SetFocused()
 		back_button.SetBlurred()
 
-	} else if m.focusIndex == len(m.kcmdInputs)+1 {
+	} else if m.kcmdFocusIndex == len(m.kcmdInputs)+1 {
 		apply_button.SetBlurred()
 		back_button.SetFocused()
 	}

@@ -49,18 +49,18 @@ func (m *Model) Validation() []ErrValidation {
 
 	// TODO: move this logic to outside this function
 	// If focusIndex is out of range, just return the validationErrors
-	if m.focusIndex < 0 || m.focusIndex >= len(m.kcmdInputs) {
+	if m.kcmdFocusIndex < 0 || m.kcmdFocusIndex >= len(m.kcmdInputs) {
 		return validationErrors
 	}
 
-	log.Println("focusIndex on Validation: ", m.focusIndex)
-	value := m.kcmdInputs[m.focusIndex].Value()
+	log.Println("focusIndex on Validation: ", m.kcmdFocusIndex)
+	value := m.kcmdInputs[m.kcmdFocusIndex].Value()
 
 	// TODO: fetch value from YAML file and SetValue()
 	// m.inputs[m.focusIndex].SetValue(value)
 	if value == "" {
-		validationErrors[m.focusIndex].err = "\n"
-		validationErrors[m.focusIndex].exist = false
+		validationErrors[m.kcmdFocusIndex].err = "\n"
+		validationErrors[m.kcmdFocusIndex].exist = false
 	} else {
 		m.checkInputs(value)
 	}
@@ -76,16 +76,16 @@ func (m *Model) Validation() []ErrValidation {
 func (m *Model) checkInputs(value string) {
 	var err error
 
-	switch m.focusIndex {
+	switch m.kcmdFocusIndex {
 	case isolcpusIndex, nohzFullIndex, kthreadsCPUsIndex, irqaffinityIndex:
 		err = cpu.ValidateList(value)
-		log.Printf("%v: %v ", validationErrors[m.focusIndex].name, value)
+		log.Printf("%v: %v ", validationErrors[m.kcmdFocusIndex].name, value)
 		if err != nil {
-			validationErrors[m.focusIndex].err = "ERROR: " + err.Error() + "\n"
-			validationErrors[m.focusIndex].exist = true
+			validationErrors[m.kcmdFocusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrors[m.kcmdFocusIndex].exist = true
 		} else {
-			validationErrors[m.focusIndex].err = "\n"
-			validationErrors[m.focusIndex].exist = false
+			validationErrors[m.kcmdFocusIndex].err = "\n"
+			validationErrors[m.kcmdFocusIndex].exist = false
 		}
 
 	case nohzIndex:
