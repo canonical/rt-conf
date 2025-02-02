@@ -95,9 +95,12 @@ type Model struct {
 	width         int
 	height        int
 	iConf         data.InternalConfig
-	kcmdInputs    []textinput.Model
+	// for the kernel command line view
+	kcmdInputs     []textinput.Model
+	kcmdFocusIndex int
+	// For the IRQ tunning view
 	irqInputs     []textinput.Model
-	focusIndex    int
+	irqFocusIndex int
 	cursorMode    cursor.Mode
 	prevMenu      menuOpt
 	currMenu      menuOpt
