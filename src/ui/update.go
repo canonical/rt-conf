@@ -64,9 +64,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help.Width = msg.Width
 
 	case tea.KeyMsg:
-		log.Println("Pressed key: ", msg.String())
-		// Don't match any of the keys below if we're actively filtering.
-
 		switch {
 		// This is genertic for all menus
 		case key.Matches(msg, m.keys.Quit):
