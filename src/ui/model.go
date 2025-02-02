@@ -37,9 +37,9 @@ func InitNewIRQTextInputs() []textinput.Model {
 func newIRQtextInputs() []textinput.Model {
 	m := make([]textinput.Model, 2)
 	t := textinput.New()
-		t.Cursor.Style = styles.CursorStyle
+	t.Cursor.Style = styles.CursorStyle
 	t.Cursor.SetMode(cursor.CursorBlink) // TODO: check why this isn't working
-			t.CharLimit = 64
+	t.CharLimit = 64
 
 	// TODO: This order needs to be reviwed
 	t.Prompt = "Filter > "
