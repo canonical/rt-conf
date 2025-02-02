@@ -16,6 +16,8 @@ func (m Model) irqTunningView() string {
 	var s string // the view
 
 	title := styles.InnerMenuStyle("Configuring IRQ Affinity")
+	desc := styles.Section.
+		Render("Allocate specific CPUs to IRQs matching the filter.")
 
 	// The inputs
 	var b strings.Builder
@@ -63,9 +65,10 @@ func (m Model) irqTunningView() string {
 	// TODO: fix this mess
 	height := (m.height -
 		strings.Count(title, "\n") -
+		strings.Count(desc, "\n") -
 		strings.Count(helpView, "\n") -
 		strings.Count(m.errorMsg, "\n") -
-		strings.Count(body, "\n") - 4) / 2 // TODO: fix those magic numbers
+		strings.Count(body, "\n") - 6) / 2 // TODO: fix those magic numbers
 
 	// NOTE: *- 4 * because:
 	// "\n\n" (jumps 2 lines) after the title
@@ -81,6 +84,8 @@ func (m Model) irqTunningView() string {
 
 	s +=
 		title +
+			"\n\n" +
+			desc +
 			"\n\n" +
 			body +
 			strings.Repeat("\n", height) +

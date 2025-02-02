@@ -44,6 +44,12 @@ var (
 				Dark:  WeakOrange,
 			})
 
+	Section = lipgloss.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{
+			Light: "#A49FA5",
+			Dark:  "#777777",
+		})
+
 	DimmedTitle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{
 			Light: "#A49FA5",
