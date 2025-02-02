@@ -73,6 +73,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.keys.goHome):
 			m.currMenu = mainMenu
+		case key.Matches(msg, m.keys.Help):
+			if m.currMenu == mainMenu {
+				m.list.SetShowHelp(!m.list.ShowHelp())
+			} else {
+				m.help.ShowAll = !m.help.ShowAll
+			}
 		default:
 			if handler, exists := menuHandlers[m.currMenu]; exists {
 				cmds = append(cmds, handler(msg))
