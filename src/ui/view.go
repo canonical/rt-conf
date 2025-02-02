@@ -2,11 +2,14 @@ package ui
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/styles"
 )
+
+// TODO: add [ - ] button to remove the last entry (or a specific entry)
 
 // TODO: look into the pagination mechanism that bubbles provives for the list
 // ** NOTE: It would be intesting to have a pagination mechanism for the
@@ -23,32 +26,71 @@ func (m Model) irqTunningView() string {
 	var b strings.Builder
 	for i := range m.irqInputs {
 		// TODO fix the padding of the irqInputs view
-
-		// TODO fix the violations of the index range
-		// if i < len(m.irqInputs)-1 {
-		// }
-		if i < len(m.irqInputs)-1 {
-			left := m.irqInputs[i].View()
-			right := m.irqInputs[i+1].View()
-			b.WriteString(styles.JoinHorizontal(&left, &right))
-			b.WriteRune('\n')
+		textInput := m.irqInputs[i].View()
+		b.WriteString(textInput + "\n")
+		if (i+1)%2 == 0 {
+			b.WriteString("---\n")
 		}
 	}
 
+	plus_button := cmp.NewButton("+")
+	minus_button := cmp.NewButton("-")
 	apply_button := cmp.NewButton("Apply")
 	back_button := cmp.NewButton("Back")
-	apply_button.SetBlurred()
-	back_button.SetBlurred()
+
+	btns := []*cmp.Button{plus_button, minus_button, apply_button, back_button}
+
+	// plus_button.SetBlurred()
+	// apply_button.SetBlurred()
+	// back_button.SetBlurred()
+	// minus_button.SetBlurred()
+
+	for _, btn := range btns {
+		btn.SetBlurred()
+	}
+
+	for i, btn := range btns {
+		if m.irqFocusIndex == i+(len(m.irqInputs)) {
+			btn.SetFocused()
+		} else {
+			btn.SetBlurred()
+		}
+	}
 
 	// TODO: add space between the [ Apply ] and [ Back ] buttons
-	if m.focusIndex == len(m.irqInputs) {
-		apply_button.SetFocused()
-		back_button.SetBlurred()
+	log.Println("irqFocusIndex: ", m.irqFocusIndex)
 
-	} else if m.focusIndex == len(m.irqInputs)+1 {
-		apply_button.SetBlurred()
-		back_button.SetFocused()
-	}
+	// switch {
+	// case m.irqFocusIndex == plusBtnIndex:
+	// 	plus_button.SetFocused()
+	// 	apply_button.SetBlurred()
+	// 	back_button.SetBlurred()
+	// 	minus_button.SetBlurred()
+	// case m.irqFocusIndex == minusBtnIndex:
+	// 	minus_button.SetFocused()
+	// 	plus_button.SetBlurred()
+	// 	apply_button.SetBlurred()
+	// 	back_button.SetBlurred()
+	// case m.irqFocusIndex == applyBtnIndex:
+	// 	apply_button.SetFocused()
+	// 	back_button.SetBlurred()
+	// 	plus_button.SetBlurred()
+	// 	minus_button.SetBlurred()
+	// case m.irqFocusIndex == backBtnIndex:
+	// 	back_button.SetFocused()
+	// 	apply_button.SetBlurred()
+	// 	plus_button.SetBlurred()
+	// 	minus_button.SetBlurred()
+	// }
+
+	// [ + ] button
+	// fmt.Fprintf(&b, "\n%s\n", *plus_button.Render())
+
+	fmt.Fprintf(&b, "\n%s\n",
+		styles.JoinHorizontal(
+			plus_button.Render(),
+			minus_button.Render(),
+		))
 
 	// [ Back ] [ Apply ] buttons
 	fmt.Fprintf(&b, "\n\n%s\n\n",
