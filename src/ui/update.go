@@ -32,6 +32,7 @@ const (
 )
 
 const cpuListPlaceholder = "Enter a CPU list like: 4-n or 3-5 or 2,4,5 "
+const irqFilterPlaceholder = "Insert filter parameters for IRQs"
 
 var placeholders_text = []string{
 	cpuListPlaceholder,
