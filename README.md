@@ -22,6 +22,7 @@ After the installation it's necessary to connect the interfaces:
 - `etc-default-grub` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 - `proc-device-tree-model` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 - `proc-irq` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
+- `sys-kernel-irq` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 
 These can be done by running the following commands:
 
@@ -31,6 +32,7 @@ sudo snap connect rt-conf:home # Only in case of Ubuntu Core
 sudo snap connect rt-conf:etc-default-grub
 sudo snap connect rt-conf:proc-device-tree-model
 sudo snap connect rt-conf:proc-irq
+sudo snap connect rt-conf:sys-kernel-irq
 ```
 
 ## Use
