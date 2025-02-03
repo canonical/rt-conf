@@ -33,15 +33,13 @@ plugs:
     read:
       - /proc/device-tree/model
 
-  # NOTE: this needs to go away once
-  # https://github.com/canonical/snapd/pull/14881 is released to snapd
+  # NOTE: see https://github.com/canonical/rt-conf/issues/23
   sys-kernel-irq:
     interface: system-files
     read:
       - /sys/kernel/irq
 
-  # NOTE: this needs to go away once
-  # https://github.com/canonical/snapd/pull/14424 is released to snapd
+  # NOTE: see https://github.com/canonical/rt-conf/issues/23
   proc-irq:
     interface: system-files
     write:
@@ -54,8 +52,8 @@ apps:
       - etc-default-grub
       - proc-device-tree-model
       - hardware-observe
-      - sys-kernel-irq # NOTE: this needs to go away
-      - proc-irq # NOTE: this needs to go away
+      - sys-kernel-irq
+      - proc-irq
       # - cpu-control # NOTE: this will replace `sys-kernel-irq` and `proc-irq`
     command: bin/rt-conf
     environment:

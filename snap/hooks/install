@@ -3,8 +3,8 @@
 # Because the interfaces aren't connected yet, the service will fail to start.
 if ! snapctl is-connected etc-default-grub ||
   ! snapctl is-connected proc-device-tree-model ||
-  ! snapctl is-connected proc-irq ||       # NOTE: this needs to go away
-  ! snapctl is-connected sys-kernel-irq || # NOTE: this needs to go away
+  ! snapctl is-connected proc-irq ||
+  ! snapctl is-connected sys-kernel-irq ||
   # ! snapctl is-connected cpu-control || # NOTE this will replace the two above
   ! snapctl is-connected hardware-observe; then
   snapctl stop --disable "$SNAP_NAME.rt-confd"
