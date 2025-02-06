@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/data"
+	cmp "github.com/canonical/rt-conf/src/ui/components"
+	"github.com/canonical/rt-conf/src/ui/config"
 	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/help"
@@ -12,24 +14,85 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
+type Model struct {
+	// keys *listKeyMap
+	// TODO: reporpuse this for adding IRQ affinity entries
+	// itemGenerator *menuItems
+	// delegateKeys *selectKeyMap
+	width  int
+	height int
+	iConf  data.InternalConfig
+	// for the kernel command line view
+	// For the IRQ tunning view
+	// irqInputs     []textinput.Model
+	// irqFocusIndex int
+	nav        *cmp.MenuNav
+	cursorMode cursor.Mode
+	errorMsg   string
+	logMsg     []string
+	renderLog  bool
+
+	// The keymap is consistent across all menus
+
+	main MainMenuModel
+	irq  IRQMenuModel
+	kcmd KcmdlineMenuModel
+}
+
+type MainMenuModel struct {
+	keys         *KeyMap
+	list         list.Model
+	delegateKeys *selectKeyMap
+}
+
+type IRQMenuModel struct {
+	width    int
+	height   int
+	index    int
+	newEntry bool
+	editMode bool
+
+	keys *irqKeyMap
+	list list.Model
+	// keys     *listKeyMap
+	// nav components.Navigation
+}
+
+type KcmdlineMenuModel struct {
+	keys       *kcmdKeyMap
+	help       help.Model
+	Inputs     []textinput.Model
+	FocusIndex int
+	// nav components.Navigation
+}
+
+type IRQAddEditMenu struct {
+	FocusIndex int
+	Inputs     []textinput.Model
+	help       help.Model
+	keys       *irqKeyMap
+}
+
 // TODO: Fix menu navigation
 // TODO: Fix inner menu help view
 
-type item struct {
+type menuItem struct {
 	title       string
 	description string
 }
 
-func (i item) Title() string       { return i.title }
-func (i item) Description() string { return i.description }
-func (i item) FilterValue() string { return i.title }
+func (i menuItem) Title() string       { return i.title }
+func (i menuItem) Description() string { return i.description }
+func (i menuItem) FilterValue() string { return i.title }
+func (r *menuItem) Size() int          { return config.NUMBER_OF_MENUS }
+func (r *menuItem) Init()              {}
 
 func InitNewIRQTextInputs() []textinput.Model {
 	m := newIRQtextInputs()
 	m[0].Focus()
 	m[0].PromptStyle = styles.FocusedStyle
 	m[0].TextStyle = styles.FocusedStyle
-	m[0].Placeholder = irqFilterPlaceholder
+	m[0].Placeholder = config.IrqFilterPlaceholder
 
 	return m
 }
@@ -68,7 +131,7 @@ func newKcmdTextInputs() []textinput.Model {
 			dynamic placeholders start to work after the first
 			move of the cursor (either to up or down) */
 			// TODO: investigate the dynamic placeholder refresh
-			t.Placeholder = cpuListPlaceholder
+			t.Placeholder = config.CpuListPlaceholder
 			t.Focus()
 			t.PromptStyle = styles.FocusedStyle
 			t.TextStyle = styles.FocusedStyle
@@ -85,76 +148,108 @@ func newKcmdTextInputs() []textinput.Model {
 
 		m[i] = t
 	}
-
 	return m
 }
 
-type Model struct {
-	list          list.Model
-	itemGenerator *menuItems
-	keys          *listKeyMap
-	help          help.Model
-	delegateKeys  *selectKeyMap
-	width         int
-	height        int
-	iConf         data.InternalConfig
-	// for the kernel command line view
-	kcmdInputs     []textinput.Model
-	kcmdFocusIndex int
-	// For the IRQ tunning view
-	irqInputs     []textinput.Model
-	irqFocusIndex int
-	cursorMode    cursor.Mode
-	prevMenu      menuOpt
-	currMenu      menuOpt
-	errorMsg      string
-	logMsg        []string
-	renderLog     bool
-}
+func NewMainMenuModel() MainMenuModel {
+	keys := newMainMenuListKeyMap()
+	var delegateKeys = newDelegateKeyMapMainMenu()
 
-func NewModel(c *data.InternalConfig) Model {
-	var (
-		menuOpts     menuItems
-		delegateKeys = newDelegateKeyMap()
-		listKeys     = newListKeyMap()
-	)
-
-	menuOpts.Init()
-	// Make initial list of items
-	items := make([]list.Item, menuOpts.Size())
-	for i := 0; i < menuOpts.Size(); i++ {
-		items[i] = menuOpts.next()
+	items := []list.Item{
+		menuItem{config.MENU_KCMDLINE, config.DESC_KCMDLINE},
+		menuItem{config.MENU_IRQAFFINITY, config.DESC_IRQAFFINITY},
+		menuItem{config.MENU_PWRMGMT, config.DESC_KCMDLINE},
 	}
 
-	// Setup list
-	delegate := newItemDelegate(delegateKeys)
+	delegate := newItemDelegateMainMenu(delegateKeys)
 	menuList := list.New(items, delegate, 0, 0)
+	menuList.SetShowHelp(true)
 	menuList.Title = "rt-conf tool"
 	menuList.Styles.Title = styles.TitleStyle
 	menuList.SetShowStatusBar(false)
-
-	menuList.Help = help.New()
-
 	menuList.AdditionalFullHelpKeys = func() []key.Binding {
-
 		return []key.Binding{
-			listKeys.goHome,
-			listKeys.Help,
+			keys.Select,
 		}
 	}
+
+	return MainMenuModel{
+		keys:         keys,
+		list:         menuList,
+		delegateKeys: delegateKeys,
+	}
+}
+
+func NewModel(c *data.InternalConfig) Model {
+	mainMenu := NewMainMenuModel()
+	irqMenu := newModelIRQMenuModel()
+	kcmd := newKcmdMenuModel()
+	nav := cmp.NewMenuNav()
 
 	return Model{
 		// TODO: Fix this info msg, put in a better place
 		// logMsg:        logmsg[:],
-		kcmdInputs:    newKcmdTextInputs(),
-		irqInputs:     InitNewIRQTextInputs(),
-		help:          help.New(), // TODO: Check NEED for custom style
-		iConf:         *c,
-		list:          menuList,
-		keys:          listKeys,
-		errorMsg:      strings.Repeat("\n", len(validationErrors)),
-		delegateKeys:  delegateKeys,
-		itemGenerator: &menuOpts,
-		cursorMode:    cursor.CursorBlink,
+		// irqInputs:  InitNewIRQTextInputs(),
+
+		nav: nav, // TODO: send this as tea.Msg
+
+		// help:  help.New(), // TODO: Check NEED for custom style
+		iConf: *c,
+		main:  mainMenu,
+		irq:   irqMenu,
+		kcmd:  kcmd,
+
+		// keys:     listKeys,
+		errorMsg: strings.Repeat("\n", len(validationErrorsKcmd)),
+
+		// itemGenerator: &menuOpts,
+		cursorMode: cursor.CursorBlink,
+	}
+}
+
+func newModelIRQMenuModel() IRQMenuModel {
+	keys := irqMenuListKeyMap()
+
+	items := []list.Item{
+		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
+	}
+	// m := list.New(items, newItemDelegate(newDelegateKeyMap()), 0, 0)
+	m := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	m.Title = "IRQ Affinity"
+	m.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keys.Add,
+			keys.Remove,
+			keys.Apply,
+		}
+	}
+	return IRQMenuModel{
+		list: m,
+		keys: keys,
+	}
+}
+
+func newKcmdMenuModel() KcmdlineMenuModel {
+	help := help.New()
+	inputs := newKcmdTextInputs()
+	keys := newkcmdMenuListKeyMap()
+
+	return KcmdlineMenuModel{
+		keys:   keys,
+		help:   help,
+		Inputs: inputs,
+	}
+}
+
+func newIRQAddEditMenuModel() IRQAddEditMenu {
+
+	help := help.New()
+	inputs := newIRQtextInputs()
+	keys := irqMenuListKeyMap()
+
+	return IRQAddEditMenu{
+		keys:   keys,
+		help:   help,
+		Inputs: inputs,
 	}
 }

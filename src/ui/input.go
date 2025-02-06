@@ -15,9 +15,9 @@ func init() {
 	// they both should have the same length, since it's about the
 	// number of kernel parameters to be inserted
 
-	NumParams = len(validationErrors)
+	NumParams = len(validationErrorsKcmd)
 
-	if len(validationErrors) != NumParams {
+	if len(validationErrorsKcmd) != NumParams {
 		log.Fatalf("Number of validationErrors is different from NumParams")
 	}
 
@@ -34,7 +34,7 @@ type ErrValidation struct {
 	name  string
 }
 
-var validationErrors = []ErrValidation{
+var validationErrorsKcmd = []ErrValidation{
 	isolcpusIndex:     {err: "\n", exist: true, name: "isolcpus"},
 	nohzIndex:         {err: "\n", exist: true, name: "nohz"},
 	nohzFullIndex:     {err: "\n", exist: true, name: "nohz_full"},
@@ -49,56 +49,56 @@ func (m *Model) Validation() []ErrValidation {
 
 	// TODO: move this logic to outside this function
 	// If focusIndex is out of range, just return the validationErrors
-	if m.kcmdFocusIndex < 0 || m.kcmdFocusIndex >= len(m.kcmdInputs) {
-		return validationErrors
+	if m.kcmd.FocusIndex < 0 || m.kcmd.FocusIndex >= len(m.kcmd.Inputs) {
+		return validationErrorsKcmd
 	}
 
-	log.Println("focusIndex on Validation: ", m.kcmdFocusIndex)
-	value := m.kcmdInputs[m.kcmdFocusIndex].Value()
+	log.Println("focusIndex on Validation: ", m.kcmd.FocusIndex)
+	value := m.kcmd.Inputs[m.kcmd.FocusIndex].Value()
 
 	// TODO: fetch value from YAML file and SetValue()
 	// m.inputs[m.focusIndex].SetValue(value)
 	if value == "" {
-		validationErrors[m.kcmdFocusIndex].err = "\n"
-		validationErrors[m.kcmdFocusIndex].exist = false
+		validationErrorsKcmd[m.kcmd.FocusIndex].err = "\n"
+		validationErrorsKcmd[m.kcmd.FocusIndex].exist = false
 	} else {
 		m.checkInputs(value)
 	}
 
 	m.errorMsg = ""
-	for _, v := range validationErrors {
+	for _, v := range validationErrorsKcmd {
 		m.errorMsg += v.err
 	}
 
-	return validationErrors
+	return validationErrorsKcmd
 }
 
 func (m *Model) checkInputs(value string) {
 	var err error
 
-	switch m.kcmdFocusIndex {
+	switch m.kcmd.FocusIndex {
 	case isolcpusIndex, nohzFullIndex, kthreadsCPUsIndex, irqaffinityIndex:
 		err = cpu.ValidateList(value)
-		log.Printf("%v: %v ", validationErrors[m.kcmdFocusIndex].name, value)
+		log.Printf("%v: %v ", validationErrorsKcmd[m.kcmd.FocusIndex].name, value)
 		if err != nil {
-			validationErrors[m.kcmdFocusIndex].err = "ERROR: " + err.Error() + "\n"
-			validationErrors[m.kcmdFocusIndex].exist = true
+			validationErrorsKcmd[m.kcmd.FocusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrorsKcmd[m.kcmd.FocusIndex].exist = true
 		} else {
-			validationErrors[m.kcmdFocusIndex].err = "\n"
-			validationErrors[m.kcmdFocusIndex].exist = false
+			validationErrorsKcmd[m.kcmd.FocusIndex].err = "\n"
+			validationErrorsKcmd[m.kcmd.FocusIndex].exist = false
 		}
 
 	case nohzIndex:
 		if value == "on" {
-			validationErrors[nohzIndex].err = "\n"
-			validationErrors[nohzIndex].exist = false
+			validationErrorsKcmd[nohzIndex].err = "\n"
+			validationErrorsKcmd[nohzIndex].exist = false
 		} else if value == "off" {
-			validationErrors[nohzIndex].err = "\n"
-			validationErrors[nohzIndex].exist = false
+			validationErrorsKcmd[nohzIndex].err = "\n"
+			validationErrorsKcmd[nohzIndex].exist = false
 		} else {
-			validationErrors[nohzIndex].err =
+			validationErrorsKcmd[nohzIndex].err =
 				"ERROR: expected (on) or (off) value got: " + value + "\n"
-			validationErrors[nohzIndex].exist = true
+			validationErrorsKcmd[nohzIndex].exist = true
 			break
 		}
 

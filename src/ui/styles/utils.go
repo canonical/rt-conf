@@ -6,6 +6,14 @@ func JoinHorizontal(left, right *string) string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, *left, *right)
 }
 
+func JoinVertical(str ...*string) string {
+	strs := make([]string, len(str))
+	for i, s := range str {
+		strs[i] = *s
+	}
+	return lipgloss.JoinVertical(lipgloss.Left, strs...)
+}
+
 func CenteredSquareWithText(
 	appWidth, appHeight, textWidth, textHeight int,
 	content string) string {

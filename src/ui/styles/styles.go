@@ -8,6 +8,11 @@ import (
 
 var (
 	// ------------------------------- DefaultItemStyles ------------------------
+
+	StatusMessageStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}).
+				Render
+
 	NormalTitle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{
 			Light: "#1a1a1a",

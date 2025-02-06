@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 )
 
-func newItemDelegate(keys *selectKeyMap) list.DefaultDelegate {
+func newItemDelegateMainMenu(keys *selectKeyMap) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.Styles.SelectedDesc = styles.SelectedDesc
@@ -35,6 +35,7 @@ func newItemDelegate(keys *selectKeyMap) list.DefaultDelegate {
 
 type selectKeyMap struct {
 	choose key.Binding
+	remove key.Binding
 }
 
 // Additional short help entries. This satisfies the help.KeyMap interface and
@@ -55,7 +56,7 @@ func (d selectKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-func newDelegateKeyMap() *selectKeyMap {
+func newDelegateKeyMapMainMenu() *selectKeyMap {
 	return &selectKeyMap{
 		choose: key.NewBinding(
 			key.WithKeys("enter"),
