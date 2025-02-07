@@ -13,6 +13,33 @@ var (
 				Foreground(lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}).
 				Render
 
+	ListItem = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{
+			Light: "#1a1a1a",
+			Dark:  "#dddddd",
+		}).
+		Padding(0, 0, 0, 2) //nolint:mnd
+
+	SelectedListItem = lipgloss.NewStyle().
+				Border(lipgloss.NormalBorder(), false, false, false, true).
+				BorderForeground(
+			lipgloss.AdaptiveColor{
+				Light: StrongOrange,
+				Dark:  StrongOrange,
+			}).
+		Foreground(lipgloss.AdaptiveColor{
+			Light: StrongOrange,
+			Dark:  StrongOrange,
+		}).
+		Padding(0, 0, 0, 1)
+
+	DimmedListItem = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{
+			Light: "#A49FA5",
+			Dark:  "#777777",
+		}).
+		Padding(0, 0, 0, 2) //nolint:mnd
+
 	NormalTitle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{
 			Light: "#1a1a1a",

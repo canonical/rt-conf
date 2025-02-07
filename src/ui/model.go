@@ -227,10 +227,25 @@ func newModelIRQMenuModel() IRQMenuModel {
 	irq := newIRQAddEditMenuModel()
 	items := []list.Item{
 		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
+		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
 	}
 	// m := list.New(items, newItemDelegate(newDelegateKeyMap()), 0, 0)
-	m := list.New(items, list.NewDefaultDelegate(), 0, 0)
+
+	delegate := list.NewDefaultDelegate()
+	delegate.Styles.SelectedDesc = styles.SelectedListItem
+	delegate.Styles.SelectedTitle = styles.SelectedListItem
+
+	delegate.Styles.NormalDesc = styles.ListItem
+	delegate.Styles.NormalTitle = styles.ListItem
+
+	delegate.Styles.DimmedDesc = styles.DimmedListItem
+	delegate.Styles.DimmedTitle = styles.DimmedListItem
+
+	delegate.Styles.FilterMatch = styles.FilterMatch
+
+	m := list.New(items, delegate, 0, 0)
 	m.Title = "IRQ Affinity"
+	m.Styles.Title = styles.TitleStyle
 	m.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			keys.Add,
