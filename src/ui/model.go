@@ -107,11 +107,11 @@ func newIRQtextInputs() []textinput.Model {
 	t.Cursor.SetMode(cursor.CursorBlink) // TODO: check why this isn't working
 	t.CharLimit = 64
 
-	// TODO: This order needs to be reviwed
-	t.Prompt = "Filter > "
+	// TODO: This order needs to be reviewed
+	t.Prompt = config.PrefixIRQFilter // "Filter > "
 	m[0] = t
 	m[0].Placeholder = config.IrqFilterPlaceholder
-	t.Prompt = "CPU Range > "
+	t.Prompt = config.PrefixCpuRange // "CPU Range > "
 	m[1] = t
 
 	return m

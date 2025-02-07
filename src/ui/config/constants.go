@@ -40,3 +40,8 @@ const (
 
 const CpuListPlaceholder = "Enter a CPU list like: 4-n or 3-5 or 2,4,5 "
 const IrqFilterPlaceholder = "Insert filter parameters for IRQs"
+
+const (
+	PrefixIRQFilter = "Filter > "
+	PrefixCpuRange  = "CPU Range > "
+)
