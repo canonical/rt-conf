@@ -22,64 +22,73 @@ const (
 )
 
 // TODO: fix the problem with the j,k keys being logged
-func (m *Model) kcmdlineMenuUpdate(msg tea.KeyMsg) tea.Cmd {
+func (m KcmdlineMenuModel) Update(msg tea.Msg) (Menu, tea.Cmd) {
+
 	log.Println("---(kcmdlineMenuUpdate - start")
-	cmds := make([]tea.Cmd, len(m.kcmd.Inputs))
+	cmds := make([]tea.Cmd, len(m.Inputs))
 
-	totalIrqItems := len(m.kcmd.Inputs) + 2
-	index := cmp.NewNavigation(&m.kcmd.FocusIndex, &totalIrqItems)
+	totalIrqItems := len(m.Inputs) + 2
+	index := cmp.NewNavigation(&m.FocusIndex, &totalIrqItems)
 
-	switch {
+	switch msg := msg.(type) {
+	// case tea.WindowSizeMsg:
+	// 	m.conclussion.Width = msg.Width
+	// 	m.conclussion.Height = msg.Height
 
-	case key.Matches(msg, m.kcmd.keys.Select),
-		key.Matches(msg, m.kcmd.keys.Up),
-		key.Matches(msg, m.kcmd.keys.Down),
-		key.Matches(msg, m.kcmd.keys.Left),
-		key.Matches(msg, m.kcmd.keys.Right):
+	// 	m.help.Width = msg.Width
 
-		// Handle navigation between the buttons
-		if m.kcmd.FocusIndex == applyButtonIndex &&
-			key.Matches(msg, m.kcmd.keys.Left) {
-			index.Prev()
-		}
-		if m.kcmd.FocusIndex == applyButtonIndex &&
-			key.Matches(msg, m.kcmd.keys.Right) {
-			index.Next()
-		}
-		if m.kcmd.FocusIndex == backButtonIndex &&
-			key.Matches(msg, m.kcmd.keys.Right) {
-			index.Next()
-		}
-		if m.kcmd.FocusIndex == backButtonIndex &&
-			key.Matches(msg, m.kcmd.keys.Left) {
-			index.Prev()
-		}
+	case tea.KeyMsg:
+		switch {
 
-		// log.Println("focusIndex on Update: ", m.kcmdFocusIndex)
-		// Validate the inputs
+		case key.Matches(msg, m.keys.Select),
+			key.Matches(msg, m.keys.Up),
+			key.Matches(msg, m.keys.Down),
+			key.Matches(msg, m.keys.Left),
+			key.Matches(msg, m.keys.Right):
 
-		valid := m.AreValidInputs()
-		log.Println("isValid: ", valid)
+			// Handle navigation between the buttons
+			if m.FocusIndex == applyButtonIndex &&
+				key.Matches(msg, m.keys.Left) {
+				index.Prev()
+			}
+			if m.FocusIndex == applyButtonIndex &&
+				key.Matches(msg, m.keys.Right) {
+				index.Next()
+			}
+			if m.FocusIndex == backButtonIndex &&
+				key.Matches(msg, m.keys.Right) {
+				index.Next()
+			}
+			if m.FocusIndex == backButtonIndex &&
+				key.Matches(msg, m.keys.Left) {
+				index.Prev()
+			}
 
-		// Handle [ Back ] button
-		if m.kcmd.FocusIndex == backButtonIndex &&
-			key.Matches(msg, m.kcmd.keys.Select) {
-			// log.Println("pressed [ BACK ]: Back to main menu")
-			m.nav.PrevMenu()
-		}
-
-		// Did the user press enter while the apply button was focused?
-		// TODO: improve mapping of len(m.inputs) to the apply button
-		if key.Matches(msg, m.kcmd.keys.Select) &&
-			m.kcmd.FocusIndex == len(m.kcmd.Inputs) {
-
-			// log.Println("Apply changes")
+			// log.Println("focusIndex on Update: ", m.kcmdFocusIndex)
+			// Validate the inputs
 
 			valid := m.AreValidInputs()
+			// log.Println("isValid: ", valid)
 
-			if !valid {
-				break
+			// Handle [ Back ] button
+			if m.FocusIndex == backButtonIndex &&
+				key.Matches(msg, m.keys.Select) {
+				// log.Println("pressed [ BACK ]: Back to main menu")
+				m.Nav.PrevMenu()
 			}
+
+			// Did the user press enter while the apply button was focused?
+			// TODO: improve mapping of len(m.inputs) to the apply button
+			if key.Matches(msg, m.keys.Select) &&
+				m.FocusIndex == len(m.Inputs) && valid {
+
+				// log.Println("Apply changes")
+
+				valid := m.AreValidInputs()
+
+				if !valid {
+					break
+				}
 				var empty int
 				for i := range m.Inputs {
 					v := m.Inputs[i].Value()
@@ -92,79 +101,86 @@ func (m *Model) kcmdlineMenuUpdate(msg tea.KeyMsg) tea.Cmd {
 					break
 				}
 
-			m.iConf.Data.KernelCmdline.Nohz = m.kcmd.Inputs[nohzIndex].Value()
+				m.iConf.Data.KernelCmdline.IsolCPUs = m.Inputs[isolcpusIndex].Value()
 
-			m.iConf.Data.KernelCmdline.NohzFull = m.kcmd.Inputs[nohzFullIndex].Value()
+				m.iConf.Data.KernelCmdline.Nohz = m.Inputs[nohzIndex].Value()
 
-			m.iConf.Data.KernelCmdline.KthreadCPUs = m.kcmd.Inputs[kthreadsCPUsIndex].Value()
+				m.iConf.Data.KernelCmdline.NohzFull = m.Inputs[nohzFullIndex].Value()
 
-			m.iConf.Data.KernelCmdline.IRQaffinity = m.kcmd.Inputs[irqaffinityIndex].Value()
+				m.iConf.Data.KernelCmdline.KthreadCPUs = m.Inputs[kthreadsCPUsIndex].Value()
 
-			msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
-			if err != nil {
-				m.errorMsg = "Failed to process kernel cmdline args: " +
-					err.Error()
-				break
+				m.iConf.Data.KernelCmdline.IRQaffinity = m.Inputs[irqaffinityIndex].Value()
+
+				msgs, err := kcmd.ProcessKcmdArgs(&m.iConf)
+				if err != nil {
+					m.errorMsg = "Failed to process kernel cmdline args: " +
+						err.Error()
+					break
+				}
+
+				m.conclussion.logMsg = msgs
+				m.conclussion.renderLog = true
+				m.Nav.SetNewMenu(config.KCMD_CONCLUSSION_VIEW_ID)
+
+				// TODO: this needs to return a tea.Cmd (or maybe not)
+				// TODO: Apply the changes call the kcmdline funcs
 			}
 
-			m.logMsg = msgs
-			m.renderLog = true
-			m.nav.SetNewMenu(config.KCMD_CONCLUSSION_VIEW_ID)
-
-			// TODO: this needs to return a tea.Cmd (or maybe not)
-			// TODO: Apply the changes call the kcmdline funcs
-		}
-
-		// Cycle indexes
-		if key.Matches(msg, m.kcmd.keys.Up) {
-			// m.PrevIndex(&m.kcmdFocusIndex, m.kcmdInputs)
-			index.Prev()
-		}
-
-		if key.Matches(msg, m.kcmd.keys.Down) ||
-			key.Matches(msg, m.kcmd.keys.Select) {
-			// m.NextIndex(&m.kcmdFocusIndex, m.kcmdInputs)
-			index.Next()
-		}
-
-		cmds := make([]tea.Cmd, len(m.kcmd.Inputs))
-		for i := 0; i <= len(m.kcmd.Inputs)-1; i++ {
-			if i == m.kcmd.FocusIndex {
-				// Set focused state
-				cmds[i] = m.kcmd.Inputs[i].Focus()
-				m.kcmd.Inputs[i].PromptStyle = styles.FocusedStyle
-				m.kcmd.Inputs[i].TextStyle = styles.FocusedStyle
-				m.kcmd.Inputs[i].Placeholder = placeholders_text[i]
-				continue
+			// Cycle indexes
+			if key.Matches(msg, m.keys.Up) {
+				index.Prev()
 			}
-			// Remove focused state
-			m.kcmd.Inputs[i].Blur()
-			m.kcmd.Inputs[i].PromptStyle = styles.NoStyle
-			m.kcmd.Inputs[i].TextStyle = styles.NoStyle
-			m.kcmd.Inputs[i].Placeholder = ""
+
+			if key.Matches(msg, m.keys.Down) ||
+				key.Matches(msg, m.keys.Select) {
+				index.Next()
+			}
+
+			cmds := make([]tea.Cmd, len(m.Inputs))
+			for i := 0; i <= len(m.Inputs)-1; i++ {
+				if i == m.FocusIndex {
+					// Set focused state
+					cmds[i] = m.Inputs[i].Focus()
+					m.Inputs[i].PromptStyle = styles.FocusedStyle
+					m.Inputs[i].TextStyle = styles.FocusedStyle
+					m.Inputs[i].Placeholder = placeholders_text[i]
+					continue
+				}
+				// Remove focused state
+				m.Inputs[i].Blur()
+				m.Inputs[i].PromptStyle = styles.NoStyle
+				m.Inputs[i].TextStyle = styles.NoStyle
+				m.Inputs[i].Placeholder = ""
+			}
 		}
 	}
-	for i := range m.kcmd.Inputs {
-		m.kcmd.Inputs[i], cmds[i] = m.kcmd.Inputs[i].Update(msg)
+	for i := range m.Inputs {
+		m.Inputs[i], cmds[i] = m.Inputs[i].Update(msg)
 	}
-	return tea.Batch(cmds...)
+
+	return m, tea.Batch(cmds...)
 }
 
-func (m *Model) kcmdlineConclussionUpdate(msg tea.KeyMsg) tea.Cmd {
-	cmds := make([]tea.Cmd, len(m.kcmd.Inputs))
+func (m *KcmdlineConclussion) Update(msg tea.Msg) (Menu, tea.Cmd) {
+	var cmd tea.Cmd
 	log.Println("(kcmdlineConclussionUpdate - start")
 
-	switch {
-	/* If the user press enter on the log view,
-	go back to the previous menu */
-	case key.Matches(msg, m.kcmd.keys.Select):
-		m.renderLog = false
-		m.nav.PrevMenu()
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.Width = msg.Width
+		m.Height = msg.Height
 
-	default:
-		log.Println("(default) Invalid key pressed: ", msg.String())
-		log.Println("Menu navigation stack: ", m.nav.PrintMenuStack())
-
+	case tea.KeyMsg:
+		switch {
+		/* If the user press enter on the log view,
+		go back to the previous menu */
+		case key.Matches(msg, m.keys.Select):
+			// m.renderLog = false
+			m.Nav.PrevMenu()
+		default:
+			log.Println("(default) Invalid key pressed: ", msg.String())
+			log.Println("Menu navigation stack: ", m.Nav.PrintMenuStack())
+		}
 	}
-	return tea.Batch(cmds...)
+	return m, cmd
 }

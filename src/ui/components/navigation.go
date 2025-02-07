@@ -2,22 +2,31 @@ package components
 
 import (
 	"log"
+	"sync"
 
 	"github.com/canonical/rt-conf/src/ui/config"
 )
 
+// Singleton instance
+var (
+	instance *MenuNav
+	once     sync.Once
+)
+
 type MenuNav struct {
 	menuStack []config.Views
-	// This may be needed if the problem of the menu navigation is not fixed
 	// mut       sync.Mutex
 }
 
-func NewMenuNav() *MenuNav {
-	return &MenuNav{
-		menuStack: []config.Views{
-			config.INIT_VIEW_ID,
-		},
-	}
+// GetInstance ensures that only one instance of MenuNav is created
+func GetMenuNavInstance() *MenuNav {
+	once.Do(func() {
+		log.Println("----> Initializing Singleton MenuNav")
+		instance = &MenuNav{
+			menuStack: []config.Views{config.INIT_VIEW_ID},
+		}
+	})
+	return instance
 }
 
 func (m *MenuNav) PrintMenuStack() []config.Views {
@@ -26,7 +35,6 @@ func (m *MenuNav) PrintMenuStack() []config.Views {
 
 // Set a new menu and track the previous menu
 func (m *MenuNav) SetNewMenu(newMenu config.Views) {
-
 	log.Println("----> SetNewMenu Called")
 	log.Println("OLD: ", m.menuStack)
 
@@ -42,6 +50,8 @@ func (m *MenuNav) GetCurrMenu() config.Views {
 
 // Return to the previous menu
 func (m *MenuNav) PrevMenu() {
+	// m.mut.Lock()
+	// defer m.mut.Unlock()
 
 	log.Println("----> PrevMenu Called")
 
@@ -61,6 +71,8 @@ func (m *MenuNav) PrevMenu() {
 
 // Reset back to mainMenu and clear history
 func (m *MenuNav) ReturnToMainMenu() {
+	// m.mut.Lock()
+	// defer m.mut.Unlock()
 	log.Println("----> ReturnToMainMenu Called")
 
 	log.Println("Old menu: ", m.menuStack)

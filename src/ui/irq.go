@@ -192,6 +192,10 @@ import (
 
 // //////////////////////////////////////////////////////////////////////////////
 
+// TODO: add conclussion screen saying:
+// "5 IRQ filter rules are aplied to the system"
+// [ BACK ]
+
 type NewIRQEntryMsg struct {
 	irqAffinityRule
 }

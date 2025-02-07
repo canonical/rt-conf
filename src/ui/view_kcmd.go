@@ -13,16 +13,16 @@ import (
 // * Not only the tittle but the hole view is shifted to the left
 
 // TODO: URGENT = [ BACK ] isn't working
-func (m Model) kcmdlineView() string {
+func (m KcmdlineMenuModel) View() string {
 	var s string // the view
 
 	title := styles.InnerMenuStyle("Configuring Kernel Cmdline Parameters")
 
 	// The inputs
 	var b strings.Builder
-	for i := range m.kcmd.Inputs {
-		b.WriteString(m.kcmd.Inputs[i].View())
-		if i < len(m.kcmd.Inputs)-1 {
+	for i := range m.Inputs {
+		b.WriteString(m.Inputs[i].View())
+		if i < len(m.Inputs)-1 {
 			b.WriteRune('\n')
 		}
 	}
@@ -33,11 +33,11 @@ func (m Model) kcmdlineView() string {
 	back_button.SetBlurred()
 
 	// TODO: add space between the [ Apply ] and [ Back ] buttons
-	if m.kcmd.FocusIndex == len(m.kcmd.Inputs) {
+	if m.FocusIndex == len(m.Inputs) {
 		apply_button.SetFocused()
 		back_button.SetBlurred()
 
-	} else if m.kcmd.FocusIndex == len(m.kcmd.Inputs)+1 {
+	} else if m.FocusIndex == len(m.Inputs)+1 {
 		apply_button.SetBlurred()
 		back_button.SetFocused()
 	}
@@ -53,10 +53,10 @@ func (m Model) kcmdlineView() string {
 	// TODO: Adding padding to the bottom and top of [body] and remove new lines
 
 	//TODO: this needs to be dropped
-	helpView := m.kcmd.help.View(m.kcmd.keys)
+	helpView := m.help.View(m.keys)
 
 	// TODO: fix this mess
-	height := (m.height -
+	height := (m.Height -
 		strings.Count(title, "\n") -
 		strings.Count(helpView, "\n") -
 		strings.Count(m.errorMsg, "\n") -
@@ -83,5 +83,5 @@ func (m Model) kcmdlineView() string {
 			styles.ErrorMessageStyle(m.errorMsg) +
 			strings.Repeat("\n", height) +
 			helpView
-	return s
+	return styles.AppStyle.Render(s)
 }

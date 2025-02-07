@@ -25,18 +25,19 @@ import (
 // ** text inputs
 
 // TODO: delete this function
-func (m *IRQMenuModel) EditModeView() string {
+func (m IRQAddEditMenu) View() string {
 	log.Println("\n---- IRQEditMode VIEW ----")
 	var s string // the view
 
-	title := styles.InnerMenuStyle("Configuring IRQ Affinity")
+	title := styles.InnerMenuStyle("Add IRQ Affinity Rule")
 	desc := styles.Section.
 		Render("Allocate specific CPUs to IRQs matching the filter.")
 
+	// TODO: bold cpu range and filter
 	var b strings.Builder
-	for i := range m.irq.Inputs {
-		b.WriteString(m.irq.Inputs[i].View())
-		if i < len(m.irq.Inputs)-1 {
+	for i := range m.Inputs {
+		b.WriteString(m.Inputs[i].View())
+		if i < len(m.Inputs)-1 {
 			b.WriteRune('\n')
 		}
 	}
@@ -45,24 +46,24 @@ func (m *IRQMenuModel) EditModeView() string {
 	var verticalPadding strings.Builder
 	verticalPadding.WriteString("\n\n")
 
-	okayBtn := cmp.NewButton("Okay")
+	addBtn := cmp.NewButton("Add")
 	cancelBtn := cmp.NewButton("Cancel")
 
-	btns := []*cmp.Button{okayBtn, cancelBtn}
+	btns := []*cmp.Button{addBtn, cancelBtn}
 
 	for i, btn := range btns {
-		if m.irq.FocusIndex == i+(len(m.irq.Inputs)) {
+		if m.FocusIndex == i+(len(m.Inputs)) {
 			btn.SetFocused()
 		} else {
 			btn.SetBlurred()
 		}
 	}
 
-	log.Println("--- (IRQ ADD/EDIT VIEW) m.irq.FocusIndex: ", m.irq.FocusIndex)
+	log.Println("--- (IRQ ADD/EDIT VIEW) m.irq.FocusIndex: ", m.FocusIndex)
 
 	fmt.Fprintf(&b, "\n%s\n",
 		styles.JoinHorizontal(
-			okayBtn.Render(),
+			addBtn.Render(),
 			cancelBtn.Render(),
 		))
 
@@ -70,18 +71,18 @@ func (m *IRQMenuModel) EditModeView() string {
 
 	helpView := m.help.View(m.keys)
 
-	height := m.height -
+	height := m.Height -
 		strings.Count(title, "\n") -
 		strings.Count(desc, "\n") -
 		strings.Count(helpView, "\n") -
-		strings.Count(m.irq.errorMsgCpu, "\n") -
-		strings.Count(m.irq.errorMsgFilter, "\n") -
+		strings.Count(m.errorMsgCpu, "\n") -
+		strings.Count(m.errorMsgFilter, "\n") -
 		strings.Count(b.String(), "\n") -
 		// verticalPadding is used twice
 		strings.Count(verticalPadding.String(), "\n") -
 		strings.Count(verticalPadding.String(), "\n")
 
-	log.Println("--- (IRQ ADD/EDIT VIEW) m.height: ", m.height)
+	log.Println("--- (IRQ ADD/EDIT VIEW) m.height: ", m.Height)
 	log.Println("--- (IRQ ADD/EDIT VIEW) height: ", height)
 
 	if height < 0 {
@@ -95,55 +96,49 @@ func (m *IRQMenuModel) EditModeView() string {
 			verticalPadding.String() +
 			body +
 			strings.Repeat("\n", height/2) +
-			styles.ErrorMessageStyle(m.irq.errorMsgFilter) +
-			styles.ErrorMessageStyle(m.irq.errorMsgCpu) +
+			styles.ErrorMessageStyle(m.errorMsgFilter) +
+			styles.ErrorMessageStyle(m.errorMsgCpu) +
 			strings.Repeat("\n", height/2) +
 			helpView
-	return s
+
+	return styles.AppStyle.Render(s)
+}
+
+func (m MainMenuModel) View() string {
+	return styles.AppStyle.Render(m.list.View())
 }
 
 // TODO: Need to think a way to model the navigation between menus
 func (m Model) View() string {
 	log.Println("\n------------- VIEW -------------------")
-	log.Println("(VIEW) Current stack: ", m.nav.PrintMenuStack())
-	log.Printf("(VIEW) Current menu: %s", config.Menu[m.nav.GetCurrMenu()])
+	log.Printf("(VIEW) Current menu: %s", config.Menu[m.Nav.GetCurrMenu()])
+	return m.GetActiveMenu().View()
+}
 
-	switch m.nav.GetCurrMenu() {
-
-	case config.KCMD_VIEW_ID:
-		return styles.AppStyle.Render(m.kcmdlineView())
-
-	case config.KCMD_CONCLUSSION_VIEW_ID:
-		if m.renderLog {
-			back_button := cmp.FocusedButton("Back")
-			m.logMsg = append(m.logMsg, "\n")
-			m.logMsg = append(m.logMsg, back_button)
-			var content string
-			for _, msg := range m.logMsg {
-				content += msg
-			}
-
-			max := 0
-			for _, msg := range m.logMsg {
-				if len(msg) > max {
-					max = len(msg)
-				}
-			}
-			// Render the centered square with text
-			return styles.CenteredSquareWithText(
-				m.width, m.height, max, len(m.logMsg), content)
-		}
-		panic("\n\nInvalid view")
-
-	case config.IRQ_VIEW_ID:
-		log.Print("(view) Rendering IRQ Menu")
-		return styles.AppStyle.Render(m.irq.list.View())
-
-	case config.IRQ_ADD_EDIT_VIEW_ID:
-		log.Print("(view) Rendering IRQ Add/Edit Menu")
-		return styles.AppStyle.Render(m.irq.EditModeView())
-
-	default: // INITIAL MENU
-		return styles.AppStyle.Render(m.main.list.View())
+func (m KcmdlineConclussion) View() string {
+	if m.renderLog {
+		panic("This call is not expected")
 	}
+
+	back_button := cmp.FocusedButton("Back")
+	m.logMsg = append(m.logMsg, "\n")
+	m.logMsg = append(m.logMsg, back_button)
+	var content string
+	for _, msg := range m.logMsg {
+		content += msg
+	}
+
+	max := 0
+	for _, msg := range m.logMsg {
+		if len(msg) > max {
+			max = len(msg)
+		}
+	}
+	// Render the centered square with text
+	return styles.CenteredSquareWithText(
+		m.Width, m.Height, max, len(m.logMsg), content)
+}
+
+func (m IRQMenuModel) View() string {
+	return styles.AppStyle.Render(m.list.View())
 }

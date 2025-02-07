@@ -6,6 +6,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// TODO make description for adative ticks better
+
 var (
 	// ------------------------------- DefaultItemStyles ------------------------
 
@@ -18,7 +20,8 @@ var (
 			Light: "#1a1a1a",
 			Dark:  "#dddddd",
 		}).
-		Padding(0, 0, 0, 2) //nolint:mnd
+		Padding(0, 0, 0, 2). //nolint:mnd
+		Bold(true)
 
 	SelectedListItem = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder(), false, false, false, true).
@@ -31,7 +34,8 @@ var (
 			Light: StrongOrange,
 			Dark:  StrongOrange,
 		}).
-		Padding(0, 0, 0, 1)
+		Padding(0, 0, 0, 1).
+		Bold(true)
 
 	DimmedListItem = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{

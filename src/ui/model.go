@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"log"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/data"
@@ -12,7 +13,30 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 )
+
+type Menu interface {
+	Update(msg tea.Msg) (Menu, tea.Cmd)
+	View() string
+}
+
+func (m Model) GetActiveMenu() Menu {
+
+	menu := map[config.Views]Menu{
+		config.INIT_VIEW_ID:             &m.main,
+		config.KCMD_VIEW_ID:             &m.kcmd,
+		config.KCMD_CONCLUSSION_VIEW_ID: &m.kcmd.conclussion,
+		config.IRQ_VIEW_ID:              &m.irq,
+		config.IRQ_ADD_EDIT_VIEW_ID:     &m.irq.irq,
+	}
+	mm, ok := menu[m.Nav.GetCurrMenu()]
+	if !ok {
+		log.Println("ERROR: Menu not found, index: ", m.Nav.GetCurrMenu())
+		return &m.main
+	}
+	return mm
+}
 
 type Model struct {
 	// keys *listKeyMap
@@ -26,13 +50,14 @@ type Model struct {
 	// For the IRQ tunning view
 	// irqInputs     []textinput.Model
 	// irqFocusIndex int
-	nav        *cmp.MenuNav
+	Nav        *cmp.MenuNav
 	cursorMode cursor.Mode
 	errorMsg   string
 	logMsg     []string
 	renderLog  bool
 
 	// The keymap is consistent across all menus
+	currMenu Menu
 
 	main MainMenuModel
 	irq  IRQMenuModel
@@ -40,12 +65,16 @@ type Model struct {
 }
 
 type MainMenuModel struct {
+	Nav          *cmp.MenuNav
+	Width        int
+	Height       int
 	keys         *KeyMap
 	list         list.Model
 	delegateKeys *selectKeyMap
 }
 
 type IRQMenuModel struct {
+	Nav      *cmp.MenuNav
 	width    int
 	height   int
 	Index    int
@@ -61,14 +90,32 @@ type IRQMenuModel struct {
 }
 
 type KcmdlineMenuModel struct {
-	keys       *kcmdKeyMap
-	help       help.Model
-	Inputs     []textinput.Model
-	FocusIndex int
-	// nav components.Navigation
+	Nav         *cmp.MenuNav
+	keys        *kcmdKeyMap
+	help        help.Model
+	Inputs      []textinput.Model
+	conclussion KcmdlineConclussion
+	Width       int
+	Height      int
+	FocusIndex  int
+	errorMsg    string
+	iConf       data.InternalConfig
+	// keys     *listKeyMap
+}
+
+type KcmdlineConclussion struct {
+	Nav       *cmp.MenuNav
+	keys      *kcmdKeyMap
+	Width     int
+	Height    int
+	logMsg    []string
+	renderLog bool
 }
 
 type IRQAddEditMenu struct {
+	Nav            *cmp.MenuNav
+	Width          int
+	Height         int
 	FocusIndex     int
 	Inputs         []textinput.Model
 	help           help.Model
@@ -187,7 +234,9 @@ func NewMainMenuModel() MainMenuModel {
 		}
 	}
 
+	nav := cmp.GetMenuNavInstance()
 	return MainMenuModel{
+		Nav:          nav,
 		keys:         keys,
 		list:         menuList,
 		delegateKeys: delegateKeys,
@@ -198,14 +247,14 @@ func NewModel(c *data.InternalConfig) Model {
 	mainMenu := NewMainMenuModel()
 	irqMenu := newModelIRQMenuModel()
 	kcmd := newKcmdMenuModel()
-	nav := cmp.NewMenuNav()
 
+	nav := cmp.GetMenuNavInstance()
 	return Model{
+		Nav: nav,
+
 		// TODO: Fix this info msg, put in a better place
 		// logMsg:        logmsg[:],
 		// irqInputs:  InitNewIRQTextInputs(),
-
-		nav: nav, // TODO: send this as tea.Msg
 
 		// help:  help.New(), // TODO: Check NEED for custom style
 		iConf: *c,
@@ -253,7 +302,9 @@ func newModelIRQMenuModel() IRQMenuModel {
 			keys.Apply,
 		}
 	}
+	nav := cmp.GetMenuNavInstance()
 	return IRQMenuModel{
+		Nav:  nav,
 		list: m,
 		keys: keys,
 		help: help,
@@ -265,7 +316,9 @@ func newKcmdMenuModel() KcmdlineMenuModel {
 	help := help.New()
 	inputs := newKcmdTextInputs()
 	keys := newkcmdMenuListKeyMap()
+	nav := cmp.GetMenuNavInstance()
 	return KcmdlineMenuModel{
+		Nav:    nav,
 		keys:   keys,
 		help:   help,
 		Inputs: inputs,
@@ -276,12 +329,13 @@ func newIRQAddEditMenuModel() IRQAddEditMenu {
 	help := help.New()
 	inputs := newIRQtextInputs()
 	keys := irqMenuListKeyMap()
+	nav := cmp.GetMenuNavInstance()
 	return IRQAddEditMenu{
+		Nav:            nav,
 		keys:           keys,
 		help:           help,
 		Inputs:         inputs,
 		errorMsgFilter: "\n",
 		errorMsgCpu:    "\n",
 	}
-
 }
