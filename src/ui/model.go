@@ -162,6 +162,16 @@ func NewMainMenuModel() MainMenuModel {
 	}
 
 	delegate := newItemDelegateMainMenu(delegateKeys)
+	delegate.Styles.SelectedDesc = styles.SelectedDesc
+	delegate.Styles.SelectedTitle = styles.SelectedTitle
+
+	delegate.Styles.NormalDesc = styles.NormalDesc
+	delegate.Styles.NormalTitle = styles.NormalTitle
+
+	delegate.Styles.DimmedDesc = styles.DimmedDesc
+	delegate.Styles.DimmedTitle = styles.DimmedTitle
+
+	delegate.Styles.FilterMatch = styles.FilterMatch
 	menuList := list.New(items, delegate, 0, 0)
 	menuList.SetShowHelp(true)
 	menuList.Title = "rt-conf tool"

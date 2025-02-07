@@ -1,35 +1,19 @@
 package ui
 
 import (
-	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 )
 
 func newItemDelegateMainMenu(keys *selectKeyMap) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
-
-	d.Styles.SelectedDesc = styles.SelectedDesc
-	d.Styles.SelectedTitle = styles.SelectedTitle
-
-	d.Styles.NormalDesc = styles.NormalDesc
-	d.Styles.NormalTitle = styles.NormalTitle
-
-	d.Styles.DimmedDesc = styles.DimmedDesc
-	d.Styles.DimmedTitle = styles.DimmedTitle
-
-	d.Styles.FilterMatch = styles.FilterMatch
-
 	help := []key.Binding{keys.choose}
-
 	d.ShortHelpFunc = func() []key.Binding {
 		return help
 	}
-
 	d.FullHelpFunc = func() [][]key.Binding {
 		return [][]key.Binding{help}
 	}
-
 	return d
 }
 
