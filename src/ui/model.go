@@ -16,14 +16,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Menu interface {
-	Update(msg tea.Msg) (Menu, tea.Cmd)
-	View() string
-}
+func (m Model) GetActiveMenu() tea.Model {
 
-func (m Model) GetActiveMenu() Menu {
-
-	menu := map[config.Views]Menu{
+	menu := map[config.Views]tea.Model{
 		config.INIT_VIEW_ID:             &m.main,
 		config.KCMD_VIEW_ID:             &m.kcmd,
 		config.KCMD_CONCLUSSION_VIEW_ID: &m.kcmd.conclussion,
@@ -57,7 +52,7 @@ type Model struct {
 	renderLog  bool
 
 	// The keymap is consistent across all menus
-	currMenu Menu
+	currMenu tea.Model
 
 	main MainMenuModel
 	irq  IRQMenuModel
@@ -122,6 +117,14 @@ type IRQAddEditMenu struct {
 	keys           *irqKeyMap
 	errorMsgFilter string
 	errorMsgCpu    string
+}
+
+type IRQConclussion struct {
+	Nav    *cmp.MenuNav
+	keys   *irqKeyMap
+	Width  int
+	Height int
+	logMsg []string
 }
 
 // TODO: Fix inner menu help view

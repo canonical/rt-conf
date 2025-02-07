@@ -29,8 +29,6 @@ var placeholders_text = []string{
 	config.CpuListPlaceholder,
 }
 
-func (m IRQAddEditMenu) Init() tea.Cmd { return nil }
-
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	log.Println("\n------------- UPDATE -----------------")
 	log.Println("(BEGIN UPDATE) Current menu: ", config.Menu[m.Nav.GetCurrMenu()])
@@ -48,6 +46,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.main.list.SetSize(msg.Width-h, msg.Height-v)
 		m.irq.list.SetSize(msg.Width-h, msg.Height-v)
 		m.kcmd.help.Width = msg.Width
+		m.kcmd.Width = msg.Width - h
+		m.kcmd.Height = msg.Height - v
 
 	case irqAffinityRule:
 		log.Println("(RECEIVED) IRQ Affinity Rule: ", msg)
@@ -117,7 +117,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *MainMenuModel) Update(msg tea.Msg) (Menu, tea.Cmd) {
+func (m *MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := make([]tea.Cmd, 5)
 	log.Println("---MainMenuUpdate: ")
 
@@ -164,7 +164,7 @@ func (m *MainMenuModel) Update(msg tea.Msg) (Menu, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m IRQMenuModel) Update(msg tea.Msg) (Menu, tea.Cmd) {
+func (m IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	log.Printf("---IRQMenuUpdate: ")
 
@@ -191,7 +191,7 @@ func (m IRQMenuModel) Update(msg tea.Msg) (Menu, tea.Cmd) {
 	return m, cmd
 }
 
-func (m IRQAddEditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
+func (m IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	log.Printf("---IRQAddEditMenuUpdate: ")
 	log.Printf("Current menu: %v", config.Menu[m.Nav.GetCurrMenu()])
