@@ -19,7 +19,6 @@ func newItemDelegateMainMenu(keys *selectKeyMap) list.DefaultDelegate {
 
 type selectKeyMap struct {
 	choose key.Binding
-	remove key.Binding
 }
 
 // Additional short help entries. This satisfies the help.KeyMap interface and
