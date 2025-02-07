@@ -48,12 +48,14 @@ type MainMenuModel struct {
 type IRQMenuModel struct {
 	width    int
 	height   int
-	index    int
+	Index    int
 	newEntry bool
 	editMode bool
+	keys     *irqKeyMap
+	list     list.Model
+	help     help.Model
 
-	keys *irqKeyMap
-	list list.Model
+	irq IRQAddEditMenu
 	// keys     *listKeyMap
 	// nav components.Navigation
 }
@@ -67,13 +69,14 @@ type KcmdlineMenuModel struct {
 }
 
 type IRQAddEditMenu struct {
-	FocusIndex int
-	Inputs     []textinput.Model
-	help       help.Model
-	keys       *irqKeyMap
+	FocusIndex     int
+	Inputs         []textinput.Model
+	help           help.Model
+	keys           *irqKeyMap
+	errorMsgFilter string
+	errorMsgCpu    string
 }
 
-// TODO: Fix menu navigation
 // TODO: Fix inner menu help view
 
 type menuItem struct {
@@ -107,6 +110,7 @@ func newIRQtextInputs() []textinput.Model {
 	// TODO: This order needs to be reviwed
 	t.Prompt = "Filter > "
 	m[0] = t
+	m[0].Placeholder = config.IrqFilterPlaceholder
 	t.Prompt = "CPU Range > "
 	m[1] = t
 
@@ -219,7 +223,8 @@ func NewModel(c *data.InternalConfig) Model {
 
 func newModelIRQMenuModel() IRQMenuModel {
 	keys := irqMenuListKeyMap()
-
+	help := help.New()
+	irq := newIRQAddEditMenuModel()
 	items := []list.Item{
 		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
 	}
@@ -236,6 +241,8 @@ func newModelIRQMenuModel() IRQMenuModel {
 	return IRQMenuModel{
 		list: m,
 		keys: keys,
+		help: help,
+		irq:  irq,
 	}
 }
 
@@ -243,7 +250,6 @@ func newKcmdMenuModel() KcmdlineMenuModel {
 	help := help.New()
 	inputs := newKcmdTextInputs()
 	keys := newkcmdMenuListKeyMap()
-
 	return KcmdlineMenuModel{
 		keys:   keys,
 		help:   help,
@@ -252,14 +258,15 @@ func newKcmdMenuModel() KcmdlineMenuModel {
 }
 
 func newIRQAddEditMenuModel() IRQAddEditMenu {
-
 	help := help.New()
 	inputs := newIRQtextInputs()
 	keys := irqMenuListKeyMap()
-
 	return IRQAddEditMenu{
-		keys:   keys,
-		help:   help,
-		Inputs: inputs,
+		keys:           keys,
+		help:           help,
+		Inputs:         inputs,
+		errorMsgFilter: "\n",
+		errorMsgCpu:    "\n",
 	}
+
 }

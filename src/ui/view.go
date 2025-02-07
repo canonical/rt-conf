@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/config"
@@ -25,92 +27,79 @@ import (
 // TODO: delete this function
 func (m *IRQMenuModel) EditModeView() string {
 	log.Println("\n---- IRQEditMode VIEW ----")
-	// var s string // the view
+	var s string // the view
 
-	// title := styles.InnerMenuStyle("Configuring IRQ Affinity")
-	// desc := styles.Section.
-	// 	Render("Allocate specific CPUs to IRQs matching the filter.")
+	title := styles.InnerMenuStyle("Configuring IRQ Affinity")
+	desc := styles.Section.
+		Render("Allocate specific CPUs to IRQs matching the filter.")
 
-	// // The inputs
-	// var b strings.Builder
-	// for i := range m.irqInputs {
-	// 	// TODO fix the padding of the irqInputs view
-	// 	textInput := m.irqInputs[i].View()
-	// 	b.WriteString(textInput + "\n")
-	// 	if (i+1)%2 == 0 {
-	// 		b.WriteString("---\n")
-	// 	}
-	// }
+	var b strings.Builder
+	for i := range m.irq.Inputs {
+		b.WriteString(m.irq.Inputs[i].View())
+		if i < len(m.irq.Inputs)-1 {
+			b.WriteRune('\n')
+		}
+	}
+	b.WriteString("\n")
 
-	// plus_button := cmp.NewButton("+")
-	// minus_button := cmp.NewButton("-")
-	// apply_button := cmp.NewButton("Apply")
-	// back_button := cmp.NewButton("Back")
+	var verticalPadding strings.Builder
+	verticalPadding.WriteString("\n\n")
 
-	// btns := []*cmp.Button{plus_button, minus_button, back_button, apply_button}
+	okayBtn := cmp.NewButton("Okay")
+	cancelBtn := cmp.NewButton("Cancel")
 
-	// for i, btn := range btns {
-	// 	if m.irqFocusIndex == i+(len(m.irqInputs)) {
-	// 		btn.SetFocused()
-	// 	} else {
-	// 		btn.SetBlurred()
-	// 	}
-	// }
+	btns := []*cmp.Button{okayBtn, cancelBtn}
 
-	// // TODO: add space between the [ Apply ] and [ Back ] buttons
-	// log.Println("(view) irqFocusIndex: ", m.irqFocusIndex)
+	for i, btn := range btns {
+		if m.irq.FocusIndex == i+(len(m.irq.Inputs)) {
+			btn.SetFocused()
+		} else {
+			btn.SetBlurred()
+		}
+	}
 
-	// fmt.Fprintf(&b, "\n%s\n",
-	// 	styles.JoinHorizontal(
-	// 		plus_button.Render(),
-	// 		minus_button.Render(),
-	// 	))
+	log.Println("--- (IRQ ADD/EDIT VIEW) m.irq.FocusIndex: ", m.irq.FocusIndex)
 
-	// // [ Back ] [ Apply ] buttons
-	// fmt.Fprintf(&b, "\n\n%s\n\n",
-	// 	styles.JoinHorizontal(
-	// 		back_button.Render(),
-	// 		apply_button.Render(),
-	// 	))
+	fmt.Fprintf(&b, "\n%s\n",
+		styles.JoinHorizontal(
+			okayBtn.Render(),
+			cancelBtn.Render(),
+		))
 
-	// body := b.String()
-	// // TODO: Adding padding to the bottom and top of [body] and remove new lines
+	body := b.String()
 
-	// helpView := m.help.View(m.keys)
+	helpView := m.help.View(m.keys)
 
-	// // TODO: fix this mess
-	// height := (m.height -
-	// 	strings.Count(title, "\n") -
-	// 	strings.Count(desc, "\n") -
-	// 	strings.Count(helpView, "\n") -
-	// 	strings.Count(m.errorMsg, "\n") -
-	// 	strings.Count(body, "\n") - 6) / 2 // TODO: fix those magic numbers
+	height := m.height -
+		strings.Count(title, "\n") -
+		strings.Count(desc, "\n") -
+		strings.Count(helpView, "\n") -
+		strings.Count(m.irq.errorMsgCpu, "\n") -
+		strings.Count(m.irq.errorMsgFilter, "\n") -
+		strings.Count(b.String(), "\n") -
+		// verticalPadding is used twice
+		strings.Count(verticalPadding.String(), "\n") -
+		strings.Count(verticalPadding.String(), "\n")
 
-	// // NOTE: *- 4 * because:
-	// // "\n\n" (jumps 2 lines) after the title
-	// // Before the line with the [ Back ] [ Apply ] buttons there are 2 lines
+	log.Println("--- (IRQ ADD/EDIT VIEW) m.height: ", m.height)
+	log.Println("--- (IRQ ADD/EDIT VIEW) height: ", height)
 
-	// // NOTE: * / 2 * (divide by two) because:
-	// // we want to add padding between to the top
-	// // and bottom of the help view
+	if height < 0 {
+		height = 1
+	}
 
-	// if height < 0 {
-	// 	height = 1
-	// }
-
-	// s +=
-	// 	title +
-	// 		"\n\n" +
-	// 		desc +
-	// 		"\n\n" +
-	// 		body +
-	// 		strings.Repeat("\n", height) +
-	// 		"\n" +
-	// 		// styles.ErrorMessageStyle(m.errorMsg) +
-	// 		strings.Repeat("\n", height) +
-	// 		helpView
-	// return s
-	return "**** UNDER CONSTRUCTION ****"
+	s +=
+		title +
+			verticalPadding.String() +
+			desc +
+			verticalPadding.String() +
+			body +
+			strings.Repeat("\n", height/2) +
+			styles.ErrorMessageStyle(m.irq.errorMsgFilter) +
+			styles.ErrorMessageStyle(m.irq.errorMsgCpu) +
+			strings.Repeat("\n", height/2) +
+			helpView
+	return s
 }
 
 // TODO: Need to think a way to model the navigation between menus

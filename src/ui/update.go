@@ -52,6 +52,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := styles.AppStyle.GetFrameSize()
 		m.width = msg.Width - h
 		m.height = msg.Height - v
+		m.irq.height = msg.Height - v
+
 		m.main.list.SetSize(msg.Width-h, msg.Height-v)
 		m.irq.list.SetSize(msg.Width-h, msg.Height-v)
 
