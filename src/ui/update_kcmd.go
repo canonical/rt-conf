@@ -80,8 +80,17 @@ func (m *Model) kcmdlineMenuUpdate(msg tea.KeyMsg) tea.Cmd {
 			if !valid {
 				break
 			}
-
-			m.iConf.Data.KernelCmdline.IsolCPUs = m.kcmd.Inputs[isolcpusIndex].Value()
+				var empty int
+				for i := range m.Inputs {
+					v := m.Inputs[i].Value()
+					if v == "" {
+						empty++
+					}
+				}
+				if empty == len(m.Inputs) {
+					m.errorMsg = "\n\nAll fields are empty\n\n\n"
+					break
+				}
 
 			m.iConf.Data.KernelCmdline.Nohz = m.kcmd.Inputs[nohzIndex].Value()
 

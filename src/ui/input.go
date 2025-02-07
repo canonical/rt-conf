@@ -45,22 +45,22 @@ var validationErrorsKcmd = []ErrValidation{
 // TODO: Think in a way to handle if the user wants empty values
 
 // TODO: This function validates and create the error message,
-func (m *Model) Validation() []ErrValidation {
+func (m *KcmdlineMenuModel) Validation() []ErrValidation {
 
 	// TODO: move this logic to outside this function
 	// If focusIndex is out of range, just return the validationErrors
-	if m.kcmd.FocusIndex < 0 || m.kcmd.FocusIndex >= len(m.kcmd.Inputs) {
+	if m.FocusIndex < 0 || m.FocusIndex >= len(m.Inputs) {
 		return validationErrorsKcmd
 	}
 
-	log.Println("focusIndex on Validation: ", m.kcmd.FocusIndex)
-	value := m.kcmd.Inputs[m.kcmd.FocusIndex].Value()
+	log.Println("focusIndex on Validation: ", m.FocusIndex)
+	value := m.Inputs[m.FocusIndex].Value()
 
 	// TODO: fetch value from YAML file and SetValue()
 	// m.inputs[m.focusIndex].SetValue(value)
 	if value == "" {
-		validationErrorsKcmd[m.kcmd.FocusIndex].err = "\n"
-		validationErrorsKcmd[m.kcmd.FocusIndex].exist = false
+		validationErrorsKcmd[m.FocusIndex].err = "\n"
+		validationErrorsKcmd[m.FocusIndex].exist = false
 	} else {
 		m.checkInputs(value)
 	}
@@ -73,19 +73,19 @@ func (m *Model) Validation() []ErrValidation {
 	return validationErrorsKcmd
 }
 
-func (m *Model) checkInputs(value string) {
+func (m *KcmdlineMenuModel) checkInputs(value string) {
 	var err error
 
-	switch m.kcmd.FocusIndex {
+	switch m.FocusIndex {
 	case isolcpusIndex, nohzFullIndex, kthreadsCPUsIndex, irqaffinityIndex:
 		err = cpu.ValidateList(value)
-		log.Printf("%v: %v ", validationErrorsKcmd[m.kcmd.FocusIndex].name, value)
+		log.Printf("%v: %v ", validationErrorsKcmd[m.FocusIndex].name, value)
 		if err != nil {
-			validationErrorsKcmd[m.kcmd.FocusIndex].err = "ERROR: " + err.Error() + "\n"
-			validationErrorsKcmd[m.kcmd.FocusIndex].exist = true
+			validationErrorsKcmd[m.FocusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrorsKcmd[m.FocusIndex].exist = true
 		} else {
-			validationErrorsKcmd[m.kcmd.FocusIndex].err = "\n"
-			validationErrorsKcmd[m.kcmd.FocusIndex].exist = false
+			validationErrorsKcmd[m.FocusIndex].err = "\n"
+			validationErrorsKcmd[m.FocusIndex].exist = false
 		}
 
 	case nohzIndex:
@@ -107,7 +107,7 @@ func (m *Model) checkInputs(value string) {
 	}
 }
 
-func (m *Model) AreValidInputs() bool {
+func (m *KcmdlineMenuModel) AreValidInputs() bool {
 	validated := m.Validation()
 	for _, v := range validated {
 		if v.exist {
