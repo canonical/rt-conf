@@ -255,7 +255,7 @@ func NewMainMenuModel() MainMenuModel {
 func NewModel(c *data.InternalConfig) Model {
 	mainMenu := NewMainMenuModel()
 	irqMenu := newModelIRQMenuModel()
-	kcmd := newKcmdMenuModel()
+	kcmd := newKcmdMenuModel(c)
 
 	nav := cmp.GetMenuNavInstance()
 	return Model{
@@ -321,16 +321,19 @@ func newModelIRQMenuModel() IRQMenuModel {
 	}
 }
 
-func newKcmdMenuModel() KcmdlineMenuModel {
+func newKcmdMenuModel(c *data.InternalConfig) KcmdlineMenuModel {
 	help := help.New()
 	inputs := newKcmdTextInputs()
 	keys := newkcmdMenuListKeyMap()
 	nav := cmp.GetMenuNavInstance()
+	conclussion := newKcmdConclussionModel()
 	return KcmdlineMenuModel{
-		Nav:    nav,
-		keys:   keys,
-		help:   help,
-		Inputs: inputs,
+		iConf:       *c,
+		Nav:         nav,
+		keys:        keys,
+		help:        help,
+		Inputs:      inputs,
+		conclussion: conclussion,
 	}
 }
 
@@ -348,5 +351,14 @@ func newIRQAddEditMenuModel() IRQAddEditMenu {
 		// beceusae these will be part of a vertical composed view
 		errorMsgFilter: "\n",
 		errorMsgCpu:    "\n",
+	}
+}
+
+func newKcmdConclussionModel() KcmdlineConclussion {
+	keys := newkcmdMenuListKeyMap()
+	nav := cmp.GetMenuNavInstance()
+	return KcmdlineConclussion{
+		Nav:  nav,
+		keys: keys,
 	}
 }
