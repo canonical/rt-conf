@@ -22,7 +22,7 @@ const (
 )
 
 // TODO: fix the problem with the j,k keys being logged
-func (m KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	log.Println("---(kcmdlineMenuUpdate - start")
 	cmds := make([]tea.Cmd, len(m.Inputs))
@@ -161,7 +161,7 @@ func (m KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	log.Println("(kcmdlineConclussionUpdate - start")
 

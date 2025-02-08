@@ -16,7 +16,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func (m Model) GetActiveMenu() tea.Model {
+func (m *Model) GetActiveMenu() tea.Model {
+	//** Note it's very important `m` be a pointer receiver
 
 	menu := map[config.Views]tea.Model{
 		config.INIT_VIEW_ID:             &m.main,
@@ -24,6 +25,7 @@ func (m Model) GetActiveMenu() tea.Model {
 		config.KCMD_CONCLUSSION_VIEW_ID: &m.kcmd.conclussion,
 		config.IRQ_VIEW_ID:              &m.irq,
 		config.IRQ_ADD_EDIT_VIEW_ID:     &m.irq.irq,
+		config.IRQ_CONCLUSSION_VIEW_ID:  &m.irq.conclussion,
 	}
 	mm, ok := menu[m.Nav.GetCurrMenu()]
 	if !ok {
@@ -38,8 +40,8 @@ type Model struct {
 	// TODO: reporpuse this for adding IRQ affinity entries
 	// itemGenerator *menuItems
 	// delegateKeys *selectKeyMap
-	width  int
-	height int
+	Width  int
+	Height int
 	iConf  data.InternalConfig
 	// for the kernel command line view
 	// For the IRQ tunning view
@@ -70,8 +72,8 @@ type MainMenuModel struct {
 
 type IRQMenuModel struct {
 	Nav      *cmp.MenuNav
-	width    int
-	height   int
+	Width    int
+	Height   int
 	Index    int
 	newEntry bool
 	editMode bool
@@ -79,13 +81,14 @@ type IRQMenuModel struct {
 	list     list.Model
 	help     help.Model
 
-	irq IRQAddEditMenu
+	conclussion IRQConclussion
+	irq         IRQAddEditMenu
 	// keys     *listKeyMap
 	// nav components.Navigation
 }
 
 type KcmdlineMenuModel struct {
-	Nav         *cmp.MenuNav
+	Nav         *cmp.MenuNav // Menu Navigation instance
 	keys        *kcmdKeyMap
 	help        help.Model
 	Inputs      []textinput.Model
@@ -99,7 +102,7 @@ type KcmdlineMenuModel struct {
 }
 
 type KcmdlineConclussion struct {
-	Nav       *cmp.MenuNav
+	Nav       *cmp.MenuNav // Menu Navigation instance
 	keys      *kcmdKeyMap
 	Width     int
 	Height    int
@@ -108,9 +111,9 @@ type KcmdlineConclussion struct {
 }
 
 type IRQAddEditMenu struct {
-	Nav            *cmp.MenuNav
-	Width          int
-	Height         int
+	Nav            *cmp.MenuNav // Menu Navigation instance
+	width          int
+	height         int
 	FocusIndex     int
 	Inputs         []textinput.Model
 	help           help.Model
@@ -120,11 +123,13 @@ type IRQAddEditMenu struct {
 }
 
 type IRQConclussion struct {
-	Nav    *cmp.MenuNav
+	// The number of IRQs that are being applied to the system
+	num    int
+	Nav    *cmp.MenuNav // Menu Navigation instance
 	keys   *irqKeyMap
 	Width  int
 	Height int
-	logMsg []string
+	logMsg string
 }
 
 // TODO: Fix inner menu help view
@@ -161,6 +166,7 @@ func newIRQtextInputs() []textinput.Model {
 	t.Prompt = config.PrefixIRQFilter // "Filter > "
 	m[0] = t
 	m[0].Placeholder = config.IrqFilterPlaceholder
+	m[0].Focus()
 	t.Prompt = config.PrefixCpuRange // "CPU Range > "
 	m[1] = t
 
@@ -334,10 +340,12 @@ func newIRQAddEditMenuModel() IRQAddEditMenu {
 	keys := irqMenuListKeyMap()
 	nav := cmp.GetMenuNavInstance()
 	return IRQAddEditMenu{
-		Nav:            nav,
-		keys:           keys,
-		help:           help,
-		Inputs:         inputs,
+		Nav:    nav,
+		keys:   keys,
+		help:   help,
+		Inputs: inputs,
+		// Initialize errors strings with empty new line
+		// beceusae these will be part of a vertical composed view
 		errorMsgFilter: "\n",
 		errorMsgCpu:    "\n",
 	}

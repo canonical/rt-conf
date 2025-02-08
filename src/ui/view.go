@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	cmp "github.com/canonical/rt-conf/src/ui/components"
@@ -71,7 +72,7 @@ func (m IRQAddEditMenu) View() string {
 
 	helpView := m.help.View(m.keys)
 
-	height := m.Height -
+	height := m.height -
 		strings.Count(title, "\n") -
 		strings.Count(desc, "\n") -
 		strings.Count(helpView, "\n") -
@@ -82,12 +83,13 @@ func (m IRQAddEditMenu) View() string {
 		strings.Count(verticalPadding.String(), "\n") -
 		strings.Count(verticalPadding.String(), "\n")
 
-	log.Println("--- (IRQ ADD/EDIT VIEW) m.height: ", m.Height)
-	log.Println("--- (IRQ ADD/EDIT VIEW) height: ", height)
+	// log.Println("--- (IRQ ADD/EDIT VIEW) m.Height: ", m.height)
+	// log.Println("--- (IRQ ADD/EDIT VIEW) height: ", height)
 
 	if height < 0 {
 		height = 1
 	}
+	// log.Println("--- recalculated height: ", height)
 
 	s +=
 		title +
@@ -108,7 +110,6 @@ func (m MainMenuModel) View() string {
 	return styles.AppStyle.Render(m.list.View())
 }
 
-// TODO: Need to think a way to model the navigation between menus
 func (m Model) View() string {
 	log.Println("\n------------- VIEW -------------------")
 	log.Printf("(VIEW) Current menu: %s", config.Menu[m.Nav.GetCurrMenu()])
@@ -141,4 +142,13 @@ func (m KcmdlineConclussion) View() string {
 
 func (m IRQMenuModel) View() string {
 	return styles.AppStyle.Render(m.list.View())
+}
+
+func (m IRQConclussion) View() string {
+	var s string
+	backBtn := cmp.FocusedButton("Back")
+	s += strconv.Itoa(m.num) + " " + m.logMsg + "\n\n" + backBtn
+	max := len(m.logMsg) + 3 // A blank space + two digit number
+	return styles.CenteredSquareWithText(
+		m.Width, m.Height, max, len(s), s)
 }

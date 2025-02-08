@@ -44,6 +44,10 @@ func newkcmdMenuListKeyMap() *kcmdKeyMap {
 			key.WithKeys("left", "h"),
 			key.WithHelp("←/h", "move left"),
 		),
+		Right: key.NewBinding(
+			key.WithKeys("right", "l"),
+			key.WithHelp("→/l", "move left"),
+		),
 		Select: key.NewBinding(
 			key.WithKeys("enter", "space"),
 			key.WithHelp("enter", "select menu"),

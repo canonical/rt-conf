@@ -16,3 +16,5 @@ func (m KcmdlineConclussion) Init() tea.Cmd { return nil }
 func (m IRQMenuModel) Init() tea.Cmd { return nil }
 
 func (m IRQAddEditMenu) Init() tea.Cmd { return nil }
+
+func (m IRQConclussion) Init() tea.Cmd { return nil }

@@ -5,6 +5,8 @@ import "github.com/charmbracelet/bubbles/key"
 type irqKeyMap struct {
 	Up         key.Binding
 	Down       key.Binding
+	Left       key.Binding
+	Right      key.Binding
 	goHome     key.Binding
 	Select     key.Binding
 	Help       key.Binding
@@ -46,12 +48,20 @@ func irqMenuListKeyMap() *irqKeyMap {
 			key.WithHelp("ctrl+s", "add item"),
 		),
 		Up: key.NewBinding(
-			key.WithKeys("up", "k"),
-			key.WithHelp("↑/k", "move up"),
+			key.WithKeys("up"),
+			key.WithHelp("↑", "move up"),
 		),
 		Down: key.NewBinding(
-			key.WithKeys("down", "j"),
-			key.WithHelp("↓/j", "move down"),
+			key.WithKeys("down"),
+			key.WithHelp("↓", "move down"),
+		),
+		Left: key.NewBinding(
+			key.WithKeys("left"),
+			key.WithHelp("←", "move left"),
+		),
+		Right: key.NewBinding(
+			key.WithKeys("right"),
+			key.WithHelp("→", "move right"),
 		),
 		goHome: key.NewBinding(
 			key.WithKeys("g", "home"),
