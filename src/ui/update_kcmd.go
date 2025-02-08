@@ -175,8 +175,8 @@ func (m KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		/* If the user press enter on the log view,
 		go back to the previous menu */
 		case key.Matches(msg, m.keys.Select):
-			// m.renderLog = false
 			m.Nav.PrevMenu()
+
 		default:
 			log.Println("(default) Invalid key pressed: ", msg.String())
 			log.Println("Menu navigation stack: ", m.Nav.PrintMenuStack())

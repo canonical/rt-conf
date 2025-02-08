@@ -261,11 +261,6 @@ func NewModel(c *data.InternalConfig) Model {
 	return Model{
 		Nav: nav,
 
-		// TODO: Fix this info msg, put in a better place
-		// logMsg:        logmsg[:],
-		// irqInputs:  InitNewIRQTextInputs(),
-
-		// help:  help.New(), // TODO: Check NEED for custom style
 		iConf: *c,
 		main:  mainMenu,
 		irq:   irqMenu,
@@ -287,7 +282,6 @@ func newModelIRQMenuModel() IRQMenuModel {
 		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
 		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
 	}
-	// m := list.New(items, newItemDelegate(newDelegateKeyMap()), 0, 0)
 
 	delegate := list.NewDefaultDelegate()
 	delegate.Styles.SelectedDesc = styles.SelectedListItem
