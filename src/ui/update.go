@@ -13,14 +13,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var placeholders_text = []string{
-	config.CpuListPlaceholder,
-	"Enter on or off",
-	config.CpuListPlaceholder,
-	config.CpuListPlaceholder,
-	config.CpuListPlaceholder,
-}
-
 var placeholders_irq = []string{
 	config.IrqFilterPlaceholder,
 	config.CpuListPlaceholder,
