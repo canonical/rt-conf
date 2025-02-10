@@ -11,23 +11,7 @@ import (
 	"github.com/canonical/rt-conf/src/ui/styles"
 )
 
-// TODO: Create a new object for the IRQinputs menu
-
-// | IRQ Filter:
-// | CPU Range:
-// | [ - ]
-
-// [ Back ] [ + ] [ Apply ]
-
-// TODO: add [ - ] button to remove the last entry (or a specific entry)
-
-// TODO: look into the pagination mechanism that bubbles provives for the list
-// ** NOTE: It would be intesting to have a pagination mechanism for the
-// ** text inputs
-
-// TODO: delete this function
 func (m IRQAddEditMenu) View() string {
-	log.Println("\n---- IRQEditMode VIEW ----")
 	var s string // the view
 
 	title := styles.InnerMenuStyle("Add IRQ Affinity Rule")
