@@ -141,6 +141,14 @@ func (m KcmdlineConclussion) View() string {
 }
 
 func (m IRQMenuModel) View() string {
+	m.list.KeyMap.Filter.SetEnabled(false)
+	m.list.KeyMap.CursorUp.SetEnabled(false)
+	m.list.KeyMap.CursorDown.SetEnabled(false)
+	m.list.KeyMap.NextPage.SetEnabled(false)
+	m.list.KeyMap.PrevPage.SetEnabled(false)
+	m.list.KeyMap.GoToStart.SetEnabled(false)
+	m.list.KeyMap.GoToEnd.SetEnabled(false)
+	m.list.KeyMap.Filter.SetEnabled(false)
 	return styles.AppStyle.Render(m.list.View())
 }
 

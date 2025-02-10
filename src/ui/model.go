@@ -278,7 +278,8 @@ func NewModel(c *data.InternalConfig) Model {
 
 func newModelIRQMenuModel() IRQMenuModel {
 	keys := irqMenuListKeyMap()
-	help := help.New()
+	listKeys := irqMenuListKeyMap()
+
 	irq := newIRQAddEditMenuModel()
 	concl := newIRQConclussionModel()
 	items := []list.Item{
@@ -301,18 +302,43 @@ func newModelIRQMenuModel() IRQMenuModel {
 	m := list.New(items, delegate, 0, 0)
 	m.Title = "IRQ Affinity"
 	m.Styles.Title = styles.TitleStyle
-	m.AdditionalFullHelpKeys = func() []key.Binding {
+
+	m.KeyMap.Filter.SetEnabled(false)
+	m.KeyMap.CursorUp.SetEnabled(false)
+	m.KeyMap.CursorDown.SetEnabled(false)
+	m.KeyMap.NextPage.SetEnabled(false)
+	m.KeyMap.PrevPage.SetEnabled(false)
+	m.KeyMap.GoToStart.SetEnabled(false)
+	m.KeyMap.GoToEnd.SetEnabled(false)
+
+	m.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
-			keys.Add,
-			keys.Remove,
-			keys.Apply,
+			listKeys.Up,
+			listKeys.Down,
+			listKeys.Apply,
+			listKeys.Add,
+			listKeys.Remove,
+			listKeys.Back,
 		}
 	}
+
+	m.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			listKeys.Up,
+			listKeys.Down,
+			listKeys.Apply,
+			listKeys.Add,
+			listKeys.Remove,
+			listKeys.Back,
+			listKeys.goHome,
+		}
+	}
+
 	nav := cmp.GetMenuNavInstance()
 	return IRQMenuModel{
-		Nav:  nav,
-		list: m,
-		keys: keys,
+		Nav:   nav,
+		list:  m,
+		keys:  keys,
 		irq:   irq,
 		concl: concl,
 	}
