@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -9,83 +8,6 @@ import (
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/styles"
 )
-
-func (m IRQAddEditMenu) View() string {
-	var s string // the view
-
-	title := styles.InnerMenuStyle("Add IRQ Affinity Rule")
-	desc := styles.Section.
-		Render("Allocate specific CPUs to IRQs matching the filter.")
-
-	// TODO: bold cpu range and filter
-	var b strings.Builder
-	for i := range m.Inputs {
-		b.WriteString(m.Inputs[i].View())
-		if i < len(m.Inputs)-1 {
-			b.WriteRune('\n')
-		}
-	}
-	b.WriteString("\n")
-
-	var verticalPadding strings.Builder
-	verticalPadding.WriteString("\n\n")
-
-	addBtn := cmp.NewButton("Add")
-	cancelBtn := cmp.NewButton("Cancel")
-
-	btns := []*cmp.Button{addBtn, cancelBtn}
-
-	for i, btn := range btns {
-		if m.FocusIndex == i+(len(m.Inputs)) {
-			btn.SetFocused()
-		} else {
-			btn.SetBlurred()
-		}
-	}
-
-	// log.Println("--- (IRQ ADD/EDIT VIEW) m.irq.FocusIndex: ", m.FocusIndex)
-
-	fmt.Fprintf(&b, "\n%s\n",
-		styles.JoinHorizontal(
-			addBtn.Render(),
-			cancelBtn.Render(),
-		))
-
-	body := b.String()
-
-	helpView := m.help.View(m.keys)
-
-	height := m.height -
-		strings.Count(title, "\n") -
-		strings.Count(desc, "\n") -
-		strings.Count(helpView, "\n") -
-		strings.Count(m.errorMsg, "\n") -
-		strings.Count(b.String(), "\n") -
-		// verticalPadding is used twice
-		strings.Count(verticalPadding.String(), "\n") -
-		strings.Count(verticalPadding.String(), "\n")
-
-	// log.Println("--- (IRQ ADD/EDIT VIEW) m.Height: ", m.height)
-	// log.Println("--- (IRQ ADD/EDIT VIEW) height: ", height)
-
-	if height < 0 {
-		height = 1
-	}
-	// log.Println("--- recalculated height: ", height)
-
-	s +=
-		title +
-			verticalPadding.String() +
-			desc +
-			verticalPadding.String() +
-			body +
-			strings.Repeat("\n", height/2) +
-			styles.ErrorMessageStyle(m.errorMsg) +
-			strings.Repeat("\n", height/2) +
-			helpView
-
-	return styles.AppStyle.Render(s)
-}
 
 func (m KcmdlineConclusion) View() string {
 	if !m.renderLog {
