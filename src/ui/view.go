@@ -117,7 +117,7 @@ func (m Model) View() string {
 }
 
 func (m KcmdlineConclussion) View() string {
-	if m.renderLog {
+	if !m.renderLog {
 		panic("This call is not expected")
 	}
 
