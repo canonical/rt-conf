@@ -31,12 +31,6 @@ func (m *KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	index := cmp.NewNavigation(&m.FocusIndex, &totalIrqItems)
 
 	switch msg := msg.(type) {
-	// case tea.WindowSizeMsg:
-	// 	m.conclussion.Width = msg.Width
-	// 	m.conclussion.Height = msg.Height
-
-	// 	m.help.Width = msg.Width
-
 	case tea.KeyMsg:
 		switch {
 
@@ -166,10 +160,6 @@ func (m KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	log.Println("(kcmdlineConclussionUpdate - start")
 
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.Width = msg.Width
-		m.Height = msg.Height
-
 	case tea.KeyMsg:
 		switch {
 		/* If the user press enter on the log view,
