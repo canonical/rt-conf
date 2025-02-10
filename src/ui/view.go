@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	cmp "github.com/canonical/rt-conf/src/ui/components"
-	"github.com/canonical/rt-conf/src/ui/config"
 	"github.com/canonical/rt-conf/src/ui/styles"
 )
 
