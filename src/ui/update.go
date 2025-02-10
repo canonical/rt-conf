@@ -33,7 +33,8 @@ const (
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	log.Println("\n------------- UPDATE -----------------")
-	log.Println("(BEGIN UPDATE) Current menu: ", config.Menu[m.Nav.GetCurrMenu()])
+	// log.Println("(MAIN UPDATE) Current menu: ", config.Menu[m.Nav.GetCurrMenu()])
+	// log.Println("MENU STACK: ", m.Nav.PrintMenuStack())
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
