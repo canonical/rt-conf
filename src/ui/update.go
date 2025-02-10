@@ -35,7 +35,6 @@ const (
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Println("\n------------- UPDATE -----------------")
 	// log.Println("(MAIN UPDATE) Current menu: ", config.Menu[m.Nav.GetCurrMenu()])
 	// log.Println("MENU STACK: ", m.Nav.PrintMenuStack())
 	var cmds []tea.Cmd
@@ -169,7 +168,6 @@ func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Printf("---IRQMenuUpdate: ")
 
 	switch msg := msg.(type) {
 	case IRQRuleMsg:
@@ -294,7 +292,6 @@ func (m *IRQConclusion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	log.Println("---(IRQAddEditMenu - start")
 	cmds := make([]tea.Cmd, len(m.Inputs), len(m.Inputs)+4)
 
 	totalIrqItems := len(m.Inputs) + 2
