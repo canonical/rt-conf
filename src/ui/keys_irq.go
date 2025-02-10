@@ -59,7 +59,7 @@ func irqAddEditListKeyMap() *irqAddEditKeyMap {
 			key.WithHelp("esc", "back"),
 		),
 		Select: key.NewBinding(
-			key.WithKeys("enter", "space"),
+			key.WithKeys("enter"),
 			key.WithHelp("enter", "select"),
 		),
 		Quit: key.NewBinding(
