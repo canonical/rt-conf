@@ -79,6 +79,7 @@ func main() {
 		return
 	}
 
+
 	err = interrupts.ApplyIRQConfig(&conf)
 	if err != nil {
 		log.Fatalf("Failed to process interrupts: %v", err)

@@ -6,7 +6,7 @@ irq_tunning:
     filter:
       # action: "floppy"
       # action: "ttyS0"
-      # chip_name: "APIC" # this is a bad idea
+      # chip_name: "APIC"
       name: "fasteoi"
       # type: "level"
 
