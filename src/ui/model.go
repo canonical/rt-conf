@@ -339,6 +339,17 @@ func newModelIRQMenuModel() IRQMenuModel {
 		keys:  keys,
 		irq:   irq,
 		concl: concl,
+		rules: []data.IRQTunning{
+			{ // Insert an empty default IRQ tunning rule
+				CPUs: "0-n",
+				Filter: data.IRQFilter{
+					Actions:  "",
+					ChipName: "",
+					Name:     "",
+					Type:     "",
+				},
+			},
+		},
 	}
 }
 
