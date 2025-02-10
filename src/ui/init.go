@@ -6,8 +6,6 @@ import (
 
 func (m KcmdlineConclusion) Init() tea.Cmd { return nil }
 
-func (m IRQMenuModel) Init() tea.Cmd { return nil }
-
 func (m IRQAddEditMenu) Init() tea.Cmd { return nil }
 
 func (m IRQConclusion) Init() tea.Cmd { return nil }
