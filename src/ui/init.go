@@ -5,8 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func (m Model) Init() tea.Cmd { return nil }
-
 func (m MainMenuModel) Init() tea.Cmd { return nil }
 
 func (m KcmdlineMenuModel) Init() tea.Cmd { return textinput.Blink }

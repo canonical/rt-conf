@@ -91,12 +91,6 @@ func (m MainMenuModel) View() string {
 	return styles.AppStyle.Render(m.list.View())
 }
 
-func (m Model) View() string {
-	// log.Println("\n------------- VIEW -------------------")
-	// log.Printf("(VIEW) Current menu: %s", config.Menu[m.Nav.GetCurrMenu()])
-	return m.GetActiveMenu().View()
-}
-
 func (m KcmdlineConclusion) View() string {
 	if !m.renderLog {
 		panic("This call is not expected")

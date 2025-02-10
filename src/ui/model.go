@@ -1,9 +1,6 @@
 package ui
 
 import (
-	"log"
-	"strings"
-
 	"github.com/canonical/rt-conf/src/data"
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/config"
@@ -13,53 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
 )
-
-func (m *Model) GetActiveMenu() tea.Model {
-	//** Note it's very important `m` be a pointer receiver
-
-	menu := map[config.Views]tea.Model{
-		config.INIT_VIEW_ID:            &m.main,
-		config.KCMD_VIEW_ID:            &m.kcmd,
-		config.KCMD_CONCLUSION_VIEW_ID: &m.kcmd.concl,
-		config.IRQ_VIEW_ID:             &m.irq,
-		config.IRQ_ADD_EDIT_VIEW_ID:    &m.irq.irq,
-		config.IRQ_CONCLUSION_VIEW_ID:  &m.irq.concl,
-	}
-	mm, ok := menu[m.Nav.GetCurrMenu()]
-	if !ok {
-		log.Println("ERROR: Menu not found, index: ", m.Nav.GetCurrMenu())
-		return &m.main
-	}
-	return mm
-}
-
-type Model struct {
-	// keys *listKeyMap
-	// TODO: reporpuse this for adding IRQ affinity entries
-	// itemGenerator *menuItems
-	// delegateKeys *selectKeyMap
-	Width  int
-	Height int
-	iConf  data.InternalConfig
-	// for the kernel command line view
-	// For the IRQ tunning view
-	// irqInputs     []textinput.Model
-	// irqFocusIndex int
-	Nav        *cmp.MenuNav
-	cursorMode cursor.Mode
-	errorMsg   string
-	logMsg     []string
-	renderLog  bool
-
-	// The keymap is consistent across all menus
-	currMenu tea.Model
-
-	main MainMenuModel
-	irq  IRQMenuModel
-	kcmd KcmdlineMenuModel
-}
 
 type MainMenuModel struct {
 	Nav          *cmp.MenuNav
@@ -250,28 +201,6 @@ func NewMainMenuModel() MainMenuModel {
 		keys:         keys,
 		list:         menuList,
 		delegateKeys: delegateKeys,
-	}
-}
-
-func NewModel(c *data.InternalConfig) Model {
-	mainMenu := NewMainMenuModel()
-	irqMenu := newModelIRQMenuModel()
-	kcmd := newKcmdMenuModel(c)
-
-	nav := cmp.GetMenuNavInstance()
-	return Model{
-		Nav: nav,
-
-		iConf: *c,
-		main:  mainMenu,
-		irq:   irqMenu,
-		kcmd:  kcmd,
-
-		// keys:     listKeys,
-		errorMsg: strings.Repeat("\n", len(validationErrorsKcmd)),
-
-		// itemGenerator: &menuOpts,
-		cursorMode: cursor.CursorBlink,
 	}
 }
 
