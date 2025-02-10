@@ -60,7 +60,7 @@ func (m IRQAddEditMenu) View() string {
 		}
 	}
 
-	log.Println("--- (IRQ ADD/EDIT VIEW) m.irq.FocusIndex: ", m.FocusIndex)
+	// log.Println("--- (IRQ ADD/EDIT VIEW) m.irq.FocusIndex: ", m.FocusIndex)
 
 	fmt.Fprintf(&b, "\n%s\n",
 		styles.JoinHorizontal(
@@ -111,8 +111,8 @@ func (m MainMenuModel) View() string {
 }
 
 func (m Model) View() string {
-	log.Println("\n------------- VIEW -------------------")
-	log.Printf("(VIEW) Current menu: %s", config.Menu[m.Nav.GetCurrMenu()])
+	// log.Println("\n------------- VIEW -------------------")
+	// log.Printf("(VIEW) Current menu: %s", config.Menu[m.Nav.GetCurrMenu()])
 	return m.GetActiveMenu().View()
 }
 

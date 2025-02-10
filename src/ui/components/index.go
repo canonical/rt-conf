@@ -1,9 +1,5 @@
 package components
 
-import (
-	"log"
-)
-
 type IndexNav struct {
 	current *int
 	total   *int
@@ -21,10 +17,7 @@ func NewNavigation(current *int, total *int) *IndexNav {
 // total is the total number of navigable items.
 func (n *IndexNav) updateFocusIndex(direction int) {
 	// Implement the circular navigation
-	log.Println("\tCurrent: ", *n.current)
-
 	*n.current = (*n.current + direction + *n.total) % *n.total
-	log.Println("\t    New: ", *n.current)
 }
 
 func (n *IndexNav) Next() {

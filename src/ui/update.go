@@ -56,7 +56,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		log.Println("(RECEIVED) IRQ Affinity Rule: ", msg)
 
 	case tea.KeyMsg:
-		log.Printf("Key pressed: %v", msg.String())
+		// log.Printf("Key pressed: %v", msg.String())
 		switch {
 		case key.Matches(msg, m.main.keys.Back):
 			m.Nav.PrevMenu()
@@ -152,15 +152,14 @@ func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// It could be indexed by the menu item
 			switch selected.Title() {
 			case config.MENU_KCMDLINE:
-				log.Println("MENU: Kcmd selected")
+				// log.Println("MENU: Kcmd selected")
 				m.Nav.SetNewMenu(config.KCMD_VIEW_ID)
-				log.Println("Current stack: ", m.Nav.PrintMenuStack())
-				// return KcmdlineMenuModel{}, nil
+				// log.Println("Current stack: ", m.Nav.PrintMenuStack())
 
 			case config.MENU_IRQAFFINITY:
-				log.Println("MENU: IRQ Affinity selected")
+				// log.Println("MENU: IRQ Affinity selected")
 				m.Nav.SetNewMenu(config.IRQ_VIEW_ID)
-				log.Println("Current stack: ", m.Nav.PrintMenuStack())
+				// log.Println("Current stack: ", m.Nav.PrintMenuStack())
 			}
 
 		case key.Matches(msg, m.keys.Help):
@@ -184,24 +183,24 @@ func (m IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// 	m.list.SetSize(msg.Width-h, msg.Height-v)
 
 	case tea.KeyMsg:
-		log.Printf("key pressed: %v", msg.String())
+		// log.Printf("key pressed: %v", msg.String())
 
 		switch {
+
+		// case key.Matches(msg, m.keys.Help):
+		// 	log.Println("->>> Help key pressed <<<-")
+
 		case key.Matches(msg, m.keys.Apply):
-			log.Println("-> Entry: Apply changes")
-			num := len(m.list.Items())
-			if num >= 1 {
-				m.conclussion.num = num
-				m.conclussion.logMsg =
+			// log.Println("-> Entry: Apply changes")
 					"IRQ affinity rules are aplied to the system"
 				m.Nav.SetNewMenu(config.IRQ_CONCLUSSION_VIEW_ID)
 			}
 
 		case key.Matches(msg, m.irq.keys.Select):
-			log.Printf("confirmed select pressed")
-			log.Printf("previous menu: %v", config.Menu[m.Nav.GetCurrMenu()])
+			// log.Printf("confirmed select pressed")
+			// log.Printf("previous menu: %v", config.Menu[m.Nav.GetCurrMenu()])
 			m.Nav.SetNewMenu(config.IRQ_ADD_EDIT_VIEW_ID)
-			log.Println("Current menu: ", config.Menu[m.Nav.GetCurrMenu()])
+			// log.Println("Current menu: ", config.Menu[m.Nav.GetCurrMenu()])
 		}
 	}
 	return m, cmd
@@ -228,11 +227,11 @@ func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	totalIrqItems := len(m.Inputs) + 2
 	index := cmp.NewNavigation(&m.FocusIndex, &totalIrqItems)
-	log.Println("\tFocus index: ", m.FocusIndex)
-	log.Println("\tAddres: ", &m.FocusIndex)
+	// log.Println("\tFocus index: ", m.FocusIndex)
+	// log.Println("\tAddres: ", &m.FocusIndex)
+	// log.Printf("---IRQAddEditMenuUpdate: ")
+	// log.Printf("Current menu: %v", config.Menu[m.Nav.GetCurrMenu()])
 
-	log.Printf("---IRQAddEditMenuUpdate: ")
-	log.Printf("Current menu: %v", config.Menu[m.Nav.GetCurrMenu()])
 	// TODO: here it should be implemented the logic to add or edit IRQs
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -259,7 +258,7 @@ func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.FocusIndex == backBtnIndex &&
 				key.Matches(msg, m.keys.Left) {
 				index.Prev()
-			}
+			// log.Println(">>> Select key pressed")
 
 			// Handle [ Back ] button
 			if m.FocusIndex == backBtnIndex &&
@@ -320,18 +319,8 @@ func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Inputs[i].Placeholder = ""
 			}
 
-		default:
-			log.Printf("key pressed: %v", msg.String())
-		}
-	}
 	for i := range m.Inputs {
 		m.Inputs[i], cmds[i] = m.Inputs[i].Update(msg)
 	}
 	return m, tea.Batch(cmds...)
 }
-
-// log.Println("---(kcmdlineMenuUpdate - start")
-// cmds := make([]tea.Cmd, len(m.Inputs))
-
-// totalIrqItems := len(m.Inputs) + 2
-// index := cmp.NewNavigation(&m.FocusIndex, &totalIrqItems)
