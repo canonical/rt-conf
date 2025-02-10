@@ -22,10 +22,10 @@ func (m *Model) GetActiveMenu() tea.Model {
 	menu := map[config.Views]tea.Model{
 		config.INIT_VIEW_ID:             &m.main,
 		config.KCMD_VIEW_ID:             &m.kcmd,
-		config.KCMD_CONCLUSSION_VIEW_ID: &m.kcmd.conclussion,
+		config.KCMD_CONCLUSSION_VIEW_ID: &m.kcmd.concl,
 		config.IRQ_VIEW_ID:              &m.irq,
 		config.IRQ_ADD_EDIT_VIEW_ID:     &m.irq.irq,
-		config.IRQ_CONCLUSSION_VIEW_ID:  &m.irq.conclussion,
+		config.IRQ_CONCLUSSION_VIEW_ID:  &m.irq.concl,
 	}
 	mm, ok := menu[m.Nav.GetCurrMenu()]
 	if !ok {
@@ -81,10 +81,7 @@ type IRQMenuModel struct {
 	list     list.Model
 	help     help.Model
 
-	conclussion IRQConclussion
-	irq         IRQAddEditMenu
-	// keys     *listKeyMap
-	// nav components.Navigation
+	concl IRQConclussion
 }
 
 type KcmdlineMenuModel struct {
@@ -92,7 +89,7 @@ type KcmdlineMenuModel struct {
 	keys        *kcmdKeyMap
 	help        help.Model
 	Inputs      []textinput.Model
-	conclussion KcmdlineConclussion
+	concl      KcmdlineConclussion
 	Width       int
 	Height      int
 	FocusIndex  int
