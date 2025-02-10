@@ -360,12 +360,12 @@ func newKcmdMenuModel(c *data.InternalConfig) KcmdlineMenuModel {
 	nav := cmp.GetMenuNavInstance()
 	conclussion := newKcmdConclussionModel()
 	return KcmdlineMenuModel{
-		iConf:       *c,
-		Nav:         nav,
-		keys:        keys,
-		help:        help,
-		Inputs:      inputs,
-		conclussion: conclussion,
+		iConf:  *c,
+		Nav:    nav,
+		keys:   keys,
+		help:   help,
+		Inputs: inputs,
+		concl:  conclussion,
 	}
 }
 
