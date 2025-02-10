@@ -239,11 +239,9 @@ func NewMainMenuModel() MainMenuModel {
 	menuList.Title = "rt-conf tool"
 	menuList.Styles.Title = styles.TitleStyle
 	menuList.SetShowStatusBar(false)
-	menuList.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{
-			keys.Select,
-		}
-	}
+	menuList.KeyMap.NextPage.SetEnabled(false)
+	menuList.KeyMap.PrevPage.SetEnabled(false)
+	menuList.KeyMap.Filter.SetEnabled(false)
 
 	nav := cmp.GetMenuNavInstance()
 	return MainMenuModel{
