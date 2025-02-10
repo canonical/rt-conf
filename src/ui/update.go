@@ -245,7 +245,9 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.keys.Remove):
 			// log.Println("-> Entry: Remove IRQ rule")
-			m.list.RemoveItem(m.list.Index())
+			idx := m.list.Index()
+			m.rules = append(m.rules[:idx], m.rules[idx+1:]...)
+			m.list.RemoveItem(idx)
 
 		case key.Matches(msg, m.irq.keys.Select):
 			// log.Printf("confirmed select pressed")
