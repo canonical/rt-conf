@@ -142,9 +142,8 @@ func (m IRQConclusion) View() string {
 
 	log.Println("Number of rules added: ", m.num)
 	s +=
-		strconv.Itoa(m.num) +
-			" " +
-			m.logMsg +
+		m.logMsg +
+			strconv.Itoa(m.num) +
 			"\n\n" +
 			backBtn
 

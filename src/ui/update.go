@@ -218,7 +218,7 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if num > 0 {
 				m.concl.num = num
 				m.concl.logMsg =
-					"IRQ affinity rules are aplied to the system"
+					"Total IRQ affinity rules applied to the system: "
 
 				var cfg data.InternalConfig
 				cfg.Data.Interrupts = m.rules
