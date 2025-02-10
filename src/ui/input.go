@@ -1,9 +1,12 @@
 package ui
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/canonical/rt-conf/src/cpu"
+	"github.com/canonical/rt-conf/src/data"
 )
 
 // TODO: move this file to a separate module
@@ -115,4 +118,156 @@ func (m *KcmdlineMenuModel) AreValidInputs() bool {
 		}
 	}
 	return true
+}
+
+// ***** IRQ ADD/EDIT VIEW ******//
+
+var validationErrorsIRQ = []ErrValidation{
+	irqFilterIndex: {err: "\n", exist: true, name: "irq_filter"},
+	cpuListIndex:   {err: "\n", exist: true, name: "cpulist"},
+}
+
+// TODO: improve this validt: it's improperlly reporting as valid empty values
+func (m *IRQAddEditMenu) Validation() []ErrValidation {
+	log.Println("---- IRQEditMode VALIDATION ----")
+
+	// TODO: move this logic to outside this function
+	// If focusIndex is out of range, just return the validationErrors
+
+	if m.FocusIndex < 0 || m.FocusIndex >= len(m.Inputs) {
+		log.Println("[WARN] FocusIndex out of range")
+		return validationErrorsIRQ
+	}
+
+	value := m.Inputs[m.FocusIndex].Value()
+	log.Println("focusIndex on Validation: ", m.FocusIndex)
+	log.Println("value on Validation: ", value)
+
+	if value == "" {
+		log.Println("[NOTE] Value is empty")
+		validationErrorsIRQ[m.FocusIndex].err = "\n"
+		// If a input is empty, it cannot be a valid IRQ rule
+		validationErrorsIRQ[m.FocusIndex].exist = true
+	} else {
+		log.Println("Validating value: ", value)
+		m.checkInputs(value)
+	}
+
+	m.errorMsg = ""
+	for _, v := range validationErrorsIRQ {
+		m.errorMsg += v.err
+	}
+
+	return validationErrorsIRQ
+}
+
+func (m *IRQAddEditMenu) checkInputs(value string) {
+	var err error
+	log.Println(">>>>>>>>>> checkInputs: ", value)
+
+	switch m.FocusIndex {
+	case cpuListIndex:
+		err = cpu.ValidateList(value)
+		// log.Println("Validating cpulist: ", value, "err: ", err)
+		// log.Printf("%v: %v ", validationErrorsIRQ[m.FocusIndex].name, value)
+		if err != nil {
+			validationErrorsIRQ[m.FocusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrorsIRQ[m.FocusIndex].exist = true
+		} else {
+			validationErrorsIRQ[m.FocusIndex].err = "\n"
+			validationErrorsIRQ[m.FocusIndex].exist = false
+		}
+
+	case irqFilterIndex:
+		// log.Println("Validating irqFilter: ", value)
+		irqFilter, err := ParseIRQFilter(value)
+		if err != nil {
+			validationErrorsIRQ[m.FocusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrorsIRQ[m.FocusIndex].exist = true
+			break
+		}
+		err = irqFilter.Validate()
+		if err != nil {
+			validationErrorsIRQ[m.FocusIndex].err = "ERROR: " + err.Error() + "\n"
+			validationErrorsIRQ[m.FocusIndex].exist = true
+			break
+		}
+
+		validationErrorsIRQ[m.FocusIndex].err = "\n"
+		validationErrorsIRQ[m.FocusIndex].exist = false
+		// TODO: the irqFilter must be transmited
+
+	default:
+		log.Println("[ERROR] FocusIndex out of range")
+	}
+}
+
+func (m *IRQAddEditMenu) AreValidInputs() bool {
+	validated := m.Validation()
+	for _, v := range validated {
+		if v.exist {
+			return false
+		}
+	}
+	return true
+}
+
+func (m *IRQAddEditMenu) RunInputValidation() {
+	m.AreValidInputs()
+}
+
+// ParseIRQFilter parses a string like:
+// "  actions:<string>  chip_name:<string> name:<string> type:<string>   "
+// into an IRQFilter. At least one filter must be provided.
+func ParseIRQFilter(query string) (data.IRQFilter, error) {
+	var filter data.IRQFilter
+
+	// Trim leading/trailing whitespace
+	query = strings.TrimSpace(query)
+	if query == "" {
+		return filter, fmt.Errorf("query is empty")
+	}
+
+	// Split the query string by whitespace.
+	// strings.Fields splits on any sequence of whitespace characters.
+	tokens := strings.Fields(query)
+	for _, token := range tokens {
+		// Each token is expected to be in the form "key:value"
+		parts := strings.SplitN(token, ":", 2)
+		if len(parts) != 2 {
+			return filter,
+				fmt.Errorf(
+					"invalid token: %q, expected format is key:value",
+					token,
+				)
+		}
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+
+		switch key {
+		case "actions":
+			filter.Actions = value
+		case "chip_name":
+			filter.ChipName = value
+		case "name":
+			filter.Name = value
+		case "type":
+			filter.Type = value
+		default:
+			return filter,
+				fmt.Errorf(
+					"unknown key: %q, valid keys are: actions, chip_name, name, type",
+					key,
+				)
+		}
+	}
+
+	// Ensure at least one filter field is non-empty.
+	if filter.Actions == "" &&
+		filter.ChipName == "" &&
+		filter.Name == "" &&
+		filter.Type == "" {
+		return filter, fmt.Errorf("at least one filter field must be provided")
+	}
+	return filter, nil
 }
