@@ -280,6 +280,7 @@ func newModelIRQMenuModel() IRQMenuModel {
 	keys := irqMenuListKeyMap()
 	help := help.New()
 	irq := newIRQAddEditMenuModel()
+	concl := newIRQConclussionModel()
 	items := []list.Item{
 		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
 		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
@@ -312,8 +313,8 @@ func newModelIRQMenuModel() IRQMenuModel {
 		Nav:  nav,
 		list: m,
 		keys: keys,
-		help: help,
-		irq:  irq,
+		irq:   irq,
+		concl: concl,
 	}
 }
 
@@ -354,6 +355,15 @@ func newKcmdConclussionModel() KcmdlineConclussion {
 	keys := newkcmdMenuListKeyMap()
 	nav := cmp.GetMenuNavInstance()
 	return KcmdlineConclussion{
+		Nav:  nav,
+		keys: keys,
+	}
+}
+
+func newIRQConclussionModel() IRQConclussion {
+	keys := irqMenuListKeyMap()
+	nav := cmp.GetMenuNavInstance()
+	return IRQConclussion{
 		Nav:  nav,
 		keys: keys,
 	}
