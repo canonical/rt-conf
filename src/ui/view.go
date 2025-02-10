@@ -76,8 +76,7 @@ func (m IRQAddEditMenu) View() string {
 		strings.Count(title, "\n") -
 		strings.Count(desc, "\n") -
 		strings.Count(helpView, "\n") -
-		strings.Count(m.errorMsgCpu, "\n") -
-		strings.Count(m.errorMsgFilter, "\n") -
+		strings.Count(m.errorMsg, "\n") -
 		strings.Count(b.String(), "\n") -
 		// verticalPadding is used twice
 		strings.Count(verticalPadding.String(), "\n") -
@@ -98,8 +97,7 @@ func (m IRQAddEditMenu) View() string {
 			verticalPadding.String() +
 			body +
 			strings.Repeat("\n", height/2) +
-			styles.ErrorMessageStyle(m.errorMsgFilter) +
-			styles.ErrorMessageStyle(m.errorMsgCpu) +
+			styles.ErrorMessageStyle(m.errorMsg) +
 			strings.Repeat("\n", height/2) +
 			helpView
 

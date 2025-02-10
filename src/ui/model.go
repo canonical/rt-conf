@@ -372,8 +372,7 @@ func newIRQAddEditMenuModel() IRQAddEditMenu {
 		Inputs: inputs,
 		// Initialize errors strings with empty new line
 		// beceusae these will be part of a vertical composed view
-		errorMsgFilter: "\n",
-		errorMsgCpu:    "\n",
+		errorMsg: "\n\n",
 	}
 }
 
