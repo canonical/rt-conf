@@ -363,7 +363,7 @@ func newKcmdMenuModel(c *data.InternalConfig) KcmdlineMenuModel {
 func newIRQAddEditMenuModel() IRQAddEditMenu {
 	help := help.New()
 	inputs := newIRQtextInputs()
-	keys := irqMenuListKeyMap()
+	keys := irqAddEditListKeyMap()
 	nav := cmp.GetMenuNavInstance()
 	return IRQAddEditMenu{
 		Nav:    nav,
