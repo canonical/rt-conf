@@ -74,34 +74,33 @@ func irqAddEditListKeyMap() *irqAddEditKeyMap {
 }
 
 type irqKeyMap struct {
-	Up         key.Binding
-	Down       key.Binding
-	Left       key.Binding
-	Right      key.Binding
-	goHome     key.Binding
-	Select     key.Binding
-	Help       key.Binding
-	Quit       key.Binding
-	CursorMode key.Binding
-	Back       key.Binding
-	Add        key.Binding
-	Remove     key.Binding
-	Apply      key.Binding
+	Up     key.Binding
+	Down   key.Binding
+	goHome key.Binding
+	Select key.Binding
+	Help   key.Binding
+	Quit   key.Binding
+	Back   key.Binding
+	Add    key.Binding
+	Remove key.Binding
+	Apply  key.Binding
+	// Left   key.Binding
+	// Right  key.Binding
 }
 
 // FullHelp returns keybindings for the expanded help view. It's part of the
 // key.Map interface.
 func (k irqKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Back, k.Apply, k.Add, k.Remove, k.Help}, // first column
-		{k.Up, k.Down, k.goHome, k.Back, k.Quit},   // second column
+		{k.Apply, k.Add, k.Remove, k.Back, k.Select, k.Help},
+		{k.Up, k.Down, k.goHome, k.Select, k.Quit},
 	}
 }
 
 // ShortHelp returns keybindings to be shown in the mini help view. It's part
 // of the key.Map interface.
 func (k irqKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Back, k.Apply, k.Add, k.Remove, k.Help}
+	return []key.Binding{k.Apply, k.Add, k.Remove, k.Back, k.goHome, k.Help}
 }
 
 func irqMenuListKeyMap() *irqKeyMap {
@@ -116,35 +115,35 @@ func irqMenuListKeyMap() *irqKeyMap {
 		),
 		Apply: key.NewBinding(
 			key.WithKeys("ctrl+s"),
-			key.WithHelp("ctrl+s", "add item"),
+			key.WithHelp("ctrl+s", "Apply changes on system"),
 		),
 		Up: key.NewBinding(
-			key.WithKeys("up"),
-			key.WithHelp("↑", "move up"),
+			key.WithKeys("up", "k"),
+			key.WithHelp("↑/k", "up"),
 		),
 		Down: key.NewBinding(
-			key.WithKeys("down"),
-			key.WithHelp("↓", "move down"),
+			key.WithKeys("down", "j"),
+			key.WithHelp("↓/j", "down"),
 		),
-		Left: key.NewBinding(
-			key.WithKeys("left"),
-			key.WithHelp("←", "move left"),
-		),
-		Right: key.NewBinding(
-			key.WithKeys("right"),
-			key.WithHelp("→", "move right"),
-		),
+		// Left: key.NewBinding(
+		// 	key.WithKeys("left"),
+		// 	key.WithHelp("←", "move left"),
+		// ),
+		// Right: key.NewBinding(
+		// 	key.WithKeys("right"),
+		// 	key.WithHelp("→", "move right"),
+		// ),
 		goHome: key.NewBinding(
-			key.WithKeys("g", "home"),
-			key.WithHelp("home/g", "Main menu"),
+			key.WithKeys("home"),
+			key.WithHelp("home", "main menu"),
 		),
 		Select: key.NewBinding(
 			key.WithKeys("enter", "space"),
-			key.WithHelp("enter", "select menu"),
+			key.WithHelp("enter", "open item"),
 		),
 		Quit: key.NewBinding(
-			key.WithKeys("q", "ctrl+c"),
-			key.WithHelp("q/ctrl+c", "quit"),
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "quit"),
 		),
 		Help: key.NewBinding(
 			key.WithKeys("?"),
