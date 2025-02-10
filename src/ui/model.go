@@ -12,15 +12,6 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
-type MainMenuModel struct {
-	Nav          *cmp.MenuNav
-	Width        int
-	Height       int
-	keys         *KeyMap
-	list         list.Model
-	delegateKeys *selectKeyMap
-}
-
 type IRQMenuModel struct {
 	Nav      *cmp.MenuNav
 	Width    int
@@ -88,17 +79,6 @@ type IRQConclusion struct {
 
 // TODO: Fix inner menu help view
 
-type menuItem struct {
-	title       string
-	description string
-}
-
-func (i menuItem) Title() string       { return i.title }
-func (i menuItem) Description() string { return i.description }
-func (i menuItem) FilterValue() string { return i.title }
-func (r *menuItem) Size() int          { return config.NUMBER_OF_MENUS }
-func (r *menuItem) Init()              {}
-
 func InitNewIRQTextInputs() []textinput.Model {
 	m := newIRQtextInputs()
 	m[0].Focus()
@@ -163,45 +143,6 @@ func newKcmdTextInputs() []textinput.Model {
 		m[i] = t
 	}
 	return m
-}
-
-func NewMainMenuModel() MainMenuModel {
-	keys := newMainMenuListKeyMap()
-	var delegateKeys = newDelegateKeyMapMainMenu()
-
-	items := []list.Item{
-		menuItem{config.MENU_KCMDLINE, config.DESC_KCMDLINE},
-		menuItem{config.MENU_IRQAFFINITY, config.DESC_IRQAFFINITY},
-		menuItem{config.MENU_PWRMGMT, config.DESC_KCMDLINE},
-	}
-
-	delegate := newItemDelegateMainMenu(delegateKeys)
-	delegate.Styles.SelectedDesc = styles.SelectedDesc
-	delegate.Styles.SelectedTitle = styles.SelectedTitle
-
-	delegate.Styles.NormalDesc = styles.NormalDesc
-	delegate.Styles.NormalTitle = styles.NormalTitle
-
-	delegate.Styles.DimmedDesc = styles.DimmedDesc
-	delegate.Styles.DimmedTitle = styles.DimmedTitle
-
-	delegate.Styles.FilterMatch = styles.FilterMatch
-	menuList := list.New(items, delegate, 0, 0)
-	menuList.SetShowHelp(true)
-	menuList.Title = "rt-conf tool"
-	menuList.Styles.Title = styles.TitleStyle
-	menuList.SetShowStatusBar(false)
-	menuList.KeyMap.NextPage.SetEnabled(false)
-	menuList.KeyMap.PrevPage.SetEnabled(false)
-	menuList.KeyMap.Filter.SetEnabled(false)
-
-	nav := cmp.GetMenuNavInstance()
-	return MainMenuModel{
-		Nav:          nav,
-		keys:         keys,
-		list:         menuList,
-		delegateKeys: delegateKeys,
-	}
 }
 
 func newModelIRQMenuModel() IRQMenuModel {

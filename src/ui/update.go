@@ -10,7 +10,6 @@ import (
 	"github.com/canonical/rt-conf/src/ui/config"
 	"github.com/canonical/rt-conf/src/ui/styles"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -33,47 +32,6 @@ const (
 	addBtnIndex
 	cancelBtnIndex
 )
-
-func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	cmds := make([]tea.Cmd, 5)
-	// log.Println("---MainMenuUpdate: ")
-
-	if m.list.FilterState() == list.Filtering {
-		return m, tea.Batch(cmds...)
-	}
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-
-		case key.Matches(msg, m.keys.Home):
-			m.Nav.ReturnToMainMenu()
-
-		case key.Matches(msg, m.keys.Select):
-			selected := m.list.SelectedItem().(menuItem)
-
-			// TODO: Improve this selection logic
-			// It could be indexed by the menu item
-			switch selected.Title() {
-			case config.MENU_KCMDLINE:
-				// log.Println("MENU: Kcmd selected")
-				m.Nav.SetNewMenu(config.KCMD_VIEW_ID)
-				// log.Println("Current stack: ", m.Nav.PrintMenuStack())
-
-			case config.MENU_IRQAFFINITY:
-				// log.Println("MENU: IRQ Affinity selected")
-				m.Nav.SetNewMenu(config.IRQ_VIEW_ID)
-				// log.Println("Current stack: ", m.Nav.PrintMenuStack())
-			}
-
-		case key.Matches(msg, m.keys.Help):
-			m.list.SetShowHelp(!m.list.ShowHelp())
-			// return m, nil
-		}
-	}
-
-	return m, tea.Batch(cmds...)
-}
 
 func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 

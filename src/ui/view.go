@@ -87,10 +87,6 @@ func (m IRQAddEditMenu) View() string {
 	return styles.AppStyle.Render(s)
 }
 
-func (m MainMenuModel) View() string {
-	return styles.AppStyle.Render(m.list.View())
-}
-
 func (m KcmdlineConclusion) View() string {
 	if !m.renderLog {
 		panic("This call is not expected")
