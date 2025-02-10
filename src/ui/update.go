@@ -353,6 +353,7 @@ func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			index.Prev()
 
 		case key.Matches(msg, m.keys.Down):
+			m.RunInputValidation()
 			index.Next()
 
 		case key.Matches(msg, m.keys.Left):
