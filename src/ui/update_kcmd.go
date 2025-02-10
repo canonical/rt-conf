@@ -155,7 +155,7 @@ func (m *KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	log.Println("(kcmdlineConclussionUpdate - start")
 
