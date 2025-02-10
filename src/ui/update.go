@@ -48,18 +48,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Width = msg.Width - h
 		m.Height = msg.Height - v
 		// m.kcmd.list.SetSize(msg.Width-h, msg.Height-v) // TODO: implement this
+
+		// Main Menu
 		m.main.list.SetSize(msg.Width-h, msg.Height-v)
-		m.irq.list.SetSize(msg.Width-h, msg.Height-v)
+
+		// Kcmdline
 		m.kcmd.help.Width = msg.Width
 		m.kcmd.Width = msg.Width - h
 		m.kcmd.Height = msg.Height - v
+		m.kcmd.concl.Height = msg.Height - v
+		m.kcmd.concl.Width = msg.Width - h
+
+		// IRQ
+		m.irq.list.SetSize(msg.Width-h, msg.Height-v)
 		m.irq.Width = msg.Width - h
 		m.irq.Height = msg.Height - v
 		m.irq.irq.width = msg.Width - h
 		m.irq.irq.height = msg.Height - v
-
-	case irqAffinityRule:
-		log.Println("(RECEIVED) IRQ Affinity Rule: ", msg)
+		m.irq.concl.Width = msg.Width - h
+		m.irq.concl.Height = msg.Height - v
 
 	case tea.KeyMsg:
 		// log.Printf("Key pressed: %v", msg.String())
@@ -136,14 +143,9 @@ func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		h, v := styles.AppStyle.GetFrameSize()
-		m.Width = msg.Width - h
-		m.Height = msg.Height - v
-		m.list.SetSize(msg.Width-h, msg.Height-v)
-
 	case tea.KeyMsg:
 		switch {
+
 		case key.Matches(msg, m.keys.Home):
 			m.Nav.ReturnToMainMenu()
 
