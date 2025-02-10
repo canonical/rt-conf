@@ -66,10 +66,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.main.keys.Back):
 			m.Nav.PrevMenu()
 			return m, nil
-			// if !(m.currMenu == mainMenu) {
-			// TODO implement prevMenu logic
-			// 	m.currMenu = m.prevMenu
-			// }
 		// This is genertic for all menus
 
 		case key.Matches(msg, m.main.keys.Quit):
