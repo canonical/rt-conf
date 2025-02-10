@@ -169,7 +169,7 @@ func newIRQtextInputs() []textinput.Model {
 	m[0] = t
 	m[0].Placeholder = config.IrqFilterPlaceholder
 	m[0].Focus()
-	t.Prompt = config.PrefixCpuRange // "CPU Range > "
+	t.Prompt = config.PrefixCpuList // "CPU Range > "
 	m[1] = t
 
 	return m
@@ -283,8 +283,8 @@ func newModelIRQMenuModel() IRQMenuModel {
 	irq := newIRQAddEditMenuModel()
 	concl := newIRQConclussionModel()
 	items := []list.Item{
-		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
-		irqAffinityRule{filter: "Filter > ", cpulist: "CPU List > "},
+		IRQAffinityRule{filter: config.PrefixIRQFilter,
+			cpulist: config.PrefixCpuList},
 	}
 
 	delegate := list.NewDefaultDelegate()

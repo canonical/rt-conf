@@ -44,5 +44,5 @@ const IrqFilterPlaceholder = "Insert filter parameters for IRQs"
 
 const (
 	PrefixIRQFilter = "Filter > "
-	PrefixCpuRange  = "CPU Range > "
+	PrefixCpuList   = "CPU Range > "
 )
