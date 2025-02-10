@@ -145,10 +145,34 @@ func (m IRQMenuModel) View() string {
 }
 
 func (m IRQConclussion) View() string {
+	// TODO: fix this view
+	log.Println("---- IRQConclussion VIEW ----")
+
 	var s string
 	backBtn := cmp.FocusedButton("Back")
-	s += strconv.Itoa(m.num) + " " + m.logMsg + "\n\n" + backBtn
-	max := len(m.logMsg) + 3 // A blank space + two digit number
+
+	log.Println("Number of rules added: ", m.num)
+	s +=
+		strconv.Itoa(m.num) +
+			" " +
+			m.logMsg +
+			"\n\n" +
+			backBtn
+
+	log.Println("Size of s string: ", len(s))
+	log.Println("Size of logMsg string: ", len(m.logMsg))
+
+	lines := strings.Split(s, "\n")
+	maxLenght := 0
+	for _, line := range lines {
+		if l := len([]rune(line)); l > maxLenght {
+			maxLenght = l
+		}
+	}
+
+	hight := strings.Count(s, "\n")
+	// ** Note this -1 is a workaround to avoid
+	// **  the top line margin to be cut off
 	return styles.CenteredSquareWithText(
-		m.Width, m.Height, max, len(s), s)
+		m.Width, m.Height-1, maxLenght, hight, s)
 }
