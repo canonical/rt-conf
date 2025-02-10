@@ -4,10 +4,6 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 )
 
-// TODO: add conclussion screen saying:
-// "5 IRQ filter rules are aplied to the system"
-// [ BACK ]
-
 type IRQRuleMsg struct {
 	IRQAffinityRule
 }
