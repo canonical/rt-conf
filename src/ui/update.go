@@ -27,8 +27,8 @@ var placeholders_irq = []string{
 const (
 	irqFilterIndex = iota
 	cpuListIndex
-	applyBtnIndex
-	backBtnIndex
+	addBtnIndex
+	cancelBtnIndex
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
