@@ -14,11 +14,12 @@ const (
 
 // Map of views to their names (for logging)
 var Menu map[Views]string = map[Views]string{
-	INIT_VIEW_ID:            "INIT VIEW: Main Menu",
-	KCMD_VIEW_ID:            "Kcmd Menu",
-	KCMD_CONCLUSION_VIEW_ID: "Kcmd Conclusion",
-	IRQ_VIEW_ID:             "IRQ Affinity",
-	IRQ_ADD_EDIT_VIEW_ID:    "Inner IRQ Affinity (add/edit)",
+	INIT_VIEW_ID:            "Main menu",
+	KCMD_VIEW_ID:            "Kcmd menu",
+	KCMD_CONCLUSION_VIEW_ID: "Kcmd conclusion message",
+	IRQ_VIEW_ID:             "IRQ Affinity Menu",
+	IRQ_ADD_EDIT_VIEW_ID:    "IRQ Add/Edit Menu",
+	IRQ_CONCLUSION_VIEW_ID:  "IRQ Conclusion Message",
 	PWMGMT_VIEW_ID:          "Power Management",
 }
 

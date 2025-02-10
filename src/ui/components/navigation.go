@@ -35,12 +35,9 @@ func (m *MenuNav) PrintMenuStack() []config.Views {
 
 // Set a new menu and track the previous menu
 func (m *MenuNav) SetNewMenu(newMenu config.Views) {
-	log.Println("----> SetNewMenu Called")
-	log.Println("OLD: ", m.menuStack)
-
+	log.Println("Current screen: ", config.Menu[m.GetCurrMenu()])
+	log.Println("Going to screen: ", config.Menu[newMenu])
 	m.menuStack = append(m.menuStack, newMenu)
-
-	log.Println("NEW: ", m.menuStack)
 }
 
 // Get the current menu
