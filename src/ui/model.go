@@ -77,24 +77,26 @@ type IRQMenuModel struct {
 	Index    int
 	newEntry bool
 	editMode bool
+	rules    []data.IRQTunning
 	keys     *irqKeyMap
 	list     list.Model
-	help     help.Model
+	// help     help.Model
 
 	concl IRQConclussion
+	irq   IRQAddEditMenu
 }
 
 type KcmdlineMenuModel struct {
-	Nav         *cmp.MenuNav // Menu Navigation instance
-	keys        *kcmdKeyMap
-	help        help.Model
-	Inputs      []textinput.Model
+	Nav        *cmp.MenuNav // Menu Navigation instance
+	keys       *kcmdKeyMap
+	help       help.Model
+	Inputs     []textinput.Model
 	concl      KcmdlineConclussion
-	Width       int
-	Height      int
-	FocusIndex  int
-	errorMsg    string
-	iConf       data.InternalConfig
+	Width      int
+	Height     int
+	FocusIndex int
+	errorMsg   string
+	iConf      data.InternalConfig
 	// keys     *listKeyMap
 }
 
@@ -108,15 +110,18 @@ type KcmdlineConclussion struct {
 }
 
 type IRQAddEditMenu struct {
-	Nav            *cmp.MenuNav // Menu Navigation instance
-	width          int
-	height         int
-	FocusIndex     int
-	Inputs         []textinput.Model
-	help           help.Model
-	keys           *irqKeyMap
-	errorMsgFilter string
-	errorMsgCpu    string
+	Nav        *cmp.MenuNav // Menu Navigation instance
+	width      int
+	height     int
+	FocusIndex int
+	Inputs     []textinput.Model
+	help       help.Model
+	keys       *irqAddEditKeyMap
+	// errVal     []ErrValidation //TODO: implement this
+	errorMsg string
+
+	editMode  bool // false for new entry, true for edit existing entry
+	editIndex int  // index of the rule to edit
 }
 
 type IRQConclussion struct {
