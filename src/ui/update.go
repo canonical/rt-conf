@@ -19,6 +19,11 @@ var placeholders_text = []string{
 	config.CpuListPlaceholder,
 }
 
+var placeholders_irq = []string{
+	config.IrqFilterPlaceholder,
+	config.CpuListPlaceholder,
+}
+
 const (
 	irqFilterIndex = iota
 	cpuListIndex
