@@ -118,8 +118,8 @@ func (m *KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					break
 				}
 
-				m.conclussion.logMsg = msgs
-				m.conclussion.renderLog = true
+				m.concl.logMsg = msgs
+				m.concl.renderLog = true
 				m.Nav.SetNewMenu(config.KCMD_CONCLUSSION_VIEW_ID)
 
 				// TODO: this needs to return a tea.Cmd (or maybe not)
