@@ -114,7 +114,7 @@ func (m *KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.concl.logMsg = msgs
 				m.concl.renderLog = true
-				m.Nav.SetNewMenu(config.KCMD_CONCLUSSION_VIEW_ID)
+				m.Nav.SetNewMenu(config.KCMD_CONCLUSION_VIEW_ID)
 
 				// TODO: this needs to return a tea.Cmd (or maybe not)
 				// TODO: Apply the changes call the kcmdline funcs
@@ -155,9 +155,9 @@ func (m *KcmdlineMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *KcmdlineConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *KcmdlineConclusion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	log.Println("(kcmdlineConclussionUpdate - start")
+	log.Println("(kcmdlineConclusionUpdate - start")
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:

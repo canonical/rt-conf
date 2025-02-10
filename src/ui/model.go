@@ -20,12 +20,12 @@ func (m *Model) GetActiveMenu() tea.Model {
 	//** Note it's very important `m` be a pointer receiver
 
 	menu := map[config.Views]tea.Model{
-		config.INIT_VIEW_ID:             &m.main,
-		config.KCMD_VIEW_ID:             &m.kcmd,
-		config.KCMD_CONCLUSSION_VIEW_ID: &m.kcmd.concl,
-		config.IRQ_VIEW_ID:              &m.irq,
-		config.IRQ_ADD_EDIT_VIEW_ID:     &m.irq.irq,
-		config.IRQ_CONCLUSSION_VIEW_ID:  &m.irq.concl,
+		config.INIT_VIEW_ID:            &m.main,
+		config.KCMD_VIEW_ID:            &m.kcmd,
+		config.KCMD_CONCLUSION_VIEW_ID: &m.kcmd.concl,
+		config.IRQ_VIEW_ID:             &m.irq,
+		config.IRQ_ADD_EDIT_VIEW_ID:    &m.irq.irq,
+		config.IRQ_CONCLUSION_VIEW_ID:  &m.irq.concl,
 	}
 	mm, ok := menu[m.Nav.GetCurrMenu()]
 	if !ok {
@@ -82,7 +82,7 @@ type IRQMenuModel struct {
 	list     list.Model
 	// help     help.Model
 
-	concl IRQConclussion
+	concl IRQConclusion
 	irq   IRQAddEditMenu
 }
 
@@ -91,7 +91,7 @@ type KcmdlineMenuModel struct {
 	keys       *kcmdKeyMap
 	help       help.Model
 	Inputs     []textinput.Model
-	concl      KcmdlineConclussion
+	concl      KcmdlineConclusion
 	Width      int
 	Height     int
 	FocusIndex int
@@ -100,7 +100,7 @@ type KcmdlineMenuModel struct {
 	// keys     *listKeyMap
 }
 
-type KcmdlineConclussion struct {
+type KcmdlineConclusion struct {
 	Nav       *cmp.MenuNav // Menu Navigation instance
 	keys      *kcmdKeyMap
 	Width     int
@@ -124,7 +124,7 @@ type IRQAddEditMenu struct {
 	editIndex int  // index of the rule to edit
 }
 
-type IRQConclussion struct {
+type IRQConclusion struct {
 	// The number of IRQs that are being applied to the system
 	num    int
 	Nav    *cmp.MenuNav // Menu Navigation instance
@@ -279,7 +279,7 @@ func newModelIRQMenuModel() IRQMenuModel {
 	listKeys := irqMenuListKeyMap()
 
 	irq := newIRQAddEditMenuModel()
-	concl := newIRQConclussionModel()
+	concl := newIRQConclusionModel()
 	items := []list.Item{
 		IRQAffinityRule{filter: config.PrefixIRQFilter,
 			cpulist: config.PrefixCpuList},
@@ -358,14 +358,14 @@ func newKcmdMenuModel(c *data.InternalConfig) KcmdlineMenuModel {
 	inputs := newKcmdTextInputs()
 	keys := newkcmdMenuListKeyMap()
 	nav := cmp.GetMenuNavInstance()
-	conclussion := newKcmdConclussionModel()
+	concl := newKcmdConclusionModel()
 	return KcmdlineMenuModel{
 		iConf:  *c,
 		Nav:    nav,
 		keys:   keys,
 		help:   help,
 		Inputs: inputs,
-		concl:  conclussion,
+		concl:  concl,
 	}
 }
 
@@ -385,19 +385,19 @@ func newIRQAddEditMenuModel() IRQAddEditMenu {
 	}
 }
 
-func newKcmdConclussionModel() KcmdlineConclussion {
+func newKcmdConclusionModel() KcmdlineConclusion {
 	keys := newkcmdMenuListKeyMap()
 	nav := cmp.GetMenuNavInstance()
-	return KcmdlineConclussion{
+	return KcmdlineConclusion{
 		Nav:  nav,
 		keys: keys,
 	}
 }
 
-func newIRQConclussionModel() IRQConclussion {
+func newIRQConclusionModel() IRQConclusion {
 	keys := irqMenuListKeyMap()
 	nav := cmp.GetMenuNavInstance()
-	return IRQConclussion{
+	return IRQConclusion{
 		Nav:  nav,
 		keys: keys,
 	}

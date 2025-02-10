@@ -231,7 +231,7 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.concl.num = 0
 					m.concl.logMsg = m.concl.logMsg + "\nERROR: " + err.Error()
 				}
-				m.Nav.SetNewMenu(config.IRQ_CONCLUSSION_VIEW_ID)
+				m.Nav.SetNewMenu(config.IRQ_CONCLUSION_VIEW_ID)
 			}
 
 		case key.Matches(msg, m.keys.Add):
@@ -278,7 +278,7 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *IRQConclussion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *IRQConclusion) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Width = msg.Width

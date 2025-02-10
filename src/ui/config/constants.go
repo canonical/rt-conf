@@ -5,21 +5,21 @@ type Views int
 const (
 	INIT_VIEW_ID Views = iota
 	KCMD_VIEW_ID
-	KCMD_CONCLUSSION_VIEW_ID
+	KCMD_CONCLUSION_VIEW_ID
 	IRQ_VIEW_ID
 	IRQ_ADD_EDIT_VIEW_ID
-	IRQ_CONCLUSSION_VIEW_ID
+	IRQ_CONCLUSION_VIEW_ID
 	PWMGMT_VIEW_ID
 )
 
 // Map of views to their names (for logging)
 var Menu map[Views]string = map[Views]string{
-	INIT_VIEW_ID:             "INIT VIEW: Main Menu",
-	KCMD_VIEW_ID:             "Kcmd Menu",
-	KCMD_CONCLUSSION_VIEW_ID: "Kcmd Conclusion",
-	IRQ_VIEW_ID:              "IRQ Affinity",
-	IRQ_ADD_EDIT_VIEW_ID:     "Inner IRQ Affinity (add/edit)",
-	PWMGMT_VIEW_ID:           "Power Management",
+	INIT_VIEW_ID:            "INIT VIEW: Main Menu",
+	KCMD_VIEW_ID:            "Kcmd Menu",
+	KCMD_CONCLUSION_VIEW_ID: "Kcmd Conclusion",
+	IRQ_VIEW_ID:             "IRQ Affinity",
+	IRQ_ADD_EDIT_VIEW_ID:    "Inner IRQ Affinity (add/edit)",
+	PWMGMT_VIEW_ID:          "Power Management",
 }
 
 // Init menu view names

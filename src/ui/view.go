@@ -97,7 +97,7 @@ func (m Model) View() string {
 	return m.GetActiveMenu().View()
 }
 
-func (m KcmdlineConclussion) View() string {
+func (m KcmdlineConclusion) View() string {
 	if !m.renderLog {
 		panic("This call is not expected")
 	}
@@ -133,9 +133,9 @@ func (m IRQMenuModel) View() string {
 	return styles.AppStyle.Render(m.list.View())
 }
 
-func (m IRQConclussion) View() string {
+func (m IRQConclusion) View() string {
 	// TODO: fix this view
-	log.Println("---- IRQConclussion VIEW ----")
+	log.Println("---- IRQConclusion VIEW ----")
 
 	var s string
 	backBtn := cmp.FocusedButton("Back")
