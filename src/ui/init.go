@@ -5,5 +5,3 @@ import (
 )
 
 func (m KcmdlineConclusion) Init() tea.Cmd { return nil }
-
-func (m IRQConclusion) Init() tea.Cmd { return nil }

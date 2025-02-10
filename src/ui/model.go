@@ -21,12 +21,3 @@ func newKcmdConclusionModel() KcmdlineConclusion {
 		keys: keys,
 	}
 }
-
-func newIRQConclusionModel() IRQConclusion {
-	keys := irqMenuListKeyMap()
-	nav := cmp.GetMenuNavInstance()
-	return IRQConclusion{
-		Nav:  nav,
-		keys: keys,
-	}
-}
