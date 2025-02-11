@@ -82,3 +82,42 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 
 	return msgs, nil
 }
+
+func ParseDefaultGrubFile(f string) (map[string]string, error) {
+	var err error
+	params := make(map[string]string)
+	file, err := os.Open(f)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		// Split the line into key and value
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		// Trim spaces and quotes from the key and value
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		value = strings.Trim(value, `"`)
+
+		// Store the key-value pair in the map
+		params[key] = value
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading grub file: %v", err)
+	}
+
+	return params, err
+}
