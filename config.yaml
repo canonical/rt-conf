@@ -1,53 +1,39 @@
-# Real time options for the kernel
+# Several fields use the CPU Lists format. 
+# For the CPU Lists spec, refer to
+# https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists
 
-# runtime options
+# Kernel command line parameters
+kernel_cmdline:
+#   # Isolate CPUs from general execution
+#   # Format: CPU Lists
+#   isolcpus: "2-n"
+
+#   # Enable/disable dynamic ticks during idle time
+#   # Supported values: on | off
+#   nohz: "on"
+
+#   # Enable/disable full dynamic ticks
+#   # Format: CPU Lists
+#   nohz_full: "2-n"
+
+#   # Allocated CPUs for kernel threads
+#   # Format: CPU Lists
+#   kthread_cpus: "0-1"
+
+#   # Allocate CPUs for IRQ handling
+#   # Format: CPU Lists
+#   irqaffinity: "0-1"
+
+# Runtime options for IRQ affinity
 irq_tunning:
-  - cpus: "0-3"
-    filter:
-      # action: "floppy"
-      # action: "ttyS0"
-      # chip_name: "APIC"
-      name: "fasteoi"
-      # type: "level"
+#   - # The list of CPUs to which the IRQs are to be moved
+#     # Format: CPU Lists
+#     cpus: "2-n"
+#     # Arguments used to filter IRQs
+#     filter:
+#       actions: "iwlwifi"
+#       # chip_name: ""
+#       # name: ""
+#       # type: ""
 
-  - cpus: "4-6"
-    filter:
-      action: "floppy"
-      # action: "ttyS0"
-      # chip_name: "APIC"
-      # name: "fasteoi"
-      # type: "level"
 
-  # - cpus: "0-7"
-  #   filter:
-  #     # action: "floppy"
-  #     # action: "ttyS0"
-  #     chip_name: "APIC"
-  #     # name: "fasteoi"
-  #     # type: "level"
-
-  # As many occurencies as you want
-  # - cpus: <cpu_list2>
-  #   filter:
-  #     action: <regex>
-  #     chip_name: <regex>
-  #     name: <regex>
-  #     type: <regex>
-
-# kernel_cmdline:
-#   # Isolate a given set of CPUs from disturbance.
-#   isolcpus: "3-n" # <cpu_list>
-#
-#   # Boottime enable/disable dynamic ticks.
-#   nohz: "on" # on | off
-#
-#   # CPUs to be isolated.
-#   # Reduces the number of scheduling-clock interrupts,
-#   # improving energy efficiency and reducing OS jitter.
-#   nohz_full: "3-n" # <cpu_list>
-#
-#   # List of CPUs specifically allocated for kernel usage
-#   kthread_cpus: "0-2" # <cpu_list>
-#
-#   # List of CPUs specifically allocated for IRQ handling
-#   irqaffinity: "0-2"  # <cpu_list>
