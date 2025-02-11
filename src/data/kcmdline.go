@@ -67,9 +67,8 @@ func (c KernelCmdline) fieldValidator(name string,
 	return nil
 }
 
-func ConstructKeyValuePairs(v *KernelCmdline) ([]string, error) {
-	var keyValuePairs []string
-
+func ConstructKeyValuePairs(v *KernelCmdline) (Param, error) {
+	kvpairs := make(Param, 0)
 	val := reflect.TypeOf(v)
 	valValue := reflect.ValueOf(v)
 	if val.Kind() == reflect.Ptr {
@@ -83,8 +82,34 @@ func ConstructKeyValuePairs(v *KernelCmdline) ([]string, error) {
 		if key == "" || value == "" {
 			continue
 		}
-
-		keyValuePairs = append(keyValuePairs, fmt.Sprintf("%s=%s", key, value))
+		kvpairs[key] = value
 	}
-	return keyValuePairs, nil
+	return kvpairs, nil
+}
+
+func AssembleParamMap(params string) Param {
+	kvpairs := make(Param)
+	for _, p := range strings.Split(params, " ") {
+		pair := strings.Split(p, "=")
+		if len(pair) != 2 {
+			kvpairs[p] = ""
+			continue
+		}
+		kvpairs[pair[0]] = pair[1]
+	}
+	return kvpairs
+}
+
+func DisassembleParamMap(params Param) []string {
+	var kcmds []string
+	for k, v := range params {
+		if v != "" && k != "" {
+			kcmds = append(kcmds, fmt.Sprintf("%s=%s", k, v))
+		}
+		// Handle the case for tag keys like: "quiet" or "splash"
+		if v == "" && k != "" {
+			kcmds = append(kcmds, k)
+		}
+	}
+	return kcmds
 }
