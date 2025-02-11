@@ -1,4 +1,4 @@
-[![rt-tests](https://snapcraft.io/rt-conf/badge.svg)](https://snapcraft.io/rt-conf)
+[![rt-conf](https://snapcraft.io/rt-conf/badge.svg)](https://snapcraft.io/rt-conf)
 
 # rt-conf - Real-Time Configuration Tool
 
