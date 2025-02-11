@@ -1,7 +1,10 @@
 package models
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
 	"regexp"
 	"strings"
 
@@ -40,12 +43,12 @@ func (g *GrubCfgTransformer) GetPattern() *regexp.Regexp {
 }
 
 func (g *GrubDefaultTransformer) TransformLine(line string) string {
-	// TODO: Add functionality to avoid duplications of parameters
-
 	// Extract existing parameters
 	matches := g.Pattern.FindStringSubmatch(line)
-	// Append new parameters
-	updatedParams := strings.TrimSpace(matches[2] + " " + strings.Join(g.Params, " "))
+
+	// Append the parameters
+	updatedParams := strings.TrimSpace(" " + strings.Join(g.Params, " "))
+
 	// Reconstruct the line with updated parameters
 	return fmt.Sprintf(`%s%s%s`, matches[1], updatedParams, matches[3])
 }
@@ -66,12 +69,30 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to reconstruct key-value pairs: %v", err)
 	}
-
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,
 		Pattern:  cfg.GrubDefault.Pattern,
-		Params:   params,
 	}
+
+	grubMap, err := ParseDefaultGrubFile(grubDefault.FilePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse grub file: %v", err)
+	}
+	paramsStrLine, ok := grubMap["GRUB_CMDLINE_LINUX"]
+	if !ok {
+		return nil,
+			fmt.Errorf("GRUB_CMDLINE_LINUX not found in %s",
+				grubDefault.FilePath)
+	}
+	currParams := data.AssembleParamMap(paramsStrLine)
+
+	// This replaces if the param already exists and
+	// creates a new one if it doesn't
+	for k, v := range params {
+		currParams[k] = v
+	}
+	grubDefault.Params = data.DisassembleParamMap(currParams)
+	log.Println("Final kcmdline: ", grubDefault.Params)
 
 	if err := data.ProcessFile(grubDefault); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
