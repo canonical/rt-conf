@@ -11,6 +11,7 @@ import (
 
 	"github.com/canonical/rt-conf/src/common"
 	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/debug"
 )
 
 // NOTE: to be able to remap IRQs:
@@ -57,8 +58,9 @@ func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 		} else {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
+	} else {
+		log.Printf("Set %s to %s", affinityFile, cpus)
 	}
-	log.Printf("Set %s to %s", affinityFile, cpus)
 	return nil
 }
 
@@ -101,7 +103,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 				switch file {
 				case "actions":
 					if c == "" {
-						log.Printf("Ignoring IRQ %s: (no actions)", filePath)
+						debug.Printf("Ignoring IRQ %s: (no actions)", filePath)
 						nonActiveIRQ = true
 						break
 					}
@@ -155,8 +157,7 @@ func applyIRQConfig(
 		if len(matchingIRQs) == 0 {
 			log.Println("WARN: no IRQs matched the filter")
 			// TODO: confirm if it should fail when nothing is matched
-			return fmt.Errorf("no IRQs matched the filter: %v",
-				irqTuning.Filter)
+			return nil
 		}
 
 		for irqNum := range matchingIRQs {
