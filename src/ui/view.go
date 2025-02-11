@@ -144,6 +144,8 @@ func (m IRQConclusion) View() string {
 	s +=
 		m.logMsg +
 			strconv.Itoa(m.num) +
+			"\n" +
+			m.errMsg +
 			"\n\n" +
 			backBtn
 

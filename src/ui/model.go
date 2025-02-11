@@ -132,6 +132,7 @@ type IRQConclusion struct {
 	Width  int
 	Height int
 	logMsg string
+	errMsg string
 }
 
 // TODO: Fix inner menu help view

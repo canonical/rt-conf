@@ -225,9 +225,16 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				err := interrupts.ApplyIRQConfig(&cfg)
 				if err != nil {
-					log.Println("ERROR: ", err)
 					m.concl.num = 0
-					m.concl.logMsg = m.concl.logMsg + "\nERROR: " + err.Error()
+					if strings.Contains(
+						err.Error(), "no IRQs matched the filter") {
+						m.concl.errMsg =
+							"No IRQs matched the given filter(s)."
+					} else {
+						m.concl.errMsg =
+							"ERROR: " + err.Error()
+					}
+					log.Println("ERROR: ", err)
 				}
 				m.Nav.SetNewMenu(config.IRQ_CONCLUSION_VIEW_ID)
 			}
