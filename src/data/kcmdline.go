@@ -10,6 +10,8 @@ import (
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
+type Param map[string]string
+
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
 	// Isolate CPUs
