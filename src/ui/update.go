@@ -229,10 +229,10 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if strings.Contains(
 						err.Error(), "no IRQs matched the filter") {
 						m.concl.errMsg =
-							"\nERROR: no IRQs matched the filter."
+							"ERROR: no IRQs matched the filter."
 					} else {
 						m.concl.errMsg =
-							"\nERROR: " + err.Error()
+							"ERROR: " + err.Error()
 					}
 					log.Println("ERROR: ", err)
 				}
