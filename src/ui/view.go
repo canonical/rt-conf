@@ -144,7 +144,9 @@ func (m IRQConclusion) View() string {
 	s +=
 		m.logMsg +
 			strconv.Itoa(m.num) +
-			"\n\n" +
+			"\n" +
+			m.errMsg +
+			"\n" +
 			backBtn
 
 	log.Println("Size of s string: ", len(s))
