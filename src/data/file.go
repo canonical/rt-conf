@@ -68,6 +68,7 @@ func ProcessFile(transformer FileTransformer) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if transformer.GetPattern().MatchString(line) {
+			// This is where the kcmdline params of bootloader file are updated
 			line = transformer.TransformLine(line)
 		}
 		lines = append(lines, line)
