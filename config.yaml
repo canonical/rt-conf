@@ -4,36 +4,36 @@
 
 # Kernel command line parameters
 kernel_cmdline:
-#   # Isolate CPUs from general execution
-#   # Format: CPU Lists
-#   isolcpus: "2-n"
+  # Isolate CPUs from general execution
+  # Format: CPU Lists
+  # isolcpus: "2-3"
 
-#   # Enable/disable dynamic ticks during idle time
-#   # Supported values: on | off
-#   nohz: "on"
+  # Enable/disable dynamic ticks during idle time
+  # Supported values: on | off
+  # nohz: "on"
 
-#   # Enable/disable full dynamic ticks
-#   # Format: CPU Lists
-#   nohz_full: "2-n"
+  # Enable/disable full dynamic ticks
+  # Format: CPU Lists
+  # nohz_full: "2-3"
 
-#   # Allocated CPUs for kernel threads
-#   # Format: CPU Lists
-#   kthread_cpus: "0-1"
+  # Allocated CPUs for kernel threads
+  # Format: CPU Lists
+  # kthread_cpus: "0-1"
 
-#   # Allocate CPUs for IRQ handling
-#   # Format: CPU Lists
-#   irqaffinity: "0-1"
+  # Allocate CPUs for IRQ handling
+  # Format: CPU Lists
+  # irqaffinity: "0-1"
 
 # Runtime options for IRQ affinity
 irq_tunning:
-#   - # The list of CPUs to which the IRQs are to be moved
-#     # Format: CPU Lists
-#     cpus: "2-n"
-#     # Arguments used to filter IRQs
-#     filter:
-#       actions: "iwlwifi"
-#       # chip_name: ""
-#       # name: ""
-#       # type: ""
+  - # The list of CPUs to which the IRQs are to be moved
+    # Format: range, e.g. 0-2
+    # cpus: "2-3"
+    # Arguments used to filter IRQs
+    # filter:
+      # actions: "iwlwifi"
+      # chip_name: "IR-PCI"
+      # name: "edge"
+      # type: "edge"
 
 
