@@ -19,6 +19,7 @@ type IRQConclusion struct {
 	Width  int
 	Height int
 	logMsg string
+	errMsg string
 }
 
 func newIRQConclusionModel() IRQConclusion {
@@ -58,6 +59,8 @@ func (m IRQConclusion) View() string {
 	s +=
 		m.logMsg +
 			strconv.Itoa(m.num) +
+			"\n" +
+			m.errMsg +
 			"\n\n" +
 			backBtn
 
