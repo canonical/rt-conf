@@ -91,6 +91,7 @@ func AssembleParamMap(params string) Param {
 	kvpairs := make(Param)
 	for _, p := range strings.Split(params, " ") {
 		pair := strings.Split(p, "=")
+		// Value is optional for some kernel cmdline parameters
 		if len(pair) != 2 {
 			kvpairs[p] = ""
 			continue
