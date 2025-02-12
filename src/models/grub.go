@@ -81,6 +81,16 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 			fmt.Errorf("GRUB_CMDLINE_LINUX not found in %s",
 				grubDefault.FilePath)
 	}
+
+	if AreDuplicatedParams(cmdline) {
+		return nil,
+			fmt.Errorf(
+				"ERROR: Duplicate kernel parameters detected in the current cmdline: %s\n"+
+					"Multiple values found for the same parameter."+
+					"Please review and keep only the intended value before proceeding",
+				cmdline,
+			)
+	}
 	currParams := data.CmdlineToParams(cmdline)
 
 	// This replaces if the param already exists and
@@ -138,4 +148,35 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 	}
 
 	return params, err
+}
+
+func AreDuplicatedParams(cmdline string) bool {
+	params := make(map[string]string)
+	s := strings.Split(cmdline, " ")
+	for _, p := range s {
+		pair := strings.Split(p, "=")
+		param, ok := params[pair[0]]
+		if ok {
+			// Skip parameters without a value, they can be safelly dropped
+			if len(pair) != 2 {
+				// Value is optional for some kernel cmdline parameters
+				params[p] = ""
+				continue
+			}
+
+			// Skip if the value is the same, it can be safelly dropped
+			if param == pair[1] {
+				continue
+			}
+
+			log.Printf("[ERROR] Duplicated parameter: %s=%s and %s=%s\n",
+				pair[0], param, pair[0], pair[1])
+
+			return true
+		}
+		if len(s) > 1 {
+			params[pair[0]] = pair[1]
+		}
+	}
+	return false
 }
