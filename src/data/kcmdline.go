@@ -87,7 +87,7 @@ func ConstructKeyValuePairs(v *KernelCmdline) (Param, error) {
 	return kvpairs, nil
 }
 
-func AssembleParamMap(params string) Param {
+func CmdlineToParams(params string) Param {
 	kvpairs := make(Param)
 	for _, p := range strings.Split(params, " ") {
 		pair := strings.Split(p, "=")
@@ -101,7 +101,7 @@ func AssembleParamMap(params string) Param {
 	return kvpairs
 }
 
-func DisassembleParamMap(params Param) []string {
+func ParamsToCmdline(params Param) []string {
 	var kcmds []string
 	for k, v := range params {
 		if v != "" && k != "" {

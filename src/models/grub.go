@@ -23,7 +23,7 @@ type GrubCfgTransformer struct {
 type GrubDefaultTransformer struct {
 	FilePath string
 	Pattern  *regexp.Regexp
-	Params   []string
+	Cmdline  []string
 }
 
 func (g *GrubCfgTransformer) TransformLine(line string) string {
@@ -47,7 +47,7 @@ func (g *GrubDefaultTransformer) TransformLine(line string) string {
 	matches := g.Pattern.FindStringSubmatch(line)
 
 	// Append the parameters
-	updatedParams := strings.TrimSpace(" " + strings.Join(g.Params, " "))
+	updatedParams := strings.TrimSpace(" " + strings.Join(g.Cmdline, " "))
 
 	// Reconstruct the line with updated parameters
 	return fmt.Sprintf(`%s%s%s`, matches[1], updatedParams, matches[3])
@@ -78,21 +78,21 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse grub file: %v", err)
 	}
-	paramsStrLine, ok := grubMap["GRUB_CMDLINE_LINUX"]
+	cmdline, ok := grubMap["GRUB_CMDLINE_LINUX"]
 	if !ok {
 		return nil,
 			fmt.Errorf("GRUB_CMDLINE_LINUX not found in %s",
 				grubDefault.FilePath)
 	}
-	currParams := data.AssembleParamMap(paramsStrLine)
+	currParams := data.CmdlineToParams(cmdline)
 
 	// This replaces if the param already exists and
 	// creates a new one if it doesn't
 	for k, v := range params {
 		currParams[k] = v
 	}
-	grubDefault.Params = data.DisassembleParamMap(currParams)
-	log.Println("Final kcmdline: ", grubDefault.Params)
+	grubDefault.Cmdline = data.ParamsToCmdline(currParams)
+	log.Println("Final kcmdline: ", grubDefault.Cmdline)
 
 	if err := data.ProcessFile(grubDefault); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)

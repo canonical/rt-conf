@@ -11,7 +11,7 @@ func UpdateRPi(cfg *data.InternalConfig) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	kcmds := data.DisassembleParamMap(cmdline)
+	kcmds := data.ParamsToCmdline(cmdline)
 	msgs := execute.RpiConclusion(kcmds)
 	return msgs, nil
 }
