@@ -23,7 +23,7 @@ type GrubCfgTransformer struct {
 type GrubDefaultTransformer struct {
 	FilePath string
 	Pattern  *regexp.Regexp
-	Cmdline  []string
+	Cmdline  string
 }
 
 func (g *GrubCfgTransformer) TransformLine(line string) string {
@@ -46,11 +46,8 @@ func (g *GrubDefaultTransformer) TransformLine(line string) string {
 	// Extract existing parameters
 	matches := g.Pattern.FindStringSubmatch(line)
 
-	// Append the parameters
-	updatedParams := strings.TrimSpace(" " + strings.Join(g.Cmdline, " "))
-
 	// Reconstruct the line with updated parameters
-	return fmt.Sprintf(`%s%s%s`, matches[1], updatedParams, matches[3])
+	return fmt.Sprintf(`%s%s%s`, matches[1], g.Cmdline, matches[3])
 }
 
 func (g *GrubDefaultTransformer) GetFilePath() string {

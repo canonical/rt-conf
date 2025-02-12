@@ -101,7 +101,7 @@ func CmdlineToParams(cmdline string) Params {
 	return kvpairs
 }
 
-func ParamsToCmdline(params Params) []string {
+func ParamsToCmdline(params Params) string {
 	var kcmds []string
 	for k, v := range params {
 		if v != "" && k != "" {
@@ -113,5 +113,5 @@ func ParamsToCmdline(params Params) []string {
 			kcmds = append(kcmds, k)
 		}
 	}
-	return kcmds
+	return strings.Join(kcmds, " ")
 }

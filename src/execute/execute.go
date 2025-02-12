@@ -1,9 +1,5 @@
 package execute
 
-import (
-	"fmt"
-)
-
 func GrubConclusion() []string {
 	s := []string{
 		"\n",                   // 1
@@ -16,19 +12,14 @@ func GrubConclusion() []string {
 	return s
 }
 
-func RpiConclusion(cmdline []string) []string {
+func RpiConclusion(cmdline string) []string {
 	s := []string{
 		"\n", //1
 		"Please, append the following to /boot/firmware/cmdline.txt:\n", // 2
 		"In case of old style boot partition,\n",                        // 3
 		"append to /boot/cmdline.txt\n",                                 // 4
+		cmdline,                                                         // 5
+		"\n",                                                            // 6
 	}
-	kcmdline := ""
-	for _, param := range cmdline {
-		kcmdline += fmt.Sprintf("%s ", param)
-	}
-	s = append(s, fmt.Sprintf("%s\n", kcmdline)) // 5
-	s = append(s, "\n")                          // 6
-
 	return s
 }
