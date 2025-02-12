@@ -107,7 +107,8 @@ func DisassembleParamMap(params Param) []string {
 		if v != "" && k != "" {
 			kcmds = append(kcmds, fmt.Sprintf("%s=%s", k, v))
 		}
-		// Handle the case for tag keys like: "quiet" or "splash"
+		// Handle the case for parameters without a value such
+		// as "quiet" and "splash"
 		if v == "" && k != "" {
 			kcmds = append(kcmds, k)
 		}
