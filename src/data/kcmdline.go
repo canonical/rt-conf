@@ -87,9 +87,9 @@ func ConstructKeyValuePairs(v *KernelCmdline) (Params, error) {
 	return kvpairs, nil
 }
 
-func CmdlineToParams(params string) Params {
+func CmdlineToParams(cmdline string) Params {
 	kvpairs := make(Params)
-	for _, p := range strings.Split(params, " ") {
+	for _, p := range strings.Split(cmdline, " ") {
 		pair := strings.Split(p, "=")
 		// Value is optional for some kernel cmdline parameters
 		if len(pair) != 2 {
