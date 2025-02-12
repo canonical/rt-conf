@@ -10,7 +10,7 @@ import (
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
-type Param map[string]string
+type Params map[string]string
 
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
@@ -67,8 +67,8 @@ func (c KernelCmdline) fieldValidator(name string,
 	return nil
 }
 
-func ConstructKeyValuePairs(v *KernelCmdline) (Param, error) {
-	kvpairs := make(Param, 0)
+func ConstructKeyValuePairs(v *KernelCmdline) (Params, error) {
+	kvpairs := make(Params, 0)
 	val := reflect.TypeOf(v)
 	valValue := reflect.ValueOf(v)
 	if val.Kind() == reflect.Ptr {
@@ -87,8 +87,8 @@ func ConstructKeyValuePairs(v *KernelCmdline) (Param, error) {
 	return kvpairs, nil
 }
 
-func CmdlineToParams(params string) Param {
-	kvpairs := make(Param)
+func CmdlineToParams(params string) Params {
+	kvpairs := make(Params)
 	for _, p := range strings.Split(params, " ") {
 		pair := strings.Split(p, "=")
 		// Value is optional for some kernel cmdline parameters
@@ -101,7 +101,7 @@ func CmdlineToParams(params string) Param {
 	return kvpairs
 }
 
-func ParamsToCmdline(params Param) []string {
+func ParamsToCmdline(params Params) []string {
 	var kcmds []string
 	for k, v := range params {
 		if v != "" && k != "" {
