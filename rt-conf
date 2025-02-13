@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# wrapper script to run per design
+
+if [ "$1" == "--config" ]; then
+    if [ -f "$2" ]; then
+        # run cli mode
+        sudo go run cmd/rt-conf/main.go --config=$2
+    else
+        echo "Missing config file path"
+        exit 1
+    fi
+else
+    # run ui mode
+    sudo go run cmd/rt-conf/main.go --config=config.yaml --ui
+fi
