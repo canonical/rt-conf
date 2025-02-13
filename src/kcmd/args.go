@@ -26,7 +26,7 @@ func ProcessKcmdArgs(c *data.InternalConfig) ([]string, error) {
 		msgs = append(msgs, "Detected bootloader: GRUB\n")
 		msg, err := models.UpdateGrub(c)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read file: %v", err)
+			return nil, err
 		}
 		msgs = append(msgs, msg...)
 	default:

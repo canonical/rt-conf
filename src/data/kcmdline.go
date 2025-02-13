@@ -10,6 +10,8 @@ import (
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
+type Params map[string]string
+
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
 	// Isolate CPUs
@@ -65,9 +67,8 @@ func (c KernelCmdline) fieldValidator(name string,
 	return nil
 }
 
-func ConstructKeyValuePairs(v *KernelCmdline) ([]string, error) {
-	var keyValuePairs []string
-
+func ConstructKeyValuePairs(v *KernelCmdline) (Params, error) {
+	kvpairs := make(Params, 0)
 	val := reflect.TypeOf(v)
 	valValue := reflect.ValueOf(v)
 	if val.Kind() == reflect.Ptr {
@@ -81,8 +82,36 @@ func ConstructKeyValuePairs(v *KernelCmdline) ([]string, error) {
 		if key == "" || value == "" {
 			continue
 		}
-
-		keyValuePairs = append(keyValuePairs, fmt.Sprintf("%s=%s", key, value))
+		kvpairs[key] = value
 	}
-	return keyValuePairs, nil
+	return kvpairs, nil
+}
+
+func CmdlineToParams(cmdline string) Params {
+	kvpairs := make(Params)
+	for _, p := range strings.Split(cmdline, " ") {
+		pair := strings.Split(p, "=")
+		// Value is optional for some kernel cmdline parameters
+		if len(pair) != 2 {
+			kvpairs[p] = ""
+			continue
+		}
+		kvpairs[pair[0]] = pair[1]
+	}
+	return kvpairs
+}
+
+func ParamsToCmdline(params Params) string {
+	var kcmds []string
+	for k, v := range params {
+		if v != "" && k != "" {
+			kcmds = append(kcmds, fmt.Sprintf("%s=%s", k, v))
+		}
+		// Handle the case for parameters without a value such
+		// as "quiet" and "splash"
+		if v == "" && k != "" {
+			kcmds = append(kcmds, k)
+		}
+	}
+	return strings.Join(kcmds, " ")
 }
