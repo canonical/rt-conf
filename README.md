@@ -43,7 +43,7 @@ For usage instructions, run:
 rt-conf --help
 ```
 
-To enable debug logging, set `DEBUG=1` environmet variable.
+To enable debug logging, set `DEBUG=1` environment variable.
 
 ## Hacking
 
