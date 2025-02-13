@@ -82,8 +82,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 				grubDefault.FilePath)
 	}
 
-	err = duplicatedParams(cmdline)
-	if err != nil {
+	if err := duplicatedParams(cmdline); err != nil {
 		return nil, fmt.Errorf(
 			"invalid existing parameters in %s for GRUB_CMDLINE_LINUX: %s",
 			grubDefault.FilePath, err)
