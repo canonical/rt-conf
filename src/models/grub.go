@@ -149,6 +149,10 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 func duplicatedParams(cmdline string) error {
 	params := make(map[string]string)
 	s := strings.Split(cmdline, " ")
+	if len(s) <= 1 {
+		// If it's only one parameter, there are no duplicates
+		return nil
+	}
 	for _, p := range s {
 		pair := strings.Split(p, "=")
 		param, ok := params[pair[0]]
@@ -168,9 +172,7 @@ func duplicatedParams(cmdline string) error {
 			return fmt.Errorf("duplicated parameter: %s=%s and %s=%s",
 				pair[0], param, pair[0], pair[1])
 		}
-		if len(s) > 1 {
-			params[pair[0]] = pair[1]
-		}
+		params[pair[0]] = pair[1]
 	}
 	return nil
 }
