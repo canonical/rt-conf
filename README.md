@@ -43,6 +43,8 @@ For usage instructions, run:
 rt-conf --help
 ```
 
+To enable debug logging, set `DEBUG=1` environment variable.
+
 ## Hacking
 
 Firstly, clone the repository:
