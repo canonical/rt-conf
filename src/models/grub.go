@@ -99,7 +99,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 		currParams[k] = v
 	}
 	grubDefault.Cmdline = data.ParamsToCmdline(currParams)
-	log.Println("Final kcmdline: ", grubDefault.Cmdline)
+	log.Println("Final kcmdline:", grubDefault.Cmdline)
 
 	if err := data.ProcessFile(grubDefault); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
