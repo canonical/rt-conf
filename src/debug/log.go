@@ -8,7 +8,7 @@ import (
 var d bool
 
 func init() {
-	d = os.Getenv("DEBUG") == "true"
+	d = os.Getenv("DEBUG") == "1"
 }
 
 func Printf(format string, v ...any) {
