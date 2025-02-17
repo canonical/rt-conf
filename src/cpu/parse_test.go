@@ -15,6 +15,16 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 	var tst = []test{
 		// single CPU
 		{
+			"all",
+			4,
+			CPUs{0: true, 1: true, 2: true, 3: true},
+		},
+		{
+			"all",
+			2,
+			CPUs{0: true, 1: true},
+		},
+		{
 			"4",
 			8,
 			CPUs{4: true},
@@ -85,6 +95,26 @@ func TestParseCPUSlistsUnhappy(t *testing.T) {
 	}
 
 	var tst = []test{
+		{
+			"al",
+			2,
+			"invalid CPU: al",
+		},
+		{
+			"alll",
+			2,
+			"invalid CPU: alll",
+		},
+		{
+			"0-all",
+			4,
+			"invalid end of range: all",
+		},
+		{
+			"all-n",
+			4,
+			"invalid start of range: all",
+		},
 		{
 			"4",
 			4,
