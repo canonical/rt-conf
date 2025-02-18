@@ -12,8 +12,9 @@ type InternalConfig struct {
 }
 
 type Config struct {
-	Interrupts    []IRQTunning  `yaml:"irq_tunning"`
-	KernelCmdline KernelCmdline `yaml:"kernel_cmdline"`
+	Interrupts    []IRQTunning    `yaml:"irq_tunning"`
+	KernelCmdline KernelCmdline   `yaml:"kernel_cmdline"`
+	CpuGovernance []CpuGovernance `yaml:"cpu_governance"`
 }
 
 func (c Config) Validate() error {
@@ -25,6 +26,13 @@ func (c Config) Validate() error {
 		err := irq.Validate()
 		if err != nil {
 			return fmt.Errorf("failed to validate irq tunning: %v", err)
+		}
+	}
+
+	for _, pwrprof := range c.CpuGovernance {
+		err := pwrprof.Validate()
+		if err != nil {
+			return fmt.Errorf("failed to validate cpu governance: %v", err)
 		}
 	}
 
