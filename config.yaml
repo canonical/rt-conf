@@ -36,4 +36,10 @@ irq_tunning:
       # name: "edge"
       # type: "edge"
 
-
+# Runtime options for CPU frequency scaling
+cpu_governance: 
+  # The list of CPUs to which the scaling_governor options are to be applied
+  # Format: CPU Lists
+  - cpus: "0-1"
+    scaling_governor: "performance"
+      
