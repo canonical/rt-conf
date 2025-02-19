@@ -42,4 +42,4 @@ cpu_governance:
   # Format: CPU Lists
   - cpus: "0-1"
     scaling_governor: "performance"
-      
+
