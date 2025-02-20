@@ -10,6 +10,7 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
+	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
 	"github.com/canonical/rt-conf/src/ui"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -89,6 +90,11 @@ func main() {
 	err = interrupts.ApplyIRQConfig(&conf)
 	if err != nil {
 		log.Fatalf("Failed to process interrupts: %v", err)
+	}
+
+	err = pwrmgmt.ApplyPwrConfig(&conf)
+	if err != nil {
+		log.Fatalf("Failed to process power management config: %v", err)
 	}
 
 }
