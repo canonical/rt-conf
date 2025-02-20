@@ -10,13 +10,13 @@ type ScalProfiles int
 
 const (
 	balanced ScalProfiles = iota
-	powersaver
+	powersave
 	performance
 )
 
 var ScalProfilesMap = map[string]ScalProfiles{
 	"balanced":    balanced,
-	"power-saver": powersaver,
+	"powersave":   powersave,
 	"performance": performance,
 }
 
