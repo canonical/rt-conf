@@ -11,7 +11,8 @@ import (
 
 const scalingGovernorPath = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor"
 
-// realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
+// realScalGovReaderWriter writes CPU scalling governor string to
+// the real `/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor` file.
 type realScalGovReaderWriter struct{}
 
 func (w *realScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
@@ -46,7 +47,6 @@ func applyPrwConfig(
 	for _, sclgov := range config.Data.CpuGovernance {
 		cpus, _ := cpu.ParseCPUs(sclgov.CPUs)
 		for cpu := range cpus {
-			// TODO: write the scaling governor setting to the CPU
 			err := handler.WriteScalingGov(sclgov.ScalGov, cpu)
 			if err != nil {
 				return err
