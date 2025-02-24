@@ -12,9 +12,9 @@ type InternalConfig struct {
 }
 
 type Config struct {
-	Interrupts    []IRQTunning    `yaml:"irq_tunning"`
-	KernelCmdline KernelCmdline   `yaml:"kernel_cmdline"`
-	CpuGovernance []CpuGovernance `yaml:"cpu_governance"`
+	Interrupts    []IRQTunning        `yaml:"irq_tunning"`
+	KernelCmdline KernelCmdline       `yaml:"kernel_cmdline"`
+	CpuGovernance []CpuGovernanceRule `yaml:"cpu_governance"`
 }
 
 func (c Config) Validate() error {

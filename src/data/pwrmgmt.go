@@ -20,12 +20,12 @@ var scalProfilesMap = map[string]ScalProfiles{
 	"performance": performance,
 }
 
-type CpuGovernance struct {
+type CpuGovernanceRule struct {
 	CPUs    string `yaml:"cpus"`
 	ScalGov string `yaml:"scaling_governor"`
 }
 
-func (c CpuGovernance) Validate() error {
+func (c CpuGovernanceRule) Validate() error {
 	if _, ok := scalProfilesMap[c.ScalGov]; !ok {
 		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
 	}
