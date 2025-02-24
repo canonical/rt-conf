@@ -14,7 +14,7 @@ const (
 	performance
 )
 
-var ScalProfilesMap = map[string]ScalProfiles{
+var scalProfilesMap = map[string]ScalProfiles{
 	"balanced":    balanced,
 	"powersave":   powersave,
 	"performance": performance,
@@ -26,7 +26,7 @@ type CpuGovernance struct {
 }
 
 func (c CpuGovernance) Validate() error {
-	if _, ok := ScalProfilesMap[c.ScalGov]; !ok {
+	if _, ok := scalProfilesMap[c.ScalGov]; !ok {
 		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
 	}
 	err := cpu.ValidateList(c.CPUs)
