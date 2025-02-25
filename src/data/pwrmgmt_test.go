@@ -61,7 +61,7 @@ func TestPwrMgmtValidationUnhappy(t *testing.T) {
 				t.Fatalf("Expected error on test #%v: %v", i, tc.sclgov)
 			}
 			if err.Error() != tc.err {
-				t.Fatalf("Expected error message: %v, got: %v", tc.err, err)
+				t.Fatalf("Expected error message: %s, got: %s", tc.err, err)
 			}
 
 		})
