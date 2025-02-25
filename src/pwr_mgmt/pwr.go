@@ -29,10 +29,6 @@ func (w *realScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error 
 	return nil
 }
 
-func (r *realScalGovReaderWriter) ReadPwrSetting() ([]PwrInfo, error) {
-	return nil, nil
-}
-
 func ApplyPwrConfig(config *data.InternalConfig) error {
 	return applyPwrConfig(config.Data.CpuGovernance,
 		&realScalGovReaderWriter{})
