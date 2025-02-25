@@ -33,7 +33,7 @@ func (c Config) Validate() error {
 		err := pwrprof.Validate()
 		if err != nil {
 			return fmt.Errorf(
-				"failed to validate cpu governance rule #%v: %v", (i + 1), err)
+				"failed to validate cpu governance rule #%d: %s", (i + 1), err)
 		}
 	}
 
