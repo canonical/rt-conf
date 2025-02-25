@@ -34,17 +34,18 @@ func (r *realScalGovReaderWriter) ReadPwrSetting() ([]PwrInfo, error) {
 }
 
 func ApplyPwrConfig(config *data.InternalConfig) error {
-	return applyPrwConfig(config, &realScalGovReaderWriter{})
+	return applyPwrConfig(config.Data.CpuGovernance,
+		&realScalGovReaderWriter{})
 }
 
 // Apply changes based on YAML config
-func applyPrwConfig(
-	config *data.InternalConfig,
+func applyPwrConfig(
+	config []data.CpuGovernanceRule,
 	handler ScalGovReaderWriter,
 ) error {
 
 	// Range over all CPU governance rules
-	for _, sclgov := range config.Data.CpuGovernance {
+	for _, sclgov := range config {
 		cpus, _ := cpu.ParseCPUs(sclgov.CPUs)
 		for cpu := range cpus {
 			err := handler.WriteScalingGov(sclgov.ScalGov, cpu)
