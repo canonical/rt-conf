@@ -111,11 +111,8 @@ func TestPwrMgmt(t *testing.T) {
 		t.Run(fmt.Sprintf("case-%d", index), func(t *testing.T) {
 
 			basePath := setupTempDirWithFiles(t, tc.prevRule, tc.maxCpus)
-
-			scalMock := &mockScalGovReaderWriter{
-				basePath: basePath,
-			}
-			err := applyPwrConfig(tc.d, scalMock)
+			scalingGovernerReaderWriter.Path = basePath + "/%d"
+			err := scalingGovernerReaderWriter.applyPwrConfig(tc.d)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}

@@ -9,15 +9,16 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 )
 
-const scalingGovernorPath = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor"
+type ReaderWriter struct {
+	Path string
+}
 
-// realScalGovReaderWriter writes CPU scalling governor string to
-// the real `/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor` file.
-type realScalGovReaderWriter struct{}
+var scalingGovernerReaderWriter = ReaderWriter{
+	Path: "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor",
+}
 
-func (w *realScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
-	scallingGovFile :=
-		fmt.Sprintf(scalingGovernorPath, cpu)
+func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
+	scallingGovFile := fmt.Sprintf(w.Path, cpu)
 
 	err := os.WriteFile(scallingGovFile, []byte(sclgov), 0644)
 	if err != nil {
@@ -30,14 +31,12 @@ func (w *realScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error 
 }
 
 func ApplyPwrConfig(config *data.InternalConfig) error {
-	return applyPwrConfig(config.Data.CpuGovernance,
-		&realScalGovReaderWriter{})
+	return scalingGovernerReaderWriter.applyPwrConfig(config.Data.CpuGovernance)
 }
 
 // Apply changes based on YAML config
-func applyPwrConfig(
+func (wr ReaderWriter) applyPwrConfig(
 	config []data.CpuGovernanceRule,
-	handler ScalGovReaderWriter,
 ) error {
 
 	// Range over all CPU governance rules
@@ -47,7 +46,7 @@ func applyPwrConfig(
 			return err
 		}
 		for cpu := range cpus {
-			err := handler.WriteScalingGov(sclgov.ScalGov, cpu)
+			err := wr.WriteScalingGov(sclgov.ScalGov, cpu)
 			if err != nil {
 				return err
 			}
