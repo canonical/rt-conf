@@ -46,7 +46,10 @@ func applyPwrConfig(
 
 	// Range over all CPU governance rules
 	for _, sclgov := range config {
-		cpus, _ := cpu.ParseCPUs(sclgov.CPUs)
+		cpus, err := cpu.ParseCPUs(sclgov.CPUs)
+		if err != nil {
+			return err
+		}
 		for cpu := range cpus {
 			err := handler.WriteScalingGov(sclgov.ScalGov, cpu)
 			if err != nil {
