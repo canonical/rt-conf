@@ -16,16 +16,15 @@ type mockScalGovReaderWriter struct {
 }
 
 func (m *mockScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
-	scallingGovFile :=
-		fmt.Sprintf(m.basePath, cpu)
+	// Create the target file path: basePath/<cpu>
+	scalingGovFile := filepath.Join(m.basePath, strconv.Itoa(cpu))
 
-	err := os.WriteFile(scallingGovFile, []byte(sclgov), 0644)
+	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
 	if err != nil {
-		return fmt.Errorf("error writing to %s: %v", scallingGovFile, err)
+		return fmt.Errorf("error writing to %s: %v", scalingGovFile, err)
 	} else {
-		log.Printf("Set %s to %s", scallingGovFile, sclgov)
+		log.Printf("Set %s to %s", scalingGovFile, sclgov)
 	}
-
 	return nil
 }
 
