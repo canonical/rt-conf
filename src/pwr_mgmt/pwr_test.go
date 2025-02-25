@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/data"
 )
 
@@ -31,7 +32,7 @@ func (m *mockScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error 
 // setupTempDirWithFiles creates a temporary directory and then creates n files
 // named "0", "1", ..., "n-1" inside that directory. It fails the test if any
 // error occurs.
-func setupTempDirWithFiles(t *testing.T, maxCpus int) string {
+func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 	t.Helper()
 
 	tempDir, err := os.MkdirTemp("", "tempfiles-")
@@ -52,6 +53,14 @@ func setupTempDirWithFiles(t *testing.T, maxCpus int) string {
 		if err != nil {
 			t.Fatalf("failed to create file %s: %v", filePath, err)
 		}
+		nb, err := f.Write([]byte(prvRule))
+		if err != nil {
+			t.Fatalf("failed to write to file %s: %v", filePath, err)
+		}
+		if nb != len(prvRule) {
+			t.Fatalf("number of written bytes doesn't match on file %s",
+				filePath)
+		}
 		f.Close()
 	}
 
@@ -63,38 +72,36 @@ func TestPwrMgmt(t *testing.T) {
 	// for CpuGovernanceRule.CPUs are set to 0 so it can be tested with any
 	// amount of cpus
 	var happyCases = []struct {
-		maxCpus int
-		d       []data.CpuGovernanceRule
+		maxCpus  int
+		prevRule string
+		d        []data.CpuGovernanceRule // add only one rule here
 	}{
 		{3,
+			"powersave",
 			[]data.CpuGovernanceRule{
-				{
-					CPUs:    "0",
-					ScalGov: "balanced",
-				},
-				{
-					CPUs:    "0",
-					ScalGov: "powersave",
-				},
 				{
 					CPUs:    "0",
 					ScalGov: "performance",
 				},
 			},
 		},
-		{8,
+		{
+			8,
+			"performance",
 			[]data.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "balanced",
 				},
+			},
+		},
+		{
+			4,
+			"balanced",
+			[]data.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "powersave",
-				},
-				{
-					CPUs:    "0",
-					ScalGov: "performance",
 				},
 			},
 		},
@@ -103,7 +110,7 @@ func TestPwrMgmt(t *testing.T) {
 	for index, tc := range happyCases {
 		t.Run(fmt.Sprintf("case-%d", index), func(t *testing.T) {
 
-			basePath := setupTempDirWithFiles(t, tc.maxCpus)
+			basePath := setupTempDirWithFiles(t, tc.prevRule, tc.maxCpus)
 
 			scalMock := &mockScalGovReaderWriter{
 				basePath: basePath,
@@ -111,6 +118,26 @@ func TestPwrMgmt(t *testing.T) {
 			err := applyPwrConfig(tc.d, scalMock)
 			if err != nil {
 				t.Fatalf("error: %v", err)
+			}
+
+			for idx, rule := range tc.d {
+
+				parsedCpus, err := cpu.ParseCPUs(rule.CPUs)
+				if err != nil {
+					t.Fatalf("error parsing cpus: %v", err)
+				}
+				for cpu := range parsedCpus {
+					content, err := os.ReadFile(
+						filepath.Join(basePath, strconv.Itoa(cpu)))
+					if err != nil {
+						t.Fatalf("error reading file: %v", err)
+					}
+					if string(content) != tc.d[idx].ScalGov {
+						t.Fatalf("expected %s, got %s", tc.d[idx].ScalGov,
+							string(content))
+					}
+				}
+
 			}
 
 		})
