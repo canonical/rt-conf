@@ -93,8 +93,8 @@ func TestPwrMgmt(t *testing.T) {
 		t.Run(fmt.Sprintf("case-%d", index), func(t *testing.T) {
 
 			basePath := setupTempDirWithFiles(t, tc.prevRule, tc.maxCpus)
-			scalingGovernerReaderWriter.Path = basePath + "/%d"
-			err := scalingGovernerReaderWriter.applyPwrConfig(tc.d)
+			scalingGovernorReaderWriter.Path = basePath + "/%d"
+			err := scalingGovernorReaderWriter.applyPwrConfig(tc.d)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}

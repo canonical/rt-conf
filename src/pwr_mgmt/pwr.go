@@ -13,25 +13,25 @@ type ReaderWriter struct {
 	Path string
 }
 
-var scalingGovernerReaderWriter = ReaderWriter{
+var scalingGovernorReaderWriter = ReaderWriter{
 	Path: "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor",
 }
 
 func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
-	scallingGovFile := fmt.Sprintf(w.Path, cpu)
+	scalingGovFile := fmt.Sprintf(w.Path, cpu)
 
-	err := os.WriteFile(scallingGovFile, []byte(sclgov), 0644)
+	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
 	if err != nil {
-		return fmt.Errorf("error writing to %s: %v", scallingGovFile, err)
+		return fmt.Errorf("error writing to %s: %v", scalingGovFile, err)
 	} else {
-		log.Printf("Set %s to %s", scallingGovFile, sclgov)
+		log.Printf("Set %s to %s", scalingGovFile, sclgov)
 	}
 
 	return nil
 }
 
 func ApplyPwrConfig(config *data.InternalConfig) error {
-	return scalingGovernerReaderWriter.applyPwrConfig(config.Data.CpuGovernance)
+	return scalingGovernorReaderWriter.applyPwrConfig(config.Data.CpuGovernance)
 }
 
 // Apply changes based on YAML config
