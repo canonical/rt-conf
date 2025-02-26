@@ -2,7 +2,6 @@ package pwrmgmt
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -11,23 +10,6 @@ import (
 	"github.com/canonical/rt-conf/src/cpu"
 	"github.com/canonical/rt-conf/src/data"
 )
-
-type mockScalGovReaderWriter struct {
-	basePath string
-}
-
-func (m *mockScalGovReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
-	// Create the target file path: basePath/<cpu>
-	scalingGovFile := filepath.Join(m.basePath, strconv.Itoa(cpu))
-
-	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
-	if err != nil {
-		return fmt.Errorf("error writing to %s: %v", scalingGovFile, err)
-	} else {
-		log.Printf("Set %s to %s", scalingGovFile, sclgov)
-	}
-	return nil
-}
 
 // setupTempDirWithFiles creates a temporary directory and then creates n files
 // named "0", "1", ..., "n-1" inside that directory. It fails the test if any
