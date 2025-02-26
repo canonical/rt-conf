@@ -10,6 +10,7 @@ import (
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/interrupts"
 	"github.com/canonical/rt-conf/src/kcmd"
+	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
 	"github.com/canonical/rt-conf/src/ui"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -34,8 +35,6 @@ func main() {
 	// TODO: make this generic for any bootloader
 	// Define the paths to grub as flags
 	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, grubHelp)
-
-	runningAsService := flag.Bool("service", false, "Run as a service")
 
 	tui := flag.Bool("ui", false, "Render the TUI")
 
@@ -79,19 +78,6 @@ func main() {
 		return
 	}
 
-
-	err = interrupts.ApplyIRQConfig(&conf)
-	if err != nil {
-		log.Fatalf("Failed to process interrupts: %v", err)
-	}
-
-	// NOTE: This should also be the decision to rather render or not the TUI
-	// in the future
-	if *runningAsService {
-		log.Println("Running as a service")
-		return
-	}
-
 	// If not running as a service then process the kernel cmdline args
 	if msgs, err := kcmd.ProcessKcmdArgs(&conf); err != nil {
 		log.Fatalf("Failed to process kernel cmdline args: %v", err)
@@ -99,6 +85,16 @@ func main() {
 		for _, msg := range msgs {
 			fmt.Print(msg)
 		}
+	}
+
+	err = interrupts.ApplyIRQConfig(&conf)
+	if err != nil {
+		log.Fatalf("Failed to process interrupts: %v", err)
+	}
+
+	err = pwrmgmt.ApplyPwrConfig(&conf)
+	if err != nil {
+		log.Fatalf("Failed to process power management config: %v", err)
 	}
 
 }
