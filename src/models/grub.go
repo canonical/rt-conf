@@ -61,6 +61,7 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 	var msgs []string
+	msgs = append(msgs, "Detected bootloader: GRUB\n")
 
 	params, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
