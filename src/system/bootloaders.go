@@ -1,10 +1,11 @@
 package system
 
-type Bootloader int
+type SystemType int
 
 const (
-	Unknown Bootloader = iota
+	Unknown SystemType = iota
 	Grub
 	Rpi
 	Uboot
+	Core
 )

@@ -10,7 +10,7 @@ import (
 
 func ProcessKcmdArgs(c *data.InternalConfig) ([]string, error) {
 	var msgs []string
-	sys, err := system.DetectBootloader()
+	sys, err := system.DetectSystem()
 	if err != nil {
 		return nil, fmt.Errorf("failed to detect system: %v", err)
 	}
