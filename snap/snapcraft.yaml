@@ -54,6 +54,7 @@ apps:
       - hardware-observe
       - sys-kernel-irq
       - proc-irq
+      - snapd-control
       # - cpu-control # NOTE: this will replace `sys-kernel-irq` and `proc-irq`
     command: bin/rt-conf
     environment:
