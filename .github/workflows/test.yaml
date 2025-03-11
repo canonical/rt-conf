@@ -1,4 +1,4 @@
-name: Test
+name: Test and Build
 
 on:
   push:
@@ -21,3 +21,23 @@ jobs:
       
       - name: Test
         run: go test ./...
+
+  build:
+    runs-on:  ubuntu-latest
+    outputs:
+      snap: ${{ steps.snapcraft.outputs.snap }}
+    needs: [test-go]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Snap
+        uses: snapcore/action-build@v1
+        id: snapcraft
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.snapcraft.outputs.snap }}
+          path: ${{ steps.snapcraft.outputs.snap }}
+          if-no-files-found: error
