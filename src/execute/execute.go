@@ -23,3 +23,13 @@ func RpiConclusion(cmdline string) []string {
 	}
 	return s
 }
+
+func CoreConclusion(change string) []string {
+	s := []string{
+		"\n",                                 // 1
+		"Sucessfully applied the changes.\n", // 2
+		"Snapd change: " + change + "\n",     // 3
+		"Please reboot your system to apply the changes.\n", // 4
+	}
+	return s
+}
