@@ -5,12 +5,22 @@ import (
 	"strings"
 )
 
+type SystemType int
+
+const (
+	Unknown SystemType = iota
+	Grub
+	Rpi
+	Uboot
+	UbuntuCore
+)
+
 func DetectSystem() (SystemType, error) {
 	// Verify if SNAP_SAVE_DATA is present, indicating the system is Ubuntu Core
 	// see: https://snapcraft.io/docs/environment-variables#heading--snap-save-data
 	_, isUC := os.LookupEnv("SNAP_SAVE_DATA")
 	if isUC {
-		return UCore, nil
+		return UbuntuCore, nil
 	}
 
 	if _, err := os.Stat("/proc/device-tree/model"); err == nil {

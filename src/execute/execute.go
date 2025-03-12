@@ -24,7 +24,7 @@ func RpiConclusion(cmdline string) []string {
 	return s
 }
 
-func CoreConclusion(change string) []string {
+func UbuntuCoreConclusion(change string) []string {
 	s := []string{
 		"\n",                                 // 1
 		"Sucessfully applied the changes.\n", // 2
