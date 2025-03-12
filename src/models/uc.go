@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/execute"
 )
 
 const (
@@ -103,5 +102,5 @@ func UpdateUbuntuCore(cfg *data.InternalConfig) ([]string, error) {
 
 	log.Println("Appended kernel cmdline: ", kcmds)
 
-	return execute.UbuntuCoreConclusion(snapResp.Change), nil
+	return UbuntuCoreConclusion(snapResp.Change), nil
 }

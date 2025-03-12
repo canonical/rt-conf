@@ -1,4 +1,4 @@
-package execute
+package models
 
 func GrubConclusion(grubFile string) []string {
 	s := []string{

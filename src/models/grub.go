@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/execute"
 )
 
 // grubCfgTransformer handles transformations for /boot/grub/grub.cfg
@@ -100,7 +99,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 
-	return execute.GrubConclusion(grubDefault.FilePath), nil
+	return GrubConclusion(grubDefault.FilePath), nil
 }
 
 func ParseDefaultGrubFile(f string) (map[string]string, error) {
