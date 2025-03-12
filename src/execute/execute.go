@@ -1,7 +1,9 @@
 package execute
 
-func GrubConclusion() []string {
+func GrubConclusion(grubFile string) []string {
 	s := []string{
+		"Detected bootloader: GRUB\n",
+		"Updated default grub file: " + grubFile + "\n",
 		"\n",                   // 1
 		"Please run:\n",        // 2
 		"\n",                   // 3
@@ -14,22 +16,24 @@ func GrubConclusion() []string {
 
 func RpiConclusion(cmdline string) []string {
 	s := []string{
-		"\n", //1
-		"Please, append the following to /boot/firmware/cmdline.txt:\n", // 2
-		"In case of old style boot partition,\n",                        // 3
-		"append to /boot/cmdline.txt\n",                                 // 4
-		cmdline,                                                         // 5
-		"\n",                                                            // 6
+		"Detected bootloader: Raspberry Pi\n",
+		"\n",
+		"Please, append the following to /boot/firmware/cmdline.txt:\n",
+		"In case of old style boot partition,\n",
+		"append to /boot/cmdline.txt\n",
+		cmdline,
+		"\n",
 	}
 	return s
 }
 
 func UbuntuCoreConclusion(change string) []string {
 	s := []string{
-		"\n",                                 // 1
-		"Sucessfully applied the changes.\n", // 2
-		"Snapd change: " + change + "\n",     // 3
-		"Please reboot your system to apply the changes.\n", // 4
+		"Detected bootloader: Ubuntu Core managed\n",
+		"\n",
+		"Sucessfully applied the changes.\n",
+		"Snapd change: " + change + "\n",
+		"Please reboot your system to apply the changes.\n",
 	}
 	return s
 }

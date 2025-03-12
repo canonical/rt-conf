@@ -60,8 +60,6 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
-	var msgs []string
-	msgs = append(msgs, "Detected bootloader: GRUB\n")
 
 	params, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
@@ -102,10 +100,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 
-	msgs = append(msgs, "Updated default grub file: "+grubDefault.FilePath+"\n")
-	msgs = append(msgs, execute.GrubConclusion()...)
-
-	return msgs, nil
+	return execute.GrubConclusion(grubDefault.FilePath), nil
 }
 
 func ParseDefaultGrubFile(f string) (map[string]string, error) {

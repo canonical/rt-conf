@@ -67,8 +67,6 @@ func sendRequest(method, url string, payload []byte) (*http.Response, error) {
 }
 
 func UpdateUbuntuCore(cfg *data.InternalConfig) ([]string, error) {
-	var msgs []string
-	msgs = append(msgs, "Detected bootloader: Ubuntu Core managed\n")
 
 	cmdline, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
@@ -97,6 +95,5 @@ func UpdateUbuntuCore(cfg *data.InternalConfig) ([]string, error) {
 
 	log.Println("Appended kernel cmdline: ", kcmds)
 
-	msgs = append(msgs, execute.UbuntuCoreConclusion(snapResp.Change)...)
-	return msgs, nil
+	return execute.UbuntuCoreConclusion(snapResp.Change), nil
 }
