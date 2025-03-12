@@ -95,7 +95,7 @@ func UpdateUbuntuCore(cfg *data.InternalConfig) ([]string, error) {
 			snapResp.Result.Msg)
 	}
 
-	log.Printf("Final Kernel cmdline:\n%s\n", kcmds)
+	log.Println("Appended kernel cmdline: ", kcmds)
 
 	msgs = append(msgs, execute.UbuntuCoreConclusion(snapResp.Change)...)
 	return msgs, nil
