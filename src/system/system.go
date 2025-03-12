@@ -10,7 +10,7 @@ func DetectSystem() (SystemType, error) {
 	// see: https://snapcraft.io/docs/environment-variables#heading--snap-save-data
 	_, isUC := os.LookupEnv("SNAP_SAVE_DATA")
 	if isUC {
-		return Core, nil
+		return UCore, nil
 	}
 
 	if _, err := os.Stat("/proc/device-tree/model"); err == nil {

@@ -9,9 +9,9 @@ import (
 )
 
 var kcmdSys = map[system.SystemType]func(*data.InternalConfig) ([]string, error){
-	system.Rpi:  models.UpdateRPi,
-	system.Grub: models.UpdateGrub,
-	system.Core: models.UpdateCore,
+	system.Rpi:   models.UpdateRPi,
+	system.Grub:  models.UpdateGrub,
+	system.UCore: models.UpdateCore,
 }
 
 func ProcessKcmdArgs(c *data.InternalConfig) ([]string, error) {

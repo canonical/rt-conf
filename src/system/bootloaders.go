@@ -7,5 +7,5 @@ const (
 	Grub
 	Rpi
 	Uboot
-	Core
+	UCore
 )
