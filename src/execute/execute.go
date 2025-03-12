@@ -4,12 +4,12 @@ func GrubConclusion(grubFile string) []string {
 	s := []string{
 		"Detected bootloader: GRUB\n",
 		"Updated default grub file: " + grubFile + "\n",
-		"\n",                   // 1
-		"Please run:\n",        // 2
-		"\n",                   // 3
-		"\tsudo update-grub\n", // 4
-		"\n",                   // 5
-		"to apply the changes to your bootloader.\n", // 6
+		"\n",
+		"Please run:\n",
+		"\n",
+		"\tsudo update-grub\n",
+		"\n",
+		"to apply the changes to your bootloader.\n",
 	}
 	return s
 }
