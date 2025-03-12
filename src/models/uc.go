@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/execute"
@@ -32,11 +33,18 @@ type Result struct {
 	Knd string `json:"kind"`
 	Val string `json:"value"`
 }
+
 type SnapdResponse struct {
 	StatusCode int    `json:"status-code"`
 	Status     string `json:"status"`
 	Change     string `json:"change"`
 	Result     Result `json:"result"`
+	Type       string `json:"type"`
+
+	WarningCount     int       `json:"warning-count"`
+	WarningTimestamp time.Time `json:"warning-timestamp"`
+
+	Maintenance Result `json:"maintenance"`
 }
 
 // createTransport returns an HTTP transport that connects over a Unix socket
