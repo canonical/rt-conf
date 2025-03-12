@@ -27,10 +27,16 @@ const (
 }`
 )
 
+type Result struct {
+	Msg string `json:"message"`
+	Knd string `json:"kind"`
+	Val string `json:"value"`
+}
 type SnapdResponse struct {
 	StatusCode int    `json:"status-code"`
 	Status     string `json:"status"`
 	Change     string `json:"change"`
+	Result     Result `json:"result"`
 }
 
 // createTransport returns an HTTP transport that connects over a Unix socket
@@ -85,7 +91,8 @@ func UpdateCore(cfg *data.InternalConfig) ([]string, error) {
 	}
 
 	if snapResp.StatusCode >= 400 {
-		return nil, fmt.Errorf("snapd error: %s", snapResp.Status)
+		return nil, fmt.Errorf("snapd error: %s, %s", snapResp.Status,
+			snapResp.Result.Msg)
 	}
 
 	log.Printf("Final Kernel cmdline:\n%s\n", kcmds)
