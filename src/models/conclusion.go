@@ -27,12 +27,11 @@ func RpiConclusion(cmdline string) []string {
 	return s
 }
 
-func UbuntuCoreConclusion(change string) []string {
+func UbuntuCoreConclusion() []string {
 	s := []string{
 		"Detected bootloader: Ubuntu Core managed\n",
 		"\n",
 		"Sucessfully applied the changes.\n",
-		"Snapd change: " + change + "\n",
 		"Please reboot your system to apply the changes.\n",
 	}
 	return s

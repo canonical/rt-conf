@@ -102,5 +102,5 @@ func UpdateUbuntuCore(cfg *data.InternalConfig) ([]string, error) {
 
 	log.Println("Appended kernel cmdline: ", kcmds)
 
-	return UbuntuCoreConclusion(snapResp.Change), nil
+	return UbuntuCoreConclusion(), nil
 }
