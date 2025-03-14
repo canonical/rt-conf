@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/execute"
 )
 
 // grubCfgTransformer handles transformations for /boot/grub/grub.cfg
@@ -60,7 +59,6 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
-	var msgs []string
 
 	params, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
@@ -101,10 +99,7 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 
-	msgs = append(msgs, "Updated default grub file: "+grubDefault.FilePath+"\n")
-	msgs = append(msgs, execute.GrubConclusion()...)
-
-	return msgs, nil
+	return GrubConclusion(grubDefault.FilePath), nil
 }
 
 func ParseDefaultGrubFile(f string) (map[string]string, error) {
