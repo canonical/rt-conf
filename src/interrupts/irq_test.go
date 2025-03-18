@@ -62,12 +62,12 @@ func setupTempFile(t *testing.T, content string, idex int) string {
 	return tmpFile.Name()
 }
 
-func TestHappyIRQtunning(t *testing.T) {
+func TestHappyIRQtuning(t *testing.T) {
 
 	var happyCases = []IRQTestCase{
 		{
 			Yaml: `
-irq_tunning:
+irq_tuning:
 - cpus: 0
   filter:
     action: floppy
@@ -92,13 +92,13 @@ irq_tunning:
 	}
 }
 
-func TestUnhappyIRQtunning(t *testing.T) {
+func TestUnhappyIRQtuning(t *testing.T) {
 
 	var UnhappyCases = []IRQTestCase{
 		{
 			// Invalid number
 			Yaml: `
-irq_tunning:
+irq_tuning:
 - cpus: 0
   filter:
     number: a
@@ -108,7 +108,7 @@ irq_tunning:
 		{
 			// Invalid RegEx
 			Yaml: `
-irq_tunning:
+irq_tuning:
 - cpus: 0
   filter:
     number: 0

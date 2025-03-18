@@ -44,7 +44,7 @@ type Model struct {
 	Height int
 	iConf  data.InternalConfig
 	// for the kernel command line view
-	// For the IRQ tunning view
+	// For the IRQ tuning view
 	// irqInputs     []textinput.Model
 	// irqFocusIndex int
 	Nav        *cmp.MenuNav
@@ -77,7 +77,7 @@ type IRQMenuModel struct {
 	Index    int
 	newEntry bool
 	editMode bool
-	rules    []data.IRQTunning
+	rules    []data.IRQTuning
 	keys     *irqKeyMap
 	list     list.Model
 	// help     help.Model
@@ -340,8 +340,8 @@ func newModelIRQMenuModel() IRQMenuModel {
 		keys:  keys,
 		irq:   irq,
 		concl: concl,
-		rules: []data.IRQTunning{
-			{ // Insert an empty default IRQ tunning rule
+		rules: []data.IRQTuning{
+			{ // Insert an empty default IRQ tuning rule
 				CPUs: "0-n",
 				Filter: data.IRQFilter{
 					Actions:  "",

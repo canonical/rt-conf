@@ -25,7 +25,7 @@ kernel_cmdline:
   # irqaffinity: "0-1"
 
 # Runtime options for IRQ affinity
-irq_tunning:
+irq_tuning:
   - # The list of CPUs to which the IRQs are to be moved
     # Format: range, e.g. 0-2
     # cpus: "2-3"

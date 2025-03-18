@@ -2,15 +2,15 @@ package data
 
 import "testing"
 
-func TestIRQTunning_Validate(t *testing.T) {
+func TestIRQTuning_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		c       IRQTunning
+		c       IRQTuning
 		wantErr bool
 	}{
 		{
 			name: "valid test",
-			c: IRQTunning{
+			c: IRQTuning{
 				CPUs: "0,1",
 				Filter: IRQFilter{
 					Actions:  `action`,
@@ -23,7 +23,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		},
 		{
 			name: "valid regex",
-			c: IRQTunning{
+			c: IRQTuning{
 				CPUs: "0-n",
 				Filter: IRQFilter{
 					Actions:  `nvme`,
@@ -36,7 +36,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		},
 		{
 			name: "valid regex",
-			c: IRQTunning{
+			c: IRQTuning{
 				CPUs: "0,n",
 				Filter: IRQFilter{
 					Actions:  `nvme`,
@@ -49,7 +49,7 @@ func TestIRQTunning_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid regex",
-			c: IRQTunning{
+			c: IRQTuning{
 				CPUs: "0,1",
 				Filter: IRQFilter{
 					Actions:  `(?!abc)def`, // Negative lookahead
@@ -62,12 +62,12 @@ func TestIRQTunning_Validate(t *testing.T) {
 		},
 	}
 
-	t.Log("Running IRQTunning.Validate() tests")
+	t.Log("Running IRQTuning.Validate() tests")
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.c.Validate(); (err != nil) != tt.wantErr {
 				t.Logf("Testing: %v\nFilters:\n\t%v", tt.name, tt.c.Filter)
-				t.Errorf("IRQTunning.Validate() error = %v, wantErr %v",
+				t.Errorf("IRQTuning.Validate() error = %v, wantErr %v",
 					err, tt.wantErr)
 			}
 		})

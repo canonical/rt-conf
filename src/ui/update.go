@@ -427,7 +427,7 @@ func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// }
 
 				irqAffinityRule := IRQAffinityRule{
-					rule: data.IRQTunning{
+					rule: data.IRQTuning{
 						Filter: irqFilter,
 						CPUs:   cpulist,
 					},

@@ -147,7 +147,7 @@ func applyIRQConfig(
 		return fmt.Errorf("no IRQs found")
 	}
 
-	// Range over IRQ tunning array
+	// Range over IRQ tuning array
 	for _, irqTuning := range config.Data.Interrupts {
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {
