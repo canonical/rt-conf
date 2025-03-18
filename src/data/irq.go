@@ -11,12 +11,12 @@ import (
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
-type IRQTunning struct {
+type IRQTuning struct {
 	CPUs   string    `yaml:"cpus"`
 	Filter IRQFilter `yaml:"filter"`
 }
 
-func (c IRQTunning) Validate() error {
+func (c IRQTuning) Validate() error {
 	err := c.Filter.Validate()
 	if err != nil {
 		return fmt.Errorf("IRQFilter validation failed: %v", err)
