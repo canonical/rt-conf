@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/cpu"
+	"github.com/canonical/rt-conf/src/cpulist"
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
@@ -41,13 +41,13 @@ func (c KernelCmdline) fieldValidator(name string,
 	switch {
 	case strings.HasPrefix(tag, "cpulist"):
 		if strings.HasSuffix(tag, "isolcpus") {
-			err := cpu.ValidateIsolCPUs(value)
+			err := cpulist.ValidateIsolCPUs(value)
 			if err != nil {
 				return fmt.Errorf("on field %v: invalid isolcpus: %v", name,
 					err)
 			}
 		} else {
-			err := cpu.ValidateList(value)
+			err := cpulist.ValidateList(value)
 			if err != nil {
 				return fmt.Errorf("on field %v: invalid cpulist: %v", name,
 					err)

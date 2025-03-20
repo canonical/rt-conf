@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/canonical/rt-conf/src/common"
-	"github.com/canonical/rt-conf/src/cpu"
+	"github.com/canonical/rt-conf/src/cpulist"
 	"github.com/canonical/rt-conf/src/helpers"
 )
 
@@ -21,7 +21,7 @@ func (c IRQTunning) Validate() error {
 	if err != nil {
 		return fmt.Errorf("IRQFilter validation failed: %v", err)
 	}
-	err = cpu.ValidateList(c.CPUs)
+	err = cpulist.ValidateList(c.CPUs)
 	if err != nil {
 		return fmt.Errorf("invalid cpus: %v", err)
 	}
@@ -53,7 +53,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 		if err != nil {
 			return err
 		}
-		_, err = cpu.ValidateCPUListSyntax(value, num)
+		_, err = cpulist.ValidateCPUListSyntax(value, num)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid irq list: %v", name,
 				err)

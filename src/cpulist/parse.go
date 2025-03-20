@@ -1,12 +1,10 @@
-package cpu
+package cpulist
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
 )
-
-// TODO: support all
 
 // ParseCPUs parses a CPU list into a set of integers, supporting all formats
 // Inspired in the Kernel documentation:
