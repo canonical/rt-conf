@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/cpulist"
+	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/data"
 )
 
@@ -81,7 +81,7 @@ func (m *KcmdlineMenuModel) checkInputs(value string) {
 
 	switch m.FocusIndex {
 	case isolcpusIndex, nohzFullIndex, kthreadsCPUsIndex, irqaffinityIndex:
-		err = cpulist.ValidateList(value)
+		err = cpulists.ValidateList(value)
 		log.Printf("%v: %v ", validationErrorsKcmd[m.FocusIndex].name, value)
 		if err != nil {
 			validationErrorsKcmd[m.FocusIndex].err = "ERROR: " + err.Error() + "\n"
@@ -167,7 +167,7 @@ func (m *IRQAddEditMenu) checkInputs(value string) {
 
 	switch m.FocusIndex {
 	case cpuListIndex:
-		err = cpulist.ValidateList(value)
+		err = cpulists.ValidateList(value)
 		// log.Println("Validating cpulist: ", value, "err: ", err)
 		// log.Printf("%v: %v ", validationErrorsIRQ[m.FocusIndex].name, value)
 		if err != nil {

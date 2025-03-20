@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/canonical/rt-conf/src/cpulist"
+	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/data"
 )
 
@@ -41,7 +41,7 @@ func (wr ReaderWriter) applyPwrConfig(
 
 	// Range over all CPU governance rules
 	for _, sclgov := range config {
-		cpus, err := cpulist.ParseCPUs(sclgov.CPUs)
+		cpus, err := cpulists.ParseCPUs(sclgov.CPUs)
 		if err != nil {
 			return err
 		}

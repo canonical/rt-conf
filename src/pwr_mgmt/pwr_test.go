@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/canonical/rt-conf/src/cpulist"
+	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/data"
 )
 
@@ -101,7 +101,7 @@ func TestPwrMgmt(t *testing.T) {
 
 			for idx, rule := range tc.d {
 
-				parsedCpus, err := cpulist.ParseCPUs(rule.CPUs)
+				parsedCpus, err := cpulists.ParseCPUs(rule.CPUs)
 				if err != nil {
 					t.Fatalf("error parsing cpus: %v", err)
 				}

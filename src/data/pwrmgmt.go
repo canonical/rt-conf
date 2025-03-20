@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/canonical/rt-conf/src/cpulist"
+	"github.com/canonical/rt-conf/src/cpulists"
 )
 
 type ScalProfiles int
@@ -29,7 +29,7 @@ func (c CpuGovernanceRule) Validate() error {
 	if _, ok := scalProfilesMap[c.ScalGov]; !ok {
 		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
 	}
-	err := cpulist.ValidateList(c.CPUs)
+	err := cpulists.ValidateList(c.CPUs)
 	if err != nil {
 		return fmt.Errorf("invalid cpus: %v", err)
 	}

@@ -1,4 +1,4 @@
-package cpulist
+package cpulists
 
 import "testing"
 
