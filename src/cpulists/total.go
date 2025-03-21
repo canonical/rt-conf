@@ -1,4 +1,4 @@
-package cpu
+package cpulists
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func TotalAvailable() (int, error) {
+func totalCPUs() (int, error) {
 	cmd := exec.Command("lscpu", "--json")
 	output, err := cmd.Output()
 	if err != nil {

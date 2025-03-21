@@ -6,9 +6,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/cpu"
+	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/helpers"
 )
+
+var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
 
 type Params map[string]string
 
@@ -41,13 +43,13 @@ func (c KernelCmdline) fieldValidator(name string,
 	switch {
 	case strings.HasPrefix(tag, "cpulist"):
 		if strings.HasSuffix(tag, "isolcpus") {
-			err := cpu.ValidateIsolCPUs(value)
+			_, _, err := cpulists.ParseWithFlags(value, isolcpuFlags)
 			if err != nil {
 				return fmt.Errorf("on field %v: invalid isolcpus: %v", name,
 					err)
 			}
 		} else {
-			err := cpu.ValidateList(value)
+			_, err := cpulists.Parse(value)
 			if err != nil {
 				return fmt.Errorf("on field %v: invalid cpulist: %v", name,
 					err)
