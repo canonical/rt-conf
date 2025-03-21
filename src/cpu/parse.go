@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+type CPUs map[int]bool
+
 // TODO: support all
 
 // ParseCPUs parses a CPU list into a set of integers, supporting all formats
