@@ -12,7 +12,6 @@ import (
 	"github.com/canonical/rt-conf/src/model"
 	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
 	"github.com/canonical/rt-conf/src/ui"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 const (
@@ -63,17 +62,10 @@ func main() {
 	}
 
 	if *tui {
-		f, err := tea.LogToFile("debug.log", "debug")
+		log.Println("Starting UI...")
+		err := ui.Start(&conf)
 		if err != nil {
-			log.Fatalf("failed to open log file: %v", err)
-		}
-		defer f.Close()
-
-		log.Println("Running TUI...")
-		log.Println()
-		// Run the Terminal User Interface (TUI)
-		if _, err := tea.NewProgram(ui.NewModel(&conf), tea.WithAltScreen()).Run(); err != nil {
-			log.Fatalf("rt-conf failed: %v", err)
+			log.Fatalf("Error starting the UI: %v", err)
 		}
 		return
 	}
