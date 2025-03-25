@@ -15,6 +15,8 @@ func Start(conf *model.InternalConfig) error {
 	}
 	defer f.Close()
 
+	log.Println("Starting the TUI...")
+
 	// Run the Terminal User Interface (TUI)
 	// This is a blocking call
 	if _, err := tea.NewProgram(NewModel(conf), tea.WithAltScreen()).Run(); err != nil {

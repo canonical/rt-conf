@@ -62,7 +62,6 @@ func main() {
 	}
 
 	if *tui {
-		log.Println("Starting UI...")
 		err := ui.Start(&conf)
 		if err != nil {
 			log.Fatalf("Error starting the UI: %v", err)
