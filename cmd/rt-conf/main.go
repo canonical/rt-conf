@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/canonical/rt-conf/src/interrupts"
+	"github.com/canonical/rt-conf/src/irq"
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/model"
 	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
@@ -87,7 +87,7 @@ func main() {
 		}
 	}
 
-	err = interrupts.ApplyIRQConfig(&conf)
+	err = irq.ApplyIRQConfig(&conf)
 	if err != nil {
 		log.Fatalf("Failed to process interrupts: %v", err)
 	}

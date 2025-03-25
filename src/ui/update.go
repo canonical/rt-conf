@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/interrupts"
+	"github.com/canonical/rt-conf/src/irq"
 	"github.com/canonical/rt-conf/src/model"
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/config"
@@ -223,7 +223,7 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				var cfg model.InternalConfig
 				cfg.Data.Interrupts = m.rules
 
-				err := interrupts.ApplyIRQConfig(&cfg)
+				err := irq.ApplyIRQConfig(&cfg)
 				if err != nil {
 					m.concl.num = 0
 					if strings.Contains(

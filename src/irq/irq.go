@@ -1,4 +1,4 @@
-package interrupts
+package irq
 
 import (
 	"fmt"
