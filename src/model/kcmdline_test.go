@@ -1,4 +1,4 @@
-package main
+package model_test
 
 import (
 	"fmt"
@@ -91,7 +91,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	return string(updatedGrub), nil
 }
 
-func TestHappyMainLogic(t *testing.T) {
+func TestHappyYamlKcmd(t *testing.T) {
 	var happyCases = []TestCase{
 		{
 			Yaml: `
@@ -152,7 +152,7 @@ kernel_cmdline:
 	}
 }
 
-func TestUnhappyMainLogic(t *testing.T) {
+func TestUnhappyYamlKcmd(t *testing.T) {
 	var UnhappyCases = []TestCase{
 		{
 			// isolcpus: "a" is valid
