@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 // TODO: move this file to a separate module
@@ -219,8 +219,8 @@ func (m *IRQAddEditMenu) RunInputValidation() {
 // ParseIRQFilter parses a string like:
 // "  actions:<string>  chip_name:<string> name:<string> type:<string>   "
 // into an IRQFilter. At least one filter must be provided.
-func ParseIRQFilter(query string) (data.IRQFilter, error) {
-	var filter data.IRQFilter
+func ParseIRQFilter(query string) (model.IRQFilter, error) {
+	var filter model.IRQFilter
 
 	// Trim leading/trailing whitespace
 	query = strings.TrimSpace(query)

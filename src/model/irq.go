@@ -1,4 +1,4 @@
-package data
+package model
 
 import (
 	"fmt"
@@ -6,9 +6,13 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/canonical/rt-conf/src/common"
 	"github.com/canonical/rt-conf/src/cpulists"
-	"github.com/canonical/rt-conf/src/helpers"
+)
+
+// TODO: THis needs to be superseed in the unit tests
+const (
+	SysKernelIRQ = "/sys/kernel/irq"
+	ProcIRQ      = "/proc/irq"
 )
 
 type IRQTuning struct {
@@ -41,7 +45,7 @@ type IRQs struct {
 }
 
 func (c IRQFilter) Validate() error {
-	return helpers.Validate(c, c.validateIRQField)
+	return Validate(c, c.validateIRQField)
 }
 
 // TODO: Validate mutual exclusive cpu lists
@@ -70,7 +74,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 }
 
 func GetHigherIRQ() (int, error) {
-	files, err := os.ReadDir(common.SysKernelIRQ)
+	files, err := os.ReadDir(SysKernelIRQ)
 	if err != nil {
 		return 0, err
 	}

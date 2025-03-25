@@ -1,4 +1,4 @@
-package models
+package kcmd
 
 import (
 	"fmt"

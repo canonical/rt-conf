@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 type IRQRuleMsg struct {
@@ -11,7 +11,7 @@ type IRQRuleMsg struct {
 type IRQAffinityRule struct {
 	edited          bool // false means it's a new rule, true means new rule
 	index           int
-	rule            data.IRQTuning
+	rule            model.IRQTuning
 	filter, cpulist string
 }
 

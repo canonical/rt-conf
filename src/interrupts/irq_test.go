@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 // MockIRQReaderWriter is a mock implementation of IRQReaderWriter for testing.
@@ -133,8 +133,8 @@ func mainLogicIRQ(t *testing.T, cfg IRQTestCase, i int) (string, error) {
 	t.Cleanup(func() {
 		os.Remove(tempConfigPath)
 	})
-	var conf data.InternalConfig
-	if d, err := data.LoadConfigFile(tempConfigPath); err != nil {
+	var conf model.InternalConfig
+	if d, err := model.LoadConfigFile(tempConfigPath); err != nil {
 		return "", fmt.Errorf("failed to load config file: %v", err)
 	} else {
 		conf.Data = *d

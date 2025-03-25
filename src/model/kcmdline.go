@@ -1,4 +1,4 @@
-package data
+package model
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
-	"github.com/canonical/rt-conf/src/helpers"
 )
 
 var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
@@ -34,7 +33,7 @@ type KernelCmdline struct {
 
 // Custom unmarshal function with validation
 func (c KernelCmdline) Validate() error {
-	return helpers.Validate(c, c.fieldValidator)
+	return Validate(c, c.fieldValidator)
 }
 
 func (c KernelCmdline) fieldValidator(name string,

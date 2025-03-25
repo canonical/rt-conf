@@ -3,18 +3,17 @@ package kcmd
 import (
 	"fmt"
 
-	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/models"
+	"github.com/canonical/rt-conf/src/model"
 	"github.com/canonical/rt-conf/src/system"
 )
 
-var kcmdSys = map[system.SystemType]func(*data.InternalConfig) ([]string, error){
-	system.Rpi:        models.UpdateRPi,
-	system.Grub:       models.UpdateGrub,
-	system.UbuntuCore: models.UpdateUbuntuCore,
+var kcmdSys = map[system.SystemType]func(*model.InternalConfig) ([]string, error){
+	system.Rpi:        UpdateRPi,
+	system.Grub:       UpdateGrub,
+	system.UbuntuCore: UpdateUbuntuCore,
 }
 
-func ProcessKcmdArgs(c *data.InternalConfig) ([]string, error) {
+func ProcessKcmdArgs(c *model.InternalConfig) ([]string, error) {
 	var msgs []string
 	sys, err := system.DetectSystem()
 	if err != nil {
