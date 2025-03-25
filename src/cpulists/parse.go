@@ -1,28 +1,32 @@
-package cpu
+// This package provides a parser for CPU Lists strings.
+// It supports all formats described in the Kernel documentation:
+// https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists
+
+package cpulists
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 )
 
-// TODO: support all
+type CPUs map[int]bool
 
-// ParseCPUs parses a CPU list into a set of integers, supporting all formats
-// Inspired in the Kernel documentation:
-// https://docs.kernel.org/admin-guide/kernel-parameters.html#cpu-lists
-// I had nightmares about this function
-func ParseCPUs(cpuList string) (CPUs, error) {
-	max, err := TotalAvailable()
+// Parse parses a CPU Lists string into CPUs map
+// It performs parsing based on the total number of available CPUs
+func Parse(cpuLists string) (CPUs, error) {
+	total, err := totalCPUs()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get total available CPUs: %v", err)
 	}
-	return parseCPUs(cpuList, max)
+	return ParseForCPUs(cpuLists, total)
 }
 
-func parseCPUs(cpuList string, totalCPUs int) (CPUs, error) {
+// ParseForCPUs parses a CPU Lists string into CPUs map
+func ParseForCPUs(cpuLists string, totalCPUs int) (CPUs, error) {
 	cpus := make(CPUs)
-	items := strings.Split(cpuList, ",")
+	items := strings.Split(cpuLists, ",")
 
 	for _, item := range items {
 		item = strings.TrimSpace(item)
@@ -58,6 +62,55 @@ func parseCPUs(cpuList string, totalCPUs int) (CPUs, error) {
 		}
 	}
 	return cpus, nil
+}
+
+// ParseWithFlagsForCPUs parses a CPU Lists string into CPUs map
+func ParseWithFlagsForCPUs(cpuLists string, validFlags []string, totalCPUs int) (CPUs, string, error) {
+	hasFlag := true
+	// Split the string into two parts by the first comma
+	parts := strings.SplitN(cpuLists, ",", 2)
+
+	// If it converts to a number, it's not a flag
+	_, err := strconv.Atoi(parts[0])
+
+	// Check if the first part isn't a flag
+	if len(parts) != 2 ||
+		err == nil ||
+		strings.Contains(parts[0], "-") ||
+		strings.Contains(parts[0], ":") ||
+		strings.Contains(parts[0], "/") {
+		hasFlag = false
+	}
+
+	// If it's a flag, check if it's a valid flag
+	if hasFlag {
+		if !slices.Contains(validFlags, parts[0]) {
+			return nil, "", fmt.Errorf("invalid flag: %s, expected one of %v", parts[0], validFlags)
+		}
+
+		cpus, err := ParseForCPUs(parts[1], totalCPUs)
+		if err != nil {
+			return nil, "", fmt.Errorf("failed to parse CPUs: %s", err)
+		}
+		return cpus, parts[0], nil
+	}
+
+	cpus, err := ParseForCPUs(cpuLists, totalCPUs)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to parse CPUs: %s", err)
+	}
+	return cpus, "", nil
+}
+
+// ParseWithFlagsForCPUs parses a CPU Lists string into CPUs map
+// It performs parsing based on the total number of available CPUs
+func ParseWithFlags(cpuLists string, validFlags []string) (CPUs, string, error) {
+	totalCPUs, err := totalCPUs()
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to get total available CPUs: %v", err)
+	}
+
+	return ParseWithFlagsForCPUs(cpuLists, validFlags, totalCPUs)
 }
 
 // Handle the format:

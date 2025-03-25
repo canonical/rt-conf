@@ -1,11 +1,11 @@
-package cpu
+package cpulists
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestParseCPUSlistsHappy(t *testing.T) {
+func TestParseCPUListsHappy(t *testing.T) {
 	type test struct {
 		input  string
 		tCores int
@@ -73,7 +73,7 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			res, err := parseCPUs(tt.input, tt.tCores)
+			res, err := ParseForCPUs(tt.input, tt.tCores)
 			if err != nil {
 				t.Fatalf("ParseCPUs failed: %v", err)
 			}
@@ -87,7 +87,7 @@ func TestParseCPUSlistsHappy(t *testing.T) {
 	}
 }
 
-func TestParseCPUSlistsUnhappy(t *testing.T) {
+func TestParseCPUListsUnhappy(t *testing.T) {
 	type test struct {
 		input  string
 		tCores int
@@ -199,12 +199,55 @@ func TestParseCPUSlistsUnhappy(t *testing.T) {
 
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			_, err := parseCPUs(tt.input, tt.tCores)
+			_, err := ParseForCPUs(tt.input, tt.tCores)
 			if err == nil {
 				t.Fatalf("expected error, got nil")
 			}
 			if err.Error() != tt.err {
 				t.Fatalf("expected %v, got %v", tt.err, err)
+			}
+		})
+	}
+}
+
+func TestParseWithFlagsHappy(t *testing.T) {
+	isolcpuFlags := []string{"domain", "nohz", "managed_irq"}
+	const max = 24
+	var testCases = []struct {
+		value string
+		cpus  int
+		flags []string
+	}{
+		// Test CPU list with range
+		{"0-1", max, isolcpuFlags},
+		{"nohz,0-1", max, isolcpuFlags},
+		{"domain,0-1", max, isolcpuFlags},
+		{"managed_irq,0-1", max, isolcpuFlags},
+
+		// Test single CPU on CPU list
+		{"0", max, isolcpuFlags},
+		{"nohz,0", max, isolcpuFlags},
+		{"domain,0", max, isolcpuFlags},
+		{"managed_irq,0", max, isolcpuFlags},
+
+		// Test comma separated CPU list
+		{"0,n", max, isolcpuFlags},
+		{"nohz,0,n", max, isolcpuFlags},
+		{"domain,0,n", max, isolcpuFlags},
+		{"managed_irq,0,n", max, isolcpuFlags},
+
+		// Test comma separated CPU list
+		{"0,n", max, isolcpuFlags},
+		{"nohz,0,n", max, isolcpuFlags},
+		{"domain,0,n", max, isolcpuFlags},
+		{"managed_irq,0,n", max, isolcpuFlags},
+	}
+
+	for _, tc := range testCases {
+		t.Run("TestValidationWithFlags", func(t *testing.T) {
+			_, _, err := ParseWithFlagsForCPUs(tc.value, tc.flags, tc.cpus)
+			if err != nil {
+				t.Fatalf("Failed ValidateListWithFlags: %v", err)
 			}
 		})
 	}

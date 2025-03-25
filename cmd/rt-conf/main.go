@@ -7,12 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/interrupts"
+	"github.com/canonical/rt-conf/src/irq"
 	"github.com/canonical/rt-conf/src/kcmd"
+	"github.com/canonical/rt-conf/src/model"
 	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
 	"github.com/canonical/rt-conf/src/ui"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 const (
@@ -44,8 +43,8 @@ func main() {
 		log.Fatalf("Failed to load config file: config path not set")
 	}
 
-	var conf data.InternalConfig
-	if d, err := data.LoadConfigFile(*configPath); err != nil {
+	var conf model.InternalConfig
+	if d, err := model.LoadConfigFile(*configPath); err != nil {
 		log.Fatalf("Failed to load config file: %v", err)
 	} else {
 		conf.Data = *d
@@ -57,23 +56,15 @@ func main() {
 	}
 
 	conf.CfgFile = abs
-	conf.GrubDefault = data.Grub{
+	conf.GrubDefault = model.Grub{
 		File:    *grubDefaultPath,
-		Pattern: data.PatternGrubDefault,
+		Pattern: model.PatternGrubDefault,
 	}
 
 	if *tui {
-		f, err := tea.LogToFile("debug.log", "debug")
+		err := ui.Start(&conf)
 		if err != nil {
-			log.Fatalf("failed to open log file: %v", err)
-		}
-		defer f.Close()
-
-		log.Println("Running TUI...")
-		log.Println()
-		// Run the Terminal User Interface (TUI)
-		if _, err := tea.NewProgram(ui.NewModel(&conf), tea.WithAltScreen()).Run(); err != nil {
-			log.Fatalf("rt-conf failed: %v", err)
+			log.Fatalf("Error starting the UI: %v", err)
 		}
 		return
 	}
@@ -87,7 +78,7 @@ func main() {
 		}
 	}
 
-	err = interrupts.ApplyIRQConfig(&conf)
+	err = irq.ApplyIRQConfig(&conf)
 	if err != nil {
 		log.Fatalf("Failed to process interrupts: %v", err)
 	}

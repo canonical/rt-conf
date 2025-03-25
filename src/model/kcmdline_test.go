@@ -1,4 +1,4 @@
-package main
+package model_test
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/kcmd"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 const (
@@ -59,17 +59,17 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	t.Logf("tempConfigPath: %s\n", tempConfigPath)
 	t.Logf("tempGrubPath: %s\n", tempGrubPath)
 
-	var conf data.InternalConfig
-	if d, err := data.LoadConfigFile(tempConfigPath); err != nil {
+	var conf model.InternalConfig
+	if d, err := model.LoadConfigFile(tempConfigPath); err != nil {
 		return "", fmt.Errorf("failed to load config file: %v", err)
 	} else {
 		conf.Data = *d
 	}
 
 	conf.CfgFile = tempConfigPath
-	conf.GrubDefault = data.Grub{
+	conf.GrubDefault = model.Grub{
 		File:    tempGrubPath,
-		Pattern: data.PatternGrubDefault,
+		Pattern: model.PatternGrubDefault,
 	}
 
 	t.Logf("Config: %+v\n", conf)
@@ -91,7 +91,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	return string(updatedGrub), nil
 }
 
-func TestHappyMainLogic(t *testing.T) {
+func TestHappyYamlKcmd(t *testing.T) {
 	var happyCases = []TestCase{
 		{
 			Yaml: `
@@ -152,7 +152,7 @@ kernel_cmdline:
 	}
 }
 
-func TestUnhappyMainLogic(t *testing.T) {
+func TestUnhappyYamlKcmd(t *testing.T) {
 	var UnhappyCases = []TestCase{
 		{
 			// isolcpus: "a" is valid

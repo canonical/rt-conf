@@ -1,4 +1,4 @@
-package models
+package kcmd
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 const (
@@ -73,13 +73,13 @@ func sendRequest(method, url string, payload []byte) (*http.Response, error) {
 	return resp, nil
 }
 
-func UpdateUbuntuCore(cfg *data.InternalConfig) ([]string, error) {
+func UpdateUbuntuCore(cfg *model.InternalConfig) ([]string, error) {
 
-	cmdline, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
+	cmdline, err := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
 		return nil, err
 	}
-	kcmds := data.ParamsToCmdline(cmdline)
+	kcmds := model.ParamsToCmdline(cmdline)
 
 	b := []byte(fmt.Sprintf(jsonbody, kcmds))
 	resp, err := sendRequest("PUT", confURL, b)

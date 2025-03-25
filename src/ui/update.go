@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/data"
-	"github.com/canonical/rt-conf/src/interrupts"
+	"github.com/canonical/rt-conf/src/irq"
+	"github.com/canonical/rt-conf/src/model"
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/config"
 	"github.com/canonical/rt-conf/src/ui/styles"
@@ -220,10 +220,10 @@ func (m *IRQMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.concl.logMsg =
 					"Total IRQ affinity rules applied to the system: "
 
-				var cfg data.InternalConfig
+				var cfg model.InternalConfig
 				cfg.Data.Interrupts = m.rules
 
-				err := interrupts.ApplyIRQConfig(&cfg)
+				err := irq.ApplyIRQConfig(&cfg)
 				if err != nil {
 					m.concl.num = 0
 					if strings.Contains(
@@ -427,7 +427,7 @@ func (m *IRQAddEditMenu) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// }
 
 				irqAffinityRule := IRQAffinityRule{
-					rule: data.IRQTuning{
+					rule: model.IRQTuning{
 						Filter: irqFilter,
 						CPUs:   cpulist,
 					},

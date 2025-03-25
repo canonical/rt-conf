@@ -1,4 +1,4 @@
-package helpers
+package model
 
 import (
 	"fmt"
@@ -6,8 +6,7 @@ import (
 )
 
 // Generic validation function for structs
-func Validate(c interface{},
-	fieldValidator func(string, string, string) error) error {
+func Validate(c any, fieldValidator func(string, string, string) error) error {
 	// Validate fields based on struct tags
 	v := reflect.ValueOf(c)
 	t := reflect.TypeOf(c)

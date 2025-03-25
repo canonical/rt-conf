@@ -1,4 +1,4 @@
-package models
+package kcmd
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 // grubCfgTransformer handles transformations for /boot/grub/grub.cfg
@@ -58,9 +58,9 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 }
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
-func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
+func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 
-	params, err := data.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
+	params, err := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reconstruct key-value pairs: %v", err)
 	}
@@ -85,17 +85,17 @@ func UpdateGrub(cfg *data.InternalConfig) ([]string, error) {
 			"invalid existing parameters in %s for GRUB_CMDLINE_LINUX: %s",
 			grubDefault.FilePath, err)
 	}
-	currParams := data.CmdlineToParams(cmdline)
+	currParams := model.CmdlineToParams(cmdline)
 
 	// This replaces if the param already exists and
 	// creates a new one if it doesn't
 	for k, v := range params {
 		currParams[k] = v
 	}
-	grubDefault.Cmdline = data.ParamsToCmdline(currParams)
+	grubDefault.Cmdline = model.ParamsToCmdline(currParams)
 	log.Println("Final kcmdline:", grubDefault.Cmdline)
 
-	if err := data.ProcessFile(grubDefault); err != nil {
+	if err := model.ProcessFile(grubDefault); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 

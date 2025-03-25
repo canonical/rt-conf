@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/cpu"
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/cpulists"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 // TODO: move this file to a separate module
@@ -81,7 +81,7 @@ func (m *KcmdlineMenuModel) checkInputs(value string) {
 
 	switch m.FocusIndex {
 	case isolcpusIndex, nohzFullIndex, kthreadsCPUsIndex, irqaffinityIndex:
-		err = cpu.ValidateList(value)
+		_, err = cpulists.Parse(value)
 		log.Printf("%v: %v ", validationErrorsKcmd[m.FocusIndex].name, value)
 		if err != nil {
 			validationErrorsKcmd[m.FocusIndex].err = "ERROR: " + err.Error() + "\n"
@@ -167,7 +167,7 @@ func (m *IRQAddEditMenu) checkInputs(value string) {
 
 	switch m.FocusIndex {
 	case cpuListIndex:
-		err = cpu.ValidateList(value)
+		_, err = cpulists.Parse(value)
 		// log.Println("Validating cpulist: ", value, "err: ", err)
 		// log.Printf("%v: %v ", validationErrorsIRQ[m.FocusIndex].name, value)
 		if err != nil {
@@ -219,8 +219,8 @@ func (m *IRQAddEditMenu) RunInputValidation() {
 // ParseIRQFilter parses a string like:
 // "  actions:<string>  chip_name:<string> name:<string> type:<string>   "
 // into an IRQFilter. At least one filter must be provided.
-func ParseIRQFilter(query string) (data.IRQFilter, error) {
-	var filter data.IRQFilter
+func ParseIRQFilter(query string) (model.IRQFilter, error) {
+	var filter model.IRQFilter
 
 	// Trim leading/trailing whitespace
 	query = strings.TrimSpace(query)

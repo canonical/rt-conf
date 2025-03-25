@@ -1,4 +1,4 @@
-package data
+package model
 
 import (
 	"fmt"
@@ -6,9 +6,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/cpu"
-	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/cpulists"
 )
+
+var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
 
 type Params map[string]string
 
@@ -32,7 +33,7 @@ type KernelCmdline struct {
 
 // Custom unmarshal function with validation
 func (c KernelCmdline) Validate() error {
-	return helpers.Validate(c, c.fieldValidator)
+	return Validate(c, c.fieldValidator)
 }
 
 func (c KernelCmdline) fieldValidator(name string,
@@ -41,13 +42,13 @@ func (c KernelCmdline) fieldValidator(name string,
 	switch {
 	case strings.HasPrefix(tag, "cpulist"):
 		if strings.HasSuffix(tag, "isolcpus") {
-			err := cpu.ValidateIsolCPUs(value)
+			_, _, err := cpulists.ParseWithFlags(value, isolcpuFlags)
 			if err != nil {
 				return fmt.Errorf("on field %v: invalid isolcpus: %v", name,
 					err)
 			}
 		} else {
-			err := cpu.ValidateList(value)
+			_, err := cpulists.Parse(value)
 			if err != nil {
 				return fmt.Errorf("on field %v: invalid cpulist: %v", name,
 					err)

@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/canonical/rt-conf/src/cpu"
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/cpulists"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 // setupTempDirWithFiles creates a temporary directory and then creates n files
@@ -56,11 +56,11 @@ func TestPwrMgmt(t *testing.T) {
 	var happyCases = []struct {
 		maxCpus  int
 		prevRule string
-		d        []data.CpuGovernanceRule // add only one rule here
+		d        []model.CpuGovernanceRule // add only one rule here
 	}{
 		{3,
 			"powersave",
-			[]data.CpuGovernanceRule{
+			[]model.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "performance",
@@ -70,7 +70,7 @@ func TestPwrMgmt(t *testing.T) {
 		{
 			8,
 			"performance",
-			[]data.CpuGovernanceRule{
+			[]model.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "balanced",
@@ -80,7 +80,7 @@ func TestPwrMgmt(t *testing.T) {
 		{
 			4,
 			"balanced",
-			[]data.CpuGovernanceRule{
+			[]model.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "powersave",
@@ -101,7 +101,7 @@ func TestPwrMgmt(t *testing.T) {
 
 			for idx, rule := range tc.d {
 
-				parsedCpus, err := cpu.ParseCPUs(rule.CPUs)
+				parsedCpus, err := cpulists.Parse(rule.CPUs)
 				if err != nil {
 					t.Fatalf("error parsing cpus: %v", err)
 				}

@@ -1,4 +1,4 @@
-package cpu
+package cpulists
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func TotalAvailable() (int, error) {
+func totalCPUs() (int, error) {
 	cmd := exec.Command("lscpu", "--json")
 	output, err := cmd.Output()
 	if err != nil {
@@ -17,9 +17,9 @@ func TotalAvailable() (int, error) {
 
 	var result struct {
 		CPUs []struct {
-			Field    string        `json:"field"`
-			Data     string        `json:"data"`
-			Children []interface{} `json:"children"`
+			Field    string `json:"field"`
+			Data     string `json:"data"`
+			Children []any  `json:"children"`
 		} `json:"lscpu"`
 	}
 	if err := json.Unmarshal(output, &result); err != nil {

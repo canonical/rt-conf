@@ -1,4 +1,4 @@
-package interrupts
+package irq
 
 import (
 	"fmt"
@@ -9,9 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/common"
-	"github.com/canonical/rt-conf/src/data"
 	"github.com/canonical/rt-conf/src/debug"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 // NOTE: to be able to remap IRQs:
@@ -46,7 +45,7 @@ type realIRQReaderWriter struct{}
 // Write IRQ affinity
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	affinityFile :=
-		fmt.Sprintf("%s/%d/smp_affinity_list", common.ProcIRQ, irqNum)
+		fmt.Sprintf("%s/%d/smp_affinity_list", model.ProcIRQ, irqNum)
 
 	err := os.WriteFile(affinityFile, []byte(cpus), 0644)
 	// SMI are not allowed to be written to from userspace.
@@ -68,7 +67,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	var irqInfos []IRQInfo
 
 	// Read the directories in /sys/kernel/irq
-	dirEntries, err := os.ReadDir(common.SysKernelIRQ)
+	dirEntries, err := os.ReadDir(model.SysKernelIRQ)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +90,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 			}
 			for _, file := range files {
 				filePath := filepath.Join(
-					common.SysKernelIRQ, entry.Name(), file,
+					model.SysKernelIRQ, entry.Name(), file,
 				)
 				content, err := os.ReadFile(filePath)
 				if err != nil {
@@ -128,13 +127,13 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	return irqInfos, err
 }
 
-func ApplyIRQConfig(config *data.InternalConfig) error {
+func ApplyIRQConfig(config *model.InternalConfig) error {
 	return applyIRQConfig(config, &realIRQReaderWriter{})
 }
 
 // Apply changes based on YAML config
 func applyIRQConfig(
-	config *data.InternalConfig,
+	config *model.InternalConfig,
 	handler IRQReaderWriter,
 ) error {
 
@@ -172,7 +171,7 @@ func applyIRQConfig(
 }
 
 // filterIRQs filters IRQs based on the provided filters (matches any filter).
-func filterIRQs(irqs []IRQInfo, filter data.IRQFilter) (IRQs, error) {
+func filterIRQs(irqs []IRQInfo, filter model.IRQFilter) (IRQs, error) {
 	matchingIRQs := make(IRQs)
 
 	for _, irq := range irqs {
@@ -184,7 +183,7 @@ func filterIRQs(irqs []IRQInfo, filter data.IRQFilter) (IRQs, error) {
 }
 
 // matchesAnyFilter checks if an IRQ matches any of the given filters.
-func matchesAnyFilter(irq IRQInfo, filter data.IRQFilter) bool {
+func matchesAnyFilter(irq IRQInfo, filter model.IRQFilter) bool {
 	return matchesRegex(irq.Actions, filter.Actions) &&
 		matchesRegex(irq.ChipName, filter.ChipName) &&
 		matchesRegex(irq.Name, filter.Name) &&

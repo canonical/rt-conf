@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/model"
 	cmp "github.com/canonical/rt-conf/src/ui/components"
 	"github.com/canonical/rt-conf/src/ui/config"
 	"github.com/canonical/rt-conf/src/ui/styles"
@@ -42,7 +42,7 @@ type Model struct {
 	// delegateKeys *selectKeyMap
 	Width  int
 	Height int
-	iConf  data.InternalConfig
+	iConf  model.InternalConfig
 	// for the kernel command line view
 	// For the IRQ tuning view
 	// irqInputs     []textinput.Model
@@ -77,7 +77,7 @@ type IRQMenuModel struct {
 	Index    int
 	newEntry bool
 	editMode bool
-	rules    []data.IRQTuning
+	rules    []model.IRQTuning
 	keys     *irqKeyMap
 	list     list.Model
 	// help     help.Model
@@ -96,7 +96,7 @@ type KcmdlineMenuModel struct {
 	Height     int
 	FocusIndex int
 	errorMsg   string
-	iConf      data.InternalConfig
+	iConf      model.InternalConfig
 	// keys     *listKeyMap
 }
 
@@ -253,7 +253,7 @@ func NewMainMenuModel() MainMenuModel {
 	}
 }
 
-func NewModel(c *data.InternalConfig) Model {
+func NewModel(c *model.InternalConfig) Model {
 	mainMenu := NewMainMenuModel()
 	irqMenu := newModelIRQMenuModel()
 	kcmd := newKcmdMenuModel(c)
@@ -340,10 +340,10 @@ func newModelIRQMenuModel() IRQMenuModel {
 		keys:  keys,
 		irq:   irq,
 		concl: concl,
-		rules: []data.IRQTuning{
+		rules: []model.IRQTuning{
 			{ // Insert an empty default IRQ tuning rule
 				CPUs: "0-n",
-				Filter: data.IRQFilter{
+				Filter: model.IRQFilter{
 					Actions:  "",
 					ChipName: "",
 					Name:     "",
@@ -354,7 +354,7 @@ func newModelIRQMenuModel() IRQMenuModel {
 	}
 }
 
-func newKcmdMenuModel(c *data.InternalConfig) KcmdlineMenuModel {
+func newKcmdMenuModel(c *model.InternalConfig) KcmdlineMenuModel {
 	help := help.New()
 	inputs := newKcmdTextInputs()
 	keys := newkcmdMenuListKeyMap()

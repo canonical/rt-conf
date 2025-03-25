@@ -1,4 +1,4 @@
-package models
+package kcmd
 
 func GrubConclusion(grubFile string) []string {
 	s := []string{

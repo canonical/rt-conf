@@ -1,4 +1,4 @@
-package interrupts
+package irq
 
 // IRQReaderWriter is an interface for read and write IRQ data from the filesystem.
 type IRQReaderWriter interface {

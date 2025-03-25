@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/canonical/rt-conf/src/cpu"
-	"github.com/canonical/rt-conf/src/data"
+	"github.com/canonical/rt-conf/src/cpulists"
+	"github.com/canonical/rt-conf/src/model"
 )
 
 type ReaderWriter struct {
@@ -30,18 +30,18 @@ func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 	return nil
 }
 
-func ApplyPwrConfig(config *data.InternalConfig) error {
+func ApplyPwrConfig(config *model.InternalConfig) error {
 	return scalingGovernorReaderWriter.applyPwrConfig(config.Data.CpuGovernance)
 }
 
 // Apply changes based on YAML config
 func (wr ReaderWriter) applyPwrConfig(
-	config []data.CpuGovernanceRule,
+	config []model.CpuGovernanceRule,
 ) error {
 
 	// Range over all CPU governance rules
 	for _, sclgov := range config {
-		cpus, err := cpu.ParseCPUs(sclgov.CPUs)
+		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
 		}

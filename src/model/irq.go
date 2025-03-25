@@ -1,4 +1,4 @@
-package data
+package model
 
 import (
 	"fmt"
@@ -6,9 +6,13 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/canonical/rt-conf/src/common"
-	"github.com/canonical/rt-conf/src/cpu"
-	"github.com/canonical/rt-conf/src/helpers"
+	"github.com/canonical/rt-conf/src/cpulists"
+)
+
+// TODO: THis needs to be superseed in the unit tests
+const (
+	SysKernelIRQ = "/sys/kernel/irq"
+	ProcIRQ      = "/proc/irq"
 )
 
 type IRQTuning struct {
@@ -21,7 +25,7 @@ func (c IRQTuning) Validate() error {
 	if err != nil {
 		return fmt.Errorf("IRQFilter validation failed: %v", err)
 	}
-	err = cpu.ValidateList(c.CPUs)
+	_, err = cpulists.Parse(c.CPUs)
 	if err != nil {
 		return fmt.Errorf("invalid cpus: %v", err)
 	}
@@ -41,7 +45,7 @@ type IRQs struct {
 }
 
 func (c IRQFilter) Validate() error {
-	return helpers.Validate(c, c.validateIRQField)
+	return Validate(c, c.validateIRQField)
 }
 
 // TODO: Validate mutual exclusive cpu lists
@@ -53,7 +57,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 		if err != nil {
 			return err
 		}
-		_, err = cpu.ValidateCPUListSyntax(value, num)
+		_, err = cpulists.ParseForCPUs(value, num)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid irq list: %v", name,
 				err)
@@ -70,7 +74,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 }
 
 func GetHigherIRQ() (int, error) {
-	files, err := os.ReadDir(common.SysKernelIRQ)
+	files, err := os.ReadDir(SysKernelIRQ)
 	if err != nil {
 		return 0, err
 	}
