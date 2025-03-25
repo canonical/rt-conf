@@ -17,9 +17,9 @@ func totalCPUs() (int, error) {
 
 	var result struct {
 		CPUs []struct {
-			Field    string        `json:"field"`
-			Data     string        `json:"data"`
-			Children []interface{} `json:"children"`
+			Field    string `json:"field"`
+			Data     string `json:"data"`
+			Children []any  `json:"children"`
 		} `json:"lscpu"`
 	}
 	if err := json.Unmarshal(output, &result); err != nil {
