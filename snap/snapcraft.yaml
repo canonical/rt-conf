@@ -10,13 +10,17 @@ grade: stable
 confinement: strict
 
 parts:
-  src:
+  local: 
+    source: snap/local
+    plugin: dump
+    
+  rt-conf:
     source: .
     plugin: go
     build-snaps:
       - go
 
-  config:
+  config-file:
     plugin: dump
     source: .
     stage:
@@ -57,9 +61,10 @@ apps:
       - snapd-control
       # - cpu-control # NOTE: this will replace `sys-kernel-irq` and `proc-irq`
     command: bin/rt-conf
-    environment:
-      COMMON_CONFIG_PATH: $SNAP_COMMON/config.yaml
 
   rt-confd:
     <<: *rt-conf
     daemon: oneshot
+    command-chain:
+      - bin/load-snap-options
+    command: bin/rt-conf --file $CONFIG_FILE

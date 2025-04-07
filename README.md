@@ -35,6 +35,12 @@ sudo snap connect rt-conf:proc-irq
 sudo snap connect rt-conf:sys-kernel-irq
 ```
 
+Copy the example configuration file to a working directory accessible to the snap.
+For example, copy it to the home directory:
+```shell
+cp /snap/rt-conf/current/config.yaml ~
+```
+
 ## Use
 
 For usage instructions, run:
@@ -43,7 +49,9 @@ For usage instructions, run:
 rt-conf --help
 ```
 
-To enable debug logging, set `DEBUG=1` environment variable.
+To enable debug logging, set either:
+- `DEBUG=1` environment variable or
+- `debug=1` snap configuration option.
 
 ## Hacking
 
@@ -66,6 +74,11 @@ go run cmd/rt-conf/main.go
 > ```shell
 > go run cmd/rt-conf/main.go --config=./config.yaml -ui --grub-default=./test/grub
 > ```
+
+Run tests:
+```shell
+go test ./...
+```
 
 ### Local Build
 

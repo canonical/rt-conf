@@ -66,7 +66,6 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		conf.Data = *d
 	}
 
-	conf.CfgFile = tempConfigPath
 	conf.GrubDefault = model.Grub{
 		File:    tempGrubPath,
 		Pattern: model.PatternGrubDefault,

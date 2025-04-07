@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+export CONFIG_FILE=$(snapctl get config-file)
+export DEBUG=$(snapctl get debug)
+
+exec "$@"
