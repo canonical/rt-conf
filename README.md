@@ -90,7 +90,7 @@ go run cmd/rt-conf/main.go
 > Also, you may want to use the local `config.yaml` file provided on the root of the repository:
 >
 > ```shell
-> go run cmd/rt-conf/main.go --config=./config.yaml -ui --grub-default=./test/grub
+> go run cmd/rt-conf/main.go --file=./config.yaml -ui --grub-file=./test/grub
 > ```
 
 Run tests:
