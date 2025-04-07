@@ -11,7 +11,6 @@ import (
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/model"
 	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
-	"github.com/canonical/rt-conf/src/ui"
 )
 
 const (
@@ -35,8 +34,6 @@ func main() {
 	// Define the paths to grub as flags
 	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, grubHelp)
 
-	tui := flag.Bool("ui", false, "Render the TUI")
-
 	flag.Parse()
 	if *configPath == "" {
 		flag.PrintDefaults()
@@ -59,14 +56,6 @@ func main() {
 	conf.GrubDefault = model.Grub{
 		File:    *grubDefaultPath,
 		Pattern: model.PatternGrubDefault,
-	}
-
-	if *tui {
-		err := ui.Start(&conf)
-		if err != nil {
-			log.Fatalf("Error starting the UI: %v", err)
-		}
-		return
 	}
 
 	// If not running as a service then process the kernel cmdline args
