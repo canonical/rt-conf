@@ -38,20 +38,38 @@ sudo snap connect rt-conf:sys-kernel-irq
 Copy the example configuration file to a working directory accessible to the snap.
 For example, copy it to the home directory:
 ```shell
-cp /snap/rt-conf/current/config.yaml ~
+cp /snap/rt-conf/current/config.yaml ~/rt-conf.yaml
 ```
 
-## Use
+## Usage
 
-For usage instructions, run:
+Run rt-conf to apply the configurations:
 
 ```shell
-rt-conf --help
+sudo rt-conf --file=/home/ubuntu/rt-conf.yaml
 ```
+
+Set `--help` for more details.
+
+The rt-conf app can be set to as a oneshot service on system startup.
+This is useful for re-applying unpersisted IRQ tuning and power management settings on boot.
+
+To do so, set the configuration file path as snap configuration:
+```shell
+sudo snap set rt-conf config-file=/home/ubuntu/rt-conf.yaml
+```
+
+Then, start and enable the service:
+```
+sudo snap start --enable rt-conf
+```
+
+### Debug logging
 
 To enable debug logging, set either:
 - `DEBUG=1` environment variable or
 - `debug=1` snap configuration option.
+
 
 ## Hacking
 
