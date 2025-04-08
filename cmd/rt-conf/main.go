@@ -25,8 +25,6 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Println("Reading configuration file from", *configPath)
-
 	if *verbose {
 		fmt.Println("Verbose mode enabled")
 		debug.Enable()
@@ -36,6 +34,8 @@ func main() {
 		flag.PrintDefaults()
 		log.Fatalf("Failed to load config file: path not set")
 	}
+
+	fmt.Println("Configuration file:", *configPath)
 
 	var conf model.InternalConfig
 	if d, err := model.LoadConfigFile(*configPath); err != nil {
