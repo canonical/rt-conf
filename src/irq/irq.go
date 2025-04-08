@@ -75,7 +75,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	for _, entry := range dirEntries {
 		if entry.IsDir() {
 			nonActiveIRQ := true
-			number, err := strconv.ParseUint(entry.Name(), 10, 32)
+			number, err := strconv.ParseInt(entry.Name(), 10, 32)
 			if err != nil {
 				/* This may happen if the kernel IRQ structure
 				evolves sometime or somehow in the future */
