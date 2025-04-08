@@ -50,19 +50,18 @@ Edit the [default configuration file](#default-configuration-file) or a copy of 
 It you make a copy, make sure to place it in a directory accessible to the snap, such as the user home directory.
 
 Run rt-conf to apply the configurations:
-
 ```shell
 sudo rt-conf --file=/var/snap/rt-conf/common/config.yaml
 ```
 
 Set `--help` for more details.
 
-The rt-conf app can be set to as a oneshot service on system startup.
-This is useful for re-applying unpersisted IRQ tuning and power management settings on boot.
+The rt-conf app can be set to run as a oneshot service on system startup.
+This is useful for re-applying non-persistent IRQ tuning and power management settings on boot.
 
 By default, the service reads the [default configuration file](#default-configuration-file).
 
-To change the config file path, change the value of `config-file` snap configuration. Example:
+To change the config file path, use the `config-file` snap configuration. Example:
 ```shell
 sudo snap set rt-conf config-file=/home/ubuntu/rt-conf.yaml
 ```
