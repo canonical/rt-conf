@@ -47,7 +47,7 @@ Upon installation the default rt-conf configuration file is added at: `/var/snap
 ## Usage
 
 Edit the [default configuration file](#default-configuration-file) or a copy of it.
-It you make a copy, make sure to place it in a directory accessible to the snap, such as the user home directory.
+In case of a copy, it must be placed it in a directory accessible to the snap, such as the user home directory.
 
 Run rt-conf to apply the configurations:
 ```shell
