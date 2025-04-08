@@ -27,6 +27,10 @@ parts:
       - config.yaml
 
 plugs:
+  # For reading config file from user home directory as root
+  home:
+    read: all
+
   etc-default-grub:
     interface: system-files
     write:
@@ -65,6 +69,4 @@ apps:
   rt-confd:
     <<: *rt-conf
     daemon: oneshot
-    command-chain:
-      - bin/load-snap-options
-    command: bin/rt-conf --file $CONFIG_FILE
+    command: bin/rt-confd

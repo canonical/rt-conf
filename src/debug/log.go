@@ -2,23 +2,22 @@ package debug
 
 import (
 	"log"
-	"os"
 )
 
-var d bool
+var debug bool
 
-func init() {
-	d = os.Getenv("DEBUG") == "1"
+func Enable() {
+	debug = true
 }
 
 func Printf(format string, v ...any) {
-	if d {
+	if debug {
 		log.Printf(format, v...)
 	}
 }
 
 func Println(v ...any) {
-	if d {
+	if debug {
 		log.Println(v...)
 	}
 }

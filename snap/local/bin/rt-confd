@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+config_file=$(snapctl get config-file)
+verbose=$(snapctl get verbose)
+
+verbose_flag=""
+if [[ -n "$verbose" ]]; then
+    verbose_flag="--verbose"
+fi
+
+exec "$SNAP"/bin/rt-conf --file "$config_file" $verbose_flag

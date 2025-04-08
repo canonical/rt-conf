@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/irq"
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/model"
@@ -18,10 +19,18 @@ func main() {
 	grubConfigPath := flag.String("grub-file",
 		"/etc/default/grub",
 		"Path to the grub configuration file, relevant only for GRUB bootloader")
+	verbose := flag.Bool("verbose",
+		false,
+		"Verbose mode, prints more information to the console")
 
 	flag.Parse()
 
-	log.Println(*configPath)
+	fmt.Println("Reading configuration file from", *configPath)
+
+	if *verbose {
+		fmt.Println("Verbose mode enabled")
+		debug.Enable()
+	}
 
 	if *configPath == "" {
 		flag.PrintDefaults()
