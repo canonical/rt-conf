@@ -4,7 +4,7 @@ config_file=$(snapctl get config-file)
 verbose=$(snapctl get verbose)
 
 verbose_flag=""
-if [[ -n "$verbose" ]]; then
+if [[ "$verbose" == "true" ]]; then
     verbose_flag="--verbose"
 fi
 
