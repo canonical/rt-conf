@@ -28,11 +28,6 @@ plugs:
     write:
       - /etc/default/grub
 
-  proc-device-tree-model:
-    interface: system-files
-    read:
-      - /proc/device-tree/model
-
   # NOTE: see https://github.com/canonical/rt-conf/issues/23
   sys-kernel-irq:
     interface: system-files
@@ -50,7 +45,6 @@ apps:
     plugs:
       - home
       - etc-default-grub
-      - proc-device-tree-model
       - hardware-observe
       - sys-kernel-irq
       - proc-irq
