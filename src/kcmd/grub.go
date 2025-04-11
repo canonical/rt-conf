@@ -66,7 +66,7 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	}
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,
-		Pattern:  cfg.GrubDefault.Pattern,
+		Pattern:  model.PatternGrubDefault,
 	}
 
 	grubMap, err := ParseDefaultGrubFile(grubDefault.FilePath)

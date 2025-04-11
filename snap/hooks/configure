@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+verbose=$(snapctl get verbose)
+# if verbose is set, it should be either true or false
+if [[ -n "$verbose" && "$verbose" != "true" && "$verbose" != "false" ]]; then
+  echo "Invalid value for verbose: $verbose. It should be either true or false."
+  exit 1
+fi
+
+

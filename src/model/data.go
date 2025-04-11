@@ -5,8 +5,7 @@ import (
 )
 
 type InternalConfig struct {
-	CfgFile string
-	Data    Config
+	Data Config
 
 	GrubDefault Grub
 }

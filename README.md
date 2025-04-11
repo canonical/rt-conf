@@ -18,7 +18,7 @@ Additional access is granted via [snap interfaces](https://snapcraft.io/docs/int
 After the installation it's necessary to connect the interfaces:
 
 - [hardware-observe](https://snapcraft.io/docs/hardware-observe-interface)
-- [home](https://snapcraft.io/docs/home-interface) - only if on Ubuntu Core
+- [home](https://snapcraft.io/docs/home-interface)
 - `etc-default-grub` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 - `proc-irq` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 - `sys-kernel-irq` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
@@ -27,21 +27,59 @@ These can be done by running the following commands:
 
 ```shell
 sudo snap connect rt-conf:hardware-observe
-sudo snap connect rt-conf:home # Only in case of Ubuntu Core
+sudo snap connect rt-conf:home
 sudo snap connect rt-conf:etc-default-grub
 sudo snap connect rt-conf:proc-irq
 sudo snap connect rt-conf:sys-kernel-irq
 ```
 
-## Use
-
-For usage instructions, run:
-
+Copy the example configuration file to a working directory accessible to the snap.
+For example, copy it to the home directory:
 ```shell
-rt-conf --help
+cp /snap/rt-conf/current/config.yaml ~/rt-conf.yaml
 ```
 
-To enable debug logging, set `DEBUG=1` environment variable.
+### Default configuration file
+Upon installation the default rt-conf configuration file is added at: `/var/snap/rt-conf/common/config.yaml`.
+
+## Usage
+
+Edit the [default configuration file](#default-configuration-file) or a copy of it.
+In case of a copy, it must be placed it in a directory accessible to the snap, such as the user home directory.
+
+Run rt-conf to apply the configurations:
+```shell
+sudo rt-conf --file=/var/snap/rt-conf/common/config.yaml
+```
+
+Set `--help` for more details.
+
+The rt-conf app can be set to run as a oneshot service on system startup.
+This is useful for re-applying non-persistent IRQ tuning and power management settings on boot.
+
+By default, the service reads the [default configuration file](#default-configuration-file).
+
+To change the config file path, use the `config-file` snap configuration. Example:
+```shell
+sudo snap set rt-conf config-file=/home/ubuntu/rt-conf.yaml
+```
+
+Then, start and enable the service:
+```shell
+sudo snap start --enable rt-conf
+```
+
+Verify that it ran successfully by looking into the logs:
+```shell
+sudo snap logs -n 100 rt-conf
+```
+
+### Verbose logging
+
+To enable verbose logging, set:
+- `--verbose` flag on the CLI
+- `verbose=true` snap configuration option for the service
+
 
 ## Hacking
 
@@ -62,8 +100,13 @@ go run cmd/rt-conf/main.go
 > Also, you may want to use the local `config.yaml` file provided on the root of the repository:
 >
 > ```shell
-> go run cmd/rt-conf/main.go --config=./config.yaml -ui --grub-default=./test/grub
+> go run cmd/rt-conf/main.go --file=./config.yaml -ui --grub-file=./test/grub
 > ```
+
+Run tests:
+```shell
+go test ./...
+```
 
 ### Local Build
 

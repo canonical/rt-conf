@@ -10,5 +10,12 @@ if ! snapctl is-connected etc-default-grub ||
   snapctl stop --disable "$SNAP_NAME.rt-confd"
 fi
 
+default_config_path="$SNAP_COMMON"/config.yaml
+
 # Put the default configuration in place
-cp "$SNAP"/config.yaml "$SNAP_COMMON"/config.yaml
+cp "$SNAP"/config.yaml "$default_config_path"
+
+# Set the default config
+snapctl set config-file="$default_config_path" \
+            verbose=false
+

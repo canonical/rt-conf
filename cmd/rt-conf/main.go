@@ -4,41 +4,38 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 
+	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/irq"
 	"github.com/canonical/rt-conf/src/kcmd"
 	"github.com/canonical/rt-conf/src/model"
 	pwrmgmt "github.com/canonical/rt-conf/src/pwr_mgmt"
 )
 
-const (
-	cfgFilePath      = "COMMON_CONFIG_PATH"
-	ETC_DEFAULT_GRUB = "/etc/default/grub"
-)
-
-const (
-	cfgFilehelp = `Path to the configuration file either set this or set the COMMON_CONFIG_PATH environment variable`
-	grubHelp    = `Path to the default grub file`
-)
-
-func getDefaultConfig() string {
-	return os.Getenv(cfgFilePath)
-}
-
 func main() {
-	configPath := flag.String("config", getDefaultConfig(), cfgFilehelp)
-
-	// TODO: make this generic for any bootloader
-	// Define the paths to grub as flags
-	grubDefaultPath := flag.String("grub-default", ETC_DEFAULT_GRUB, grubHelp)
+	configPath := flag.String("file",
+		"",
+		"Path to the configuration file")
+	grubConfigPath := flag.String("grub-file",
+		"/etc/default/grub",
+		"Path to the grub configuration file, relevant only for GRUB bootloader")
+	verbose := flag.Bool("verbose",
+		false,
+		"Verbose mode, prints more information to the console")
 
 	flag.Parse()
+
+	if *verbose {
+		fmt.Println("Verbose mode enabled")
+		debug.Enable()
+	}
+
 	if *configPath == "" {
 		flag.PrintDefaults()
-		log.Fatalf("Failed to load config file: config path not set")
+		log.Fatalf("Failed to load config file: path not set")
 	}
+
+	fmt.Println("Configuration file:", *configPath)
 
 	var conf model.InternalConfig
 	if d, err := model.LoadConfigFile(*configPath); err != nil {
@@ -47,15 +44,8 @@ func main() {
 		conf.Data = *d
 	}
 
-	abs, err := filepath.Abs(*configPath)
-	if err != nil {
-		log.Fatalf("failed to get absolute path for config file: %v", err)
-	}
-
-	conf.CfgFile = abs
 	conf.GrubDefault = model.Grub{
-		File:    *grubDefaultPath,
-		Pattern: model.PatternGrubDefault,
+		File: *grubConfigPath,
 	}
 
 	// If not running as a service then process the kernel cmdline args
@@ -67,7 +57,7 @@ func main() {
 		}
 	}
 
-	err = irq.ApplyIRQConfig(&conf)
+	err := irq.ApplyIRQConfig(&conf)
 	if err != nil {
 		log.Fatalf("Failed to process interrupts: %v", err)
 	}
