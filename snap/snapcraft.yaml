@@ -3,8 +3,7 @@ base: core24
 version: '1.0.0-devmode'
 summary: Configure and tune your real-time system
 description: |
-  Tool destined to configure real-time parameters in a Linux system.
-  Currently let's you configure kernel commandline parameters.
+  This tools allows tuning Real-Time Ubuntu via a configuration file and a simple command line interface
 
 grade: stable
 confinement: devmode
