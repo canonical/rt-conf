@@ -15,6 +15,8 @@ const (
 	UbuntuCore
 )
 
+var baseDir = "" // baseDir is used to mock the file system in tests
+
 func DetectSystem() (SystemType, error) {
 	// Verify if SNAP_SAVE_DATA is present, indicating the system is Ubuntu Core
 	// see: https://snapcraft.io/docs/environment-variables#heading--snap-save-data
@@ -23,7 +25,7 @@ func DetectSystem() (SystemType, error) {
 		return UbuntuCore, nil
 	}
 
-	if _, err := os.Stat("/proc/device-tree/model"); err == nil {
+	if _, err := os.Stat(baseDir + "/proc/device-tree/model"); err == nil {
 		content, err := os.ReadFile("/proc/device-tree/model")
 		if err != nil {
 			return Unknown, err
@@ -35,7 +37,7 @@ func DetectSystem() (SystemType, error) {
 		return Unknown, nil
 	}
 
-	if _, err := os.Stat("/etc/default/grub"); err == nil {
+	if _, err := os.Stat(baseDir + "/etc/default/grub"); err == nil {
 		return Grub, nil
 	}
 
