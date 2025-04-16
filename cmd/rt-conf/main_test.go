@@ -7,6 +7,43 @@ import (
 	"testing"
 )
 
+func TestRunHappy(t *testing.T) {
+	type tests struct {
+		name string
+		args []string
+		yaml string
+	}
+
+	tmpdir := t.TempDir()
+	configPath := filepath.Join(tmpdir, "config.yaml")
+
+	var testCases = []tests{
+		{
+			name: "Valid empty config",
+			args: []string{"rt-conf", "-file", configPath},
+			yaml: `
+kernel_cmdline:
+cpu_governance:
+irq_tuning:
+`,
+		},
+	}
+	for _, test := range testCases {
+		t.Run(test.name, func(t *testing.T) {
+			if test.yaml != "" {
+				if err := os.WriteFile(configPath,
+					[]byte(test.yaml), 0644); err != nil {
+					t.Fatalf("failed to write file: %v", err)
+				}
+			}
+			err := run(test.args)
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+		})
+	}
+}
+
 func TestRunUnhappy(t *testing.T) {
 	type tests struct {
 		name string // test name
