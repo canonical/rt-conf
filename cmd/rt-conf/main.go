@@ -31,9 +31,7 @@ func run(args []string) error {
 		false,
 		"Verbose mode, prints more information to the console")
 
-	if err := flags.Parse(args[1:]); err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
-	}
+	flags.Parse(args[1:])
 
 	if *verbose {
 		fmt.Println("Verbose mode enabled")
