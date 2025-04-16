@@ -1,10 +1,8 @@
 package irq
 
 import (
-	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -359,26 +357,6 @@ func TestReadIRQs_ReadFileErrorHandled(t *testing.T) {
 			},
 		},
 	})
-
-	fmt.Println("sysKernelIRQ: ", sysKernelIRQ)
-
-	cmd := exec.Command("ls", "-l", sysKernelIRQ)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		t.Fatalf("failed to run command: %v", err)
-	}
-	fmt.Printf("Command output: %s\n", out.String())
-
-	cmd2 := exec.Command("ls", "-l", filepath.Join(sysKernelIRQ, "12"))
-	var out2 bytes.Buffer
-	cmd2.Stdout = &out
-	errr := cmd2.Run()
-	if errr != nil {
-		t.Fatalf("failed to run command: %v", err)
-	}
-	fmt.Printf("Command output: %s\n", out2.String())
 
 	r := &realIRQReaderWriter{
 		FileWriter: realFileWriter{},
