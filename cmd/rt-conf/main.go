@@ -14,13 +14,13 @@ import (
 )
 
 func main() {
-	if err := run(os.Args[1:]); err != nil {
+	if err := run(os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run(args []string) error {
-	flags := flag.NewFlagSet("rt-conf", flag.ContinueOnError)
+	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	configPath := flags.String("file",
 		"",
 		"Path to the configuration file")
@@ -31,7 +31,7 @@ func run(args []string) error {
 		false,
 		"Verbose mode, prints more information to the console")
 
-	if err := flags.Parse(args); err != nil {
+	if err := flags.Parse(args[1:]); err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
