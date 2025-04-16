@@ -73,15 +73,13 @@ func run(args []string) error {
 		}
 	}
 
-	err := irq.ApplyIRQConfig(&conf)
-	if err != nil {
+	if err := irq.ApplyIRQConfig(&conf); err != nil {
 		err = fmt.Errorf("failed to process interrupts: %v", err)
 		log.Println(err)
 		return err
 	}
 
-	err = pwrmgmt.ApplyPwrConfig(&conf)
-	if err != nil {
+	if err := pwrmgmt.ApplyPwrConfig(&conf); err != nil {
 		err = fmt.Errorf("failed to process power management config: %v", err)
 		log.Println(err)
 		return err
