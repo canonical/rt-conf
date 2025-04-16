@@ -1,8 +1,13 @@
 package irq
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/canonical/rt-conf/src/model"
@@ -237,5 +242,152 @@ func TestWriteCPUAffinityAlreadySet(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("expected no error, got: %v", err)
+	}
+}
+
+type irqDirEntry struct {
+	Number int
+	Files  map[string]string
+}
+
+func setupIRQTestDir(t *testing.T, entries []irqDirEntry) string {
+	t.Helper()
+
+	tmpDir := t.TempDir()
+	sysKernelIRQ = tmpDir
+
+	for _, e := range entries {
+		dir := filepath.Join(tmpDir, strconv.Itoa(e.Number))
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatalf("failed to create dir: %v", err)
+		}
+		for name, content := range e.Files {
+			if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0644); err != nil {
+				t.Fatalf("failed to write file: %v", err)
+			}
+		}
+	}
+	return tmpDir
+}
+func TestReadIRQs_SingleActiveIRQ(t *testing.T) {
+	setupIRQTestDir(t, []irqDirEntry{
+		{
+			Number: 10,
+			Files: map[string]string{
+				"actions":   "handle_irq",
+				"chip_name": "testchip",
+				"name":      "eth0",
+				"type":      "level",
+				"wakeup":    "enabled",
+			},
+		},
+	})
+
+	r := &realIRQReaderWriter{}
+	irqs, err := r.ReadIRQs()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(irqs) != 1 {
+		t.Fatalf("expected 1 irq, got %d", len(irqs))
+	}
+	if irqs[0].Number != 10 || irqs[0].Name != "eth0" {
+		t.Fatalf("unexpected irq info: %+v", irqs[0])
+	}
+}
+
+func TestReadIRQsEmptyActionsIgnored(t *testing.T) {
+	setupIRQTestDir(t, []irqDirEntry{
+		{
+			Number: 11,
+			Files: map[string]string{
+				"actions": "",
+			},
+		},
+	})
+
+	r := &realIRQReaderWriter{
+		FileWriter: realFileWriter{},
+	}
+	irqs, err := r.ReadIRQs()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(irqs) != 0 {
+		t.Fatalf("expected 0 irq, got %d", len(irqs))
+	}
+}
+
+func TestReadIRQs_NonNumericDirectoryIgnored(t *testing.T) {
+	tmp := t.TempDir()
+	sysKernelIRQ = tmp
+	_ = os.Mkdir(filepath.Join(tmp, "notanumber"), 0755)
+
+	r := &realIRQReaderWriter{
+		FileWriter: realFileWriter{},
+	}
+	irqs, err := r.ReadIRQs()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(irqs) != 0 {
+		t.Fatalf("expected 0 irq, got %d", len(irqs))
+	}
+}
+
+func TestReadIRQs_ReadDirError(t *testing.T) {
+	sysKernelIRQ = "/invalid/path"
+
+	// r := &realIRQReaderWriter{}
+	r := &realIRQReaderWriter{
+		FileWriter: realFileWriter{},
+	}
+
+	_, err := r.ReadIRQs()
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestReadIRQs_ReadFileErrorHandled(t *testing.T) {
+	setupIRQTestDir(t, []irqDirEntry{
+		{
+			Number: 12,
+			Files: map[string]string{
+				// Only one file, others will cause ReadFile errors
+				"actions": "handle_irq",
+			},
+		},
+	})
+
+	fmt.Println("sysKernelIRQ: ", sysKernelIRQ)
+
+	cmd := exec.Command("ls", "-l", sysKernelIRQ)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		t.Fatalf("failed to run command: %v", err)
+	}
+	fmt.Printf("Command output: %s\n", out.String())
+
+	cmd2 := exec.Command("ls", "-l", filepath.Join(sysKernelIRQ, "12"))
+	var out2 bytes.Buffer
+	cmd2.Stdout = &out
+	errr := cmd2.Run()
+	if errr != nil {
+		t.Fatalf("failed to run command: %v", err)
+	}
+	fmt.Printf("Command output: %s\n", out2.String())
+
+	r := &realIRQReaderWriter{
+		FileWriter: realFileWriter{},
+	}
+	irqs, err := r.ReadIRQs()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(irqs) != 1 {
+		t.Fatalf("expected 1 irq, got %d", len(irqs))
 	}
 }
