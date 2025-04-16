@@ -43,7 +43,9 @@ func ReadYAML(path string) (cfg *Config, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal data: %v", err)
 	}
-
+	if cfg == nil {
+		return nil, fmt.Errorf("empty config file")
+	}
 	err = cfg.Validate()
 	if err != nil {
 		return nil, err
