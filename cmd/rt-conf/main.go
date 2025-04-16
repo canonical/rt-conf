@@ -40,18 +40,14 @@ func run(args []string) error {
 
 	if *configPath == "" {
 		flag.PrintDefaults()
-		err := fmt.Errorf("failed to load config file: path not set")
-		log.Println(err)
-		return err
+		return fmt.Errorf("failed to load config file: path not set")
 	}
 
 	fmt.Println("Configuration file:", *configPath)
 
 	var conf model.InternalConfig
 	if d, err := model.LoadConfigFile(*configPath); err != nil {
-		err = fmt.Errorf("failed to load config file: %w", err)
-		log.Println(err.Error())
-		return err
+		return fmt.Errorf("failed to load config file: %w", err)
 	} else {
 		conf.Data = *d
 	}
@@ -62,9 +58,7 @@ func run(args []string) error {
 
 	// If not running as a service then process the kernel cmdline args
 	if msgs, err := kcmd.ProcessKcmdArgs(&conf); err != nil {
-		err := fmt.Errorf("failed to process kernel cmdline args: %v", err)
-		log.Println(err)
-		return err
+		return fmt.Errorf("failed to process kernel cmdline args: %v", err)
 	} else {
 		for _, msg := range msgs {
 			fmt.Print(msg)
@@ -78,9 +72,7 @@ func run(args []string) error {
 	}
 
 	if err := pwrmgmt.ApplyPwrConfig(&conf); err != nil {
-		err = fmt.Errorf("failed to process power management config: %v", err)
-		log.Println(err)
-		return err
+		return fmt.Errorf("failed to process power management config: %v", err)
 	}
 
 	return nil
