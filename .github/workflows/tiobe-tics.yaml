@@ -29,6 +29,10 @@ jobs:
         mkdir -p .coverage
         gocover-cobertura < cover.txt > .coverage/coverage.xml
 
+    - name: Install dependencies
+      run: |
+        go install honnef.co/go/tools/cmd/staticcheck@latest
+
     - name: Run TiCS analysis
       uses: tiobe/tics-github-action@v3
       with:
