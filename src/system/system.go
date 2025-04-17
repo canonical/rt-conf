@@ -17,7 +17,7 @@ const (
 
 var baseDir = "" // baseDir is used to mock the file system in tests
 
-func DetectSystem() (SystemType, error) {
+var DetectSystem = func() (SystemType, error) {
 	// Verify if SNAP_SAVE_DATA is present, indicating the system is Ubuntu Core
 	// see: https://snapcraft.io/docs/environment-variables#heading--snap-save-data
 	_, isUC := os.LookupEnv("SNAP_SAVE_DATA")
