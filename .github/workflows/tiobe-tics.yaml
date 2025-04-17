@@ -1,4 +1,4 @@
-name: TIOBE TiCS
+name: TIOBE Static Analysis
 
 on:
   schedule:
