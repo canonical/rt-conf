@@ -1,0 +1,26 @@
+name: TIOBE TiCS
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+
+    runs-on: [self-hosted, linux, amd64, tiobe, jammy]
+      
+    steps:
+    
+    - name: Checkout the project
+      uses: actions/checkout@v4
+
+    - name: Run TiCS analysis
+      uses: tiobe/tics-github-action@v3
+      with:
+        mode: qserver
+        project: rt-conf
+        branchdir: .
+        viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
+        ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
+        installTics: true
