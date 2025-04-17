@@ -1,8 +1,10 @@
 package kcmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -86,5 +88,57 @@ func TestParseGrubFileHappy(t *testing.T) {
 			}
 
 		}
+	}
+}
+
+func TestDuplicatedParams(t *testing.T) {
+	var testCases = []struct {
+		name    string
+		cmdline string
+		err     error
+	}{
+		{
+			name:    "No duplicates",
+			cmdline: "quiet splash foo",
+			err:     nil,
+		},
+		{
+			name:    "Single parameter",
+			cmdline: "quiet",
+			err:     nil,
+		},
+		{
+			name:    "Duplicate boolean parameters",
+			cmdline: "quiet splash quiet",
+			err:     nil,
+		},
+		{
+			name:    "Duplicate keys with different values",
+			cmdline: "potato=mashed potato=salad",
+			err:     errors.New("duplicated parameter:"),
+		},
+		{
+			name:    "Duplicate key-value pairs",
+			cmdline: "potato=pie potato=pie",
+			err:     nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := duplicatedParams(tc.cmdline)
+			if tc.err != nil {
+				if err == nil {
+					t.Fatalf("Expected error %v, got nil", tc.err)
+				}
+				if !strings.Contains(err.Error(), tc.err.Error()) {
+					t.Fatalf("Expected error %v, got %v", tc.err, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+		})
 	}
 }
