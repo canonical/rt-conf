@@ -1,0 +1,38 @@
+name: TIOBE Static Analysis
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+
+    runs-on: [self-hosted, linux, amd64, tiobe, jammy]
+
+    steps:
+
+    - name: Checkout the project
+      uses: actions/checkout@v4
+
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1'
+
+    - name: Run Go test cover
+      run: go test ./... -coverprofile=cover.txt
+
+    - name: Convert to Cobertura format
+      run: |
+        go install github.com/boumenot/gocover-cobertura@latest
+        mkdir -p .coverage
+        gocover-cobertura < cover.txt > .coverage/coverage.xml
+    - name: Run TiCS analysis
+      uses: tiobe/tics-github-action@v3
+      with:
+        mode: qserver
+        project: rt-conf
+        branchdir: .
+        viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
+        ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
+        installTics: true
