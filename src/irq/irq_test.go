@@ -369,3 +369,15 @@ func TestReadIRQs_ReadFileErrorHandled(t *testing.T) {
 		t.Fatalf("expected 1 irq, got %d", len(irqs))
 	}
 }
+
+func TestApplyIRQConfig(t *testing.T) {
+	config := &model.InternalConfig{
+		Data: model.Config{
+			Interrupts: []model.IRQTuning{},
+		},
+	}
+	err := ApplyIRQConfig(config)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
