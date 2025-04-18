@@ -56,7 +56,7 @@ func ReadYAML(path string) (cfg *Config, err error) {
 
 // processFile processes a file with a given FileTransformer, applying
 // its transformation on lines matching the pattern.
-func ProcessFile(transformer FileTransformer) error {
+var ProcessFile = func(transformer FileTransformer) error {
 	// Open file with read and write permissions
 	file, err := os.OpenFile(transformer.GetFilePath(), os.O_RDWR, 0644)
 	if err != nil {
