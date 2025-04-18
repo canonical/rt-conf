@@ -75,9 +75,9 @@ func sendRequest(method, url string, payload []byte) (*http.Response, error) {
 
 func UpdateUbuntuCore(cfg *model.InternalConfig) ([]string, error) {
 
-	cmdline, err := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
-	if err != nil {
-		return nil, err
+	cmdline := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
+	if len(cmdline) == 0 {
+		return nil, fmt.Errorf("no parameters to inject")
 	}
 	kcmds := model.ParamsToCmdline(cmdline)
 
