@@ -8,9 +8,14 @@ import (
 	"strings"
 )
 
+type cmdExecutor func(name string, arg ...string) ([]byte, error)
+
+var execCommand cmdExecutor = func(name string, arg ...string) ([]byte, error) {
+	return exec.Command(name, arg...).Output()
+}
+
 func totalCPUs() (int, error) {
-	cmd := exec.Command("lscpu", "--json")
-	output, err := cmd.Output()
+	output, err := execCommand("lscpu", "--json")
 	if err != nil {
 		return 0, err
 	}
