@@ -60,9 +60,9 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 
-	params, err := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
-	if err != nil {
-		return nil, fmt.Errorf("failed to reconstruct key-value pairs: %v", err)
+	params := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
+	if len(params) == 0 {
+		return nil, fmt.Errorf("no parameters to inject")
 	}
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,

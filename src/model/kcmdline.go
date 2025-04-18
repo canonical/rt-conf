@@ -68,7 +68,7 @@ func (c KernelCmdline) fieldValidator(name string,
 	return nil
 }
 
-func ConstructKeyValuePairs(v *KernelCmdline) (Params, error) {
+func ConstructKeyValuePairs(v *KernelCmdline) Params {
 	kvpairs := make(Params, 0)
 	val := reflect.TypeOf(v)
 	valValue := reflect.ValueOf(v)
@@ -85,7 +85,7 @@ func ConstructKeyValuePairs(v *KernelCmdline) (Params, error) {
 		}
 		kvpairs[key] = value
 	}
-	return kvpairs, nil
+	return kvpairs
 }
 
 func CmdlineToParams(cmdline string) Params {
