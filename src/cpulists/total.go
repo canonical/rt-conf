@@ -8,9 +8,7 @@ import (
 	"strings"
 )
 
-type cmdExecutor func(name string, arg ...string) ([]byte, error)
-
-var execCommand cmdExecutor = func(name string, arg ...string) ([]byte, error) {
+var execCommand = func(name string, arg ...string) ([]byte, error) {
 	return exec.Command(name, arg...).Output()
 }
 
