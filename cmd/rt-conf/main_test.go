@@ -63,6 +63,14 @@ func TestRunUnhappy(t *testing.T) {
 			yaml: "",
 		},
 		{
+			name: "Empty config | All commented out",
+			args: []string{"rt-conf", "-file", configPath},
+			err:  "failed to load config file: empty config file",
+			yaml: `
+# Kernel command line parameters
+`,
+		},
+		{
 			name: "Invalid config path",
 			args: []string{"rt-conf", "-file", "/does/not/exist"},
 			err:  "failed to find file",
