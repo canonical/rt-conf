@@ -66,9 +66,7 @@ func run(args []string) error {
 	}
 
 	if err := irq.ApplyIRQConfig(&conf); err != nil {
-		err = fmt.Errorf("failed to process interrupts: %v", err)
-		log.Println(err)
-		return err
+		return fmt.Errorf("failed to process interrupts: %v", err)
 	}
 
 	if err := pwrmgmt.ApplyPwrConfig(&conf); err != nil {
