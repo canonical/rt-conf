@@ -2,7 +2,6 @@ package cpulists
 
 import (
 	"errors"
-	"os/exec"
 	"strings"
 	"testing"
 )
@@ -60,14 +59,9 @@ func TestTotalCPUsUnhappy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// override the execCommand used by totalCPUs
-			execCommand = func(name string, args ...string) ([]byte, error) {
+			execCommand = func(_ string, _ ...string) ([]byte, error) {
 				return tc.mockOutput, tc.mockErr
 			}
-			defer func() {
-				execCommand = func(name string, args ...string) ([]byte, error) {
-					return exec.Command(name, args...).Output()
-				}
-			}()
 
 			_, err := totalCPUs()
 			if err == nil {
