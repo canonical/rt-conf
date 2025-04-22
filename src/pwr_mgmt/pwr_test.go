@@ -175,3 +175,24 @@ func TestEmptyPwrMgmtRules(t *testing.T) {
 		})
 	}
 }
+
+func TestEmptyPwrMgmtRules(t *testing.T) {
+	var errorCases = []struct {
+		name string
+		cfg  *model.InternalConfig
+	}{
+		{
+			name: "No CPU Governance rules",
+			cfg:  &model.InternalConfig{},
+		},
+	}
+
+	for _, tc := range errorCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ApplyPwrConfig(tc.cfg)
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
+		})
+	}
+}
