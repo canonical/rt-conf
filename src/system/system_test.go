@@ -30,7 +30,9 @@ var (
 
 func TestDetectSystemUbuntuCore(t *testing.T) {
 	os.Setenv("SNAP_SAVE_DATA", "/some/uc/path")
-	defer os.Unsetenv("SNAP_SAVE_DATA")
+	t.Cleanup(func() {
+		os.Unsetenv("SNAP_SAVE_DATA")
+	})
 
 	sys, err := DetectSystem()
 	if err != nil {
