@@ -190,7 +190,7 @@ func (mockFileWriter) WriteFile(path string, content []byte, perm os.FileMode) e
 	return fmt.Errorf("input/output error") // Simulated /proc error
 }
 
-func TestWriteCPUAffinity_InputOutputErrorIgnored(t *testing.T) {
+func TestWriteCPUAffinityInputOutputErrorIgnored(t *testing.T) {
 	writer := &realIRQReaderWriter{
 		FileWriter: mockFileWriter{},
 	}
@@ -217,7 +217,7 @@ func TestWriteCPUAffinityErrorReturned(t *testing.T) {
 	}
 }
 
-// Sanity: return nil even if file already has the value (line 63)
+// Sanity: return nil even if file already has the value
 func TestWriteCPUAffinityAlreadySet(t *testing.T) {
 	tmpDir := t.TempDir()
 	procIRQ = tmpDir
@@ -267,7 +267,7 @@ func setupIRQTestDir(t *testing.T, entries []irqDirEntry) string {
 	}
 	return tmpDir
 }
-func TestReadIRQs_SingleActiveIRQ(t *testing.T) {
+func TestReadIRQsSingleActiveIRQ(t *testing.T) {
 	setupIRQTestDir(t, []irqDirEntry{
 		{
 			Number: 10,
@@ -316,7 +316,7 @@ func TestReadIRQsEmptyActionsIgnored(t *testing.T) {
 	}
 }
 
-func TestReadIRQs_NonNumericDirectoryIgnored(t *testing.T) {
+func TestReadIRQsNonNumericDirectoryIgnored(t *testing.T) {
 	tmp := t.TempDir()
 	sysKernelIRQ = tmp
 	_ = os.Mkdir(filepath.Join(tmp, "notanumber"), 0755)
@@ -333,10 +333,9 @@ func TestReadIRQs_NonNumericDirectoryIgnored(t *testing.T) {
 	}
 }
 
-func TestReadIRQs_ReadDirError(t *testing.T) {
+func TestReadIRQsReadDirError(t *testing.T) {
 	sysKernelIRQ = "/invalid/path"
 
-	// r := &realIRQReaderWriter{}
 	r := &realIRQReaderWriter{
 		FileWriter: realFileWriter{},
 	}
@@ -347,7 +346,7 @@ func TestReadIRQs_ReadDirError(t *testing.T) {
 	}
 }
 
-func TestReadIRQs_ReadFileErrorHandled(t *testing.T) {
+func TestReadIRQsReadFileErrorHandled(t *testing.T) {
 	setupIRQTestDir(t, []irqDirEntry{
 		{
 			Number: 12,
