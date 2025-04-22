@@ -56,7 +56,7 @@ func createTransport() *http.Transport {
 }
 
 // sendRequest sends a request to Snapd API and returns the response body
-func sendRequest(method, url string, payload []byte) (*http.Response, error) {
+var sendRequest = func(method, url string, payload []byte) (*http.Response, error) {
 	client := &http.Client{Transport: createTransport()}
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
