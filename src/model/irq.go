@@ -15,6 +15,10 @@ const (
 	ProcIRQ      = "/proc/irq"
 )
 
+var osReadDir = func(name string) ([]os.DirEntry, error) {
+	return os.ReadDir(name)
+}
+
 type IRQTuning struct {
 	CPUs   string    `yaml:"cpus"`
 	Filter IRQFilter `yaml:"filter"`
@@ -74,7 +78,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 }
 
 func GetHigherIRQ() (int, error) {
-	files, err := os.ReadDir(SysKernelIRQ)
+	files, err := osReadDir(SysKernelIRQ)
 	if err != nil {
 		return 0, err
 	}
