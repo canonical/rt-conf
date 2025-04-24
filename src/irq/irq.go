@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/model"
 )
@@ -51,17 +52,24 @@ var writeFile = func(path string, content []byte, perm os.FileMode) error {
 
 // Write IRQ affinity
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+	managedIRQs := make(cpulists.CPUs)
+	var managedIRQerr error
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
 	err := writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
-			log.Printf("Skipped read-only (managed?) IRQ: %s: %s",
-				affinityFile, err)
+			managedIRQs[irqNum] = true // mark as managed IRQ
+			managedIRQerr = err
 		} else {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
 	} else {
 		log.Printf("Set %s to %s", affinityFile, cpus)
+	}
+
+	if len(managedIRQs) > 0 {
+		log.Printf("Skipped read-only (managed?) IRQs: %s: %s",
+			cpulists.GenCPUlist(managedIRQs), managedIRQerr)
 	}
 	return nil
 }
