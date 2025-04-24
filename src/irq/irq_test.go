@@ -201,7 +201,7 @@ func TestWriteCPUAffinityInputOutputErrorIgnored(t *testing.T) {
 }
 
 // Simulate a real write error that's not ignorable (not "input/output error")
-func TestWriteCPUAffinityErrorReturned(t *testing.T) {
+func TestWriteCPUAffinityFileNotFound(t *testing.T) {
 	procIRQ = "/this/path/does/not/exist"
 
 	writer := &realIRQReaderWriter{
