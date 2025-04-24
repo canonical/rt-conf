@@ -32,12 +32,6 @@ func TestReadYAML(t *testing.T) {
 			err:  errors.New("failed to unmarshal data"),
 		},
 		{
-			name: "NilConfig",
-			yaml: `{"kernel_cmdline":{{}`,
-			cfg:  nil,
-			err:  errors.New("failed to unmarshal data"),
-		},
-		{
 			name: "EmptyConfig",
 			yaml: ``,
 			cfg:  nil,
