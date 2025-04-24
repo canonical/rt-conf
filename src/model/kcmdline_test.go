@@ -3,6 +3,7 @@ package model_test
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -123,6 +124,11 @@ kernel_cmdline:
 			},
 		},
 	}
+
+	model.IsOwnedByRoot = func(_ os.FileInfo) bool {
+		return true
+	}
+
 	for i, c := range happyCases {
 		s, err := mainLogic(t, c, i)
 		if err != nil {

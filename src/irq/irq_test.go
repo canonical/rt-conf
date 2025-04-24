@@ -67,6 +67,10 @@ irq_tuning:
 		},
 	}
 
+	model.IsOwnedByRoot = func(_ os.FileInfo) bool {
+		return true
+	}
+
 	for i, c := range happyCases {
 		t.Run("Happy Cases", func(t *testing.T) {
 			_, err := mainLogicIRQ(t, c, i)
@@ -111,6 +115,16 @@ irq_tuning:
 			}
 		})
 	}
+}
+
+func setupTempFile(t *testing.T, content string, idex int) string {
+	t.Helper()
+	tmpfileName := fmt.Sprintf("tempfile-%d", idex)
+	err := os.WriteFile(tmpfileName, []byte(content), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	return tmpfileName
 }
 
 func mainLogicIRQ(t *testing.T, cfg IRQTestCase, i int) (string, error) {
