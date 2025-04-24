@@ -10,12 +10,7 @@ import (
 	"github.com/canonical/rt-conf/src/model"
 )
 
-// save original function to restore later
-var originalSendRequest = sendRequest
-
 func TestUpdateUbuntuCore(t *testing.T) {
-	defer func() { sendRequest = originalSendRequest }()
-
 	tests := []struct {
 		name     string
 		cfg      model.InternalConfig
@@ -98,7 +93,7 @@ func TestUpdateUbuntuCore(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			sendRequest = func(method, url string, payload []byte) (*http.Response, error) {
+			sendRequest = func(_, _ string, _ []byte) (*http.Response, error) {
 				if tc.mockErr != nil {
 					return nil, tc.mockErr
 				}

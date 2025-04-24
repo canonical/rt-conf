@@ -235,9 +235,6 @@ func TestUpdateGrub(t *testing.T) {
 				},
 			}
 
-			// Patch ProcessFile to simulate failure
-			origProcessFile := model.ProcessFile
-			defer func() { model.ProcessFile = origProcessFile }()
 			if strings.Contains(tc.name, "ProcessFile fails") {
 				model.ProcessFile = func(tf model.FileTransformer) error {
 					return fmt.Errorf("mock write failure")
