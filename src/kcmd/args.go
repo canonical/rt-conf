@@ -17,7 +17,7 @@ var kcmdSys = map[system.SystemType]func(*model.InternalConfig) ([]string, error
 func ProcessKcmdArgs(c *model.InternalConfig) ([]string, error) {
 	if c.Data.KernelCmdline == (model.KernelCmdline{}) {
 		// No kernel command line options to process
-		log.Println("[INFO] No kernel command line options to process")
+		log.Println("No kernel command line options to process")
 		return nil, nil
 	}
 
