@@ -9,8 +9,6 @@ import (
 	"github.com/canonical/rt-conf/src/system"
 )
 
-type fakeProcessor func(*model.InternalConfig) ([]string, error)
-
 func TestProcessKcmdArgs(t *testing.T) {
 	type testCase struct {
 		name      string
@@ -22,7 +20,7 @@ func TestProcessKcmdArgs(t *testing.T) {
 		expectErr string
 	}
 
-	fake := func(msgs []string, err error) fakeProcessor {
+	fake := func(msgs []string, err error) func(*model.InternalConfig) ([]string, error) {
 		return func(_ *model.InternalConfig) ([]string, error) {
 			return msgs, err
 		}
