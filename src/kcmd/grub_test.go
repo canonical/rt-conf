@@ -207,12 +207,7 @@ func TestUpdateGrub(t *testing.T) {
 		},
 	}
 
-	// Save original pattern
-	origPattern := model.PatternGrubDefault
 	model.PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
-	defer func() {
-		model.PatternGrubDefault = origPattern
-	}()
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
