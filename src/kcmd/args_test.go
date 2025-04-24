@@ -55,12 +55,6 @@ func TestProcessKcmdArgs(t *testing.T) {
 			mockErr:   errors.New("simulated failure"),
 			expectErr: "simulated failure",
 		},
-		// TODO: fix this test case
-		// {
-		// 	name:      "Failed to detect system",
-		// 	mockErr:   errors.New("failed to detect system"),
-		// 	expectErr: "failed to detect system",
-		// },
 		{
 			name: "Processor returns success",
 			input: model.InternalConfig{
