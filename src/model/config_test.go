@@ -9,6 +9,24 @@ import (
 	"testing"
 )
 
+func TestIsOwnedByRoot(t *testing.T) {
+	tmpdir := t.TempDir()
+	filePath := filepath.Join(tmpdir, "testfile")
+	err := os.WriteFile(filePath,
+		[]byte("test"), 0644)
+	if err != nil {
+		t.Fatalf("failed to create test file: %v", err)
+	}
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		t.Fatalf("failed to stat test file: %v", err)
+	}
+	if isRoot := IsOwnedByRoot(fi); isRoot {
+		t.Fatalf("expected false, got true")
+	}
+
+}
+
 func TestLoadConfigFile(t *testing.T) {
 	var testCases = []struct {
 		name        string
