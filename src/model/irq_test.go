@@ -140,7 +140,7 @@ func TestGetHigherIRQ(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			osReadDir = func(_ string) ([]os.DirEntry, error) {
+			readDir = func(_ string) ([]os.DirEntry, error) {
 				return tc.entries, tc.err
 			}
 			num, err := GetHigherIRQ()

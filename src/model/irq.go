@@ -15,7 +15,7 @@ const (
 	ProcIRQ      = "/proc/irq"
 )
 
-var osReadDir = func(name string) ([]os.DirEntry, error) {
+var readDir = func(name string) ([]os.DirEntry, error) {
 	return os.ReadDir(name)
 }
 
@@ -78,7 +78,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 }
 
 func GetHigherIRQ() (int, error) {
-	files, err := osReadDir(SysKernelIRQ)
+	files, err := readDir(SysKernelIRQ)
 	if err != nil {
 		return 0, err
 	}
