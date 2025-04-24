@@ -184,15 +184,15 @@ func TestWriteCPUAffinitySuccessfulWrite(t *testing.T) {
 	}
 }
 
-type mockFileWriter struct{}
+type mockFileWriterIOError struct{}
 
-func (mockFileWriter) WriteFile(path string, content []byte, perm os.FileMode) error {
+func (mockFileWriterIOError) WriteFile(path string, content []byte, perm os.FileMode) error {
 	return fmt.Errorf("input/output error") // Simulated /proc error
 }
 
 func TestWriteCPUAffinityInputOutputErrorIgnored(t *testing.T) {
 	writer := &realIRQReaderWriter{
-		FileWriter: mockFileWriter{},
+		FileWriter: mockFileWriterIOError{},
 	}
 	err := writer.WriteCPUAffinity(1, "0")
 	if err != nil {
