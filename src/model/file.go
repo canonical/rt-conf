@@ -1,6 +1,7 @@
 package model
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"regexp"
@@ -52,8 +53,6 @@ func ReadYAML(path string) (cfg *Config, err error) {
 
 	return cfg, nil
 }
-<<<<<<< HEAD
-=======
 
 // processFile processes a file with a given FileTransformer, applying
 // its transformation on lines matching the pattern.
@@ -98,4 +97,3 @@ var ProcessFile = func(transformer FileTransformer) error {
 
 	return nil
 }
->>>>>>> 0729ce3 (feat: make ProcessFile mockable)
