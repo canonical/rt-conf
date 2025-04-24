@@ -78,21 +78,21 @@ func TestIRQTuningValidate(t *testing.T) {
 	}
 }
 
-type MockedDirEntry struct {
+type mockDirEntry struct {
 	name  string
 	isDir bool
 }
 
-func (m *MockedDirEntry) Name() string {
+func (m *mockDirEntry) Name() string {
 	return m.name
 }
-func (m *MockedDirEntry) IsDir() bool {
+func (m *mockDirEntry) IsDir() bool {
 	return m.isDir
 }
-func (m *MockedDirEntry) Type() os.FileMode {
+func (m *mockDirEntry) Type() os.FileMode {
 	return os.ModeDir
 }
-func (m *MockedDirEntry) Info() (os.FileInfo, error) {
+func (m *mockDirEntry) Info() (os.FileInfo, error) {
 	return nil, nil
 }
 
@@ -113,8 +113,8 @@ func TestGetHigherIRQ(t *testing.T) {
 		{
 			name: "invalid IRQ number",
 			entries: []os.DirEntry{
-				&MockedDirEntry{name: "NonNumber", isDir: true},
-				&MockedDirEntry{name: "123", isDir: true},
+				&mockDirEntry{name: "NonNumber", isDir: true},
+				&mockDirEntry{name: "123", isDir: true},
 			},
 			err:      nil,
 			expected: 123,
@@ -128,9 +128,9 @@ func TestGetHigherIRQ(t *testing.T) {
 		{
 			name: "valid test",
 			entries: []os.DirEntry{
-				&MockedDirEntry{name: "100", isDir: true},
-				&MockedDirEntry{name: "142", isDir: true},
-				&MockedDirEntry{name: "234", isDir: true},
+				&mockDirEntry{name: "100", isDir: true},
+				&mockDirEntry{name: "142", isDir: true},
+				&mockDirEntry{name: "234", isDir: true},
 			},
 			errReadDir: nil,
 			err:        nil,
