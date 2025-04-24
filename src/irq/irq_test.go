@@ -351,7 +351,6 @@ func TestReadIRQsReadFileErrorHandled(t *testing.T) {
 		{
 			Number: 12,
 			Files: map[string]string{
-				// Only one file, others will cause ReadFile errors
 				"actions": "handle_irq",
 			},
 		},
