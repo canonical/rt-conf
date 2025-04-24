@@ -2,7 +2,7 @@ package kcmd
 
 import "testing"
 
-func TestGrubConcl(t *testing.T) {
+func TestGrubConclusion(t *testing.T) {
 	grubFile := "/etc/default/grub"
 	expected := []string{
 		"Detected bootloader: GRUB\n",
@@ -27,7 +27,7 @@ func TestGrubConcl(t *testing.T) {
 	}
 }
 
-func TestRpiConcl(t *testing.T) {
+func TestRpiConclusion(t *testing.T) {
 	cmdline := "quiet splash isolcpus=1-2"
 	expected := []string{
 		"Detected bootloader: Raspberry Pi\n",
@@ -51,7 +51,7 @@ func TestRpiConcl(t *testing.T) {
 	}
 }
 
-func TestUbuntuCoreConcl(t *testing.T) {
+func TestUbuntuCoreConclusion(t *testing.T) {
 	expected := []string{
 		"Detected bootloader: Ubuntu Core managed\n",
 		"\n",
