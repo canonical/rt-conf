@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
@@ -57,6 +58,23 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 	return g.Pattern
 }
 
+func sortKcmdlineParams(cmdline string) string {
+	params := strings.Fields(cmdline)
+	sort.Strings(params)
+	return strings.Join(params, " ")
+}
+
+func printDiff(old, new string) {
+	red := "\033[31m"
+	green := "\033[32m"
+	reset := "\033[0m"
+
+	log.Println("Kernel cmdline difference:")
+	log.Println(red + "-  " + old + reset)
+	log.Println(green + "+  " + new + reset)
+	log.Println()
+}
+
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 
@@ -93,6 +111,12 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 		currParams[k] = v
 	}
 	grubDefault.Cmdline = model.ParamsToCmdline(currParams)
+
+	// Sort the parameters to ensure consistent ordering
+	grubDefault.Cmdline = sortKcmdlineParams(grubDefault.Cmdline)
+	cmdline = sortKcmdlineParams(cmdline)
+	printDiff(cmdline, grubDefault.Cmdline)
+
 	log.Println("Final kcmdline:", grubDefault.Cmdline)
 
 	if err := processFile(grubDefault); err != nil {
