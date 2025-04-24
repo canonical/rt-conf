@@ -47,24 +47,6 @@ type IRQTestCase struct {
 	Handler IRQReaderWriter
 }
 
-func setupTempFile(t *testing.T, content string, idex int) string {
-	t.Helper()
-
-	tmpFile, err := os.CreateTemp("", fmt.Sprintf("tempfile-%d", idex))
-	if err != nil {
-		t.Fatalf("Failed to create temporary file: %v", err)
-	}
-
-	if _, err := tmpFile.Write([]byte(content)); err != nil {
-		t.Fatalf("Failed to write to temporary file: %v", err)
-	}
-	if err := tmpFile.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	return tmpFile.Name()
-}
-
 func TestHappyIRQtuning(t *testing.T) {
 
 	var happyCases = []IRQTestCase{

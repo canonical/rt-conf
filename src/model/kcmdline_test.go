@@ -28,29 +28,19 @@ type TestCase struct {
 	}
 }
 
-func setupTempFile(t *testing.T, content string, idex int) string {
-	t.Helper()
-
-	tmpFile, err := os.CreateTemp("", fmt.Sprintf("tempfile-%d", idex))
-	if err != nil {
-		t.Fatalf("Failed to create temporary file: %v", err)
-	}
-
-	if _, err := tmpFile.Write([]byte(content)); err != nil {
-		t.Fatalf("Failed to write to temporary file: %v", err)
-	}
-	if err := tmpFile.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	return tmpFile.Name()
-}
-
 func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
+	dir := t.TempDir()
+	// Set up temporary config-file
+	tempConfigPath := filepath.Join(dir, fmt.Sprintf("config-%d.yaml", i))
+	if err := os.WriteFile(tempConfigPath, []byte(c.Yaml), 0o644); err != nil {
+		t.Fatalf("failed to write config: %v", err)
+	}
+	// Set up temporary grub file
+	tempGrubPath := filepath.Join(dir, fmt.Sprintf("grub-%d", i))
+	if err := os.WriteFile(tempGrubPath, []byte(grubSample), 0o644); err != nil {
+		t.Fatalf("failed to write grub: %v", err)
+	}
 
-	// Set up temporary config-file, grub.cfg and default-grub files
-	tempConfigPath := setupTempFile(t, c.Yaml, i)
-	tempGrubPath := setupTempFile(t, grubSample, i)
 	t.Cleanup(func() {
 		os.Remove(tempConfigPath)
 		os.Remove(tempGrubPath)
