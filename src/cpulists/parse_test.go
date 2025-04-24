@@ -252,3 +252,71 @@ func TestParseWithFlagsHappy(t *testing.T) {
 		})
 	}
 }
+
+func TestGenCPUlist(t *testing.T) {
+	var testCases = []struct {
+		name   string
+		cpus   CPUs
+		result string
+	}{
+		{
+			name:   "TestEmptyCPUs",
+			cpus:   CPUs{},
+			result: "",
+		},
+		{
+			name:   "TestSingleCPU",
+			cpus:   CPUs{0: true},
+			result: "0",
+		},
+		{
+			name:   "TestMultipleSingleCPUs",
+			cpus:   CPUs{0: true, 2: true, 4: true, 6: true},
+			result: "0,2,4,6",
+		},
+		{
+			name:   "TestCPURange",
+			cpus:   CPUs{0: true, 1: true, 2: true},
+			result: "0-2",
+		},
+		{
+			name:   "TestMultipleCPURanges",
+			cpus:   CPUs{0: true, 1: true, 2: true, 4: true, 5: true},
+			result: "0-2,4-5",
+		},
+		{
+			name:   "TestNonContiguousCPUs",
+			cpus:   CPUs{0: true, 2: true, 4: true},
+			result: "0,2,4",
+		},
+		{
+			name:   "TestMixedCPUsRangeAndSingle",
+			cpus:   CPUs{9: true, 1: true, 2: true, 3: true, 6: true},
+			result: "1-3,6,9",
+		},
+		{
+			name:   "TestMixedCPUsSingleAndRange",
+			cpus:   CPUs{0: true, 2: true, 4: true, 6: true, 7: true},
+			result: "0,2,4,6-7",
+		},
+		{
+			name:   "TestCPUsWithGaps",
+			cpus:   CPUs{0: true, 1: true, 3: true, 4: true, 6: true},
+			result: "0-1,3-4,6",
+		},
+		{
+			name:   "TestCPUsWithGapsAndRange",
+			cpus:   CPUs{0: true, 1: true, 3: true, 4: true, 6: true, 7: true},
+			result: "0-1,3-4,6-7",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := GenCPUlist(tc.cpus)
+			if result != tc.result {
+				t.Errorf("Expected %s, got %s", tc.result, result)
+			}
+		})
+	}
+}

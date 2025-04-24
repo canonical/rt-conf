@@ -7,6 +7,7 @@ package cpulists
 import (
 	"fmt"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -202,4 +203,45 @@ func handleSingleCPU(item string, cpus CPUs, t int) error {
 	}
 	cpus[cpu] = true
 	return nil
+}
+
+func GenCPUlist(cpus CPUs) string {
+	if len(cpus) == 0 {
+		return ""
+	}
+
+	// Extract and sort CPU numbers
+	var list []int
+	for cpu, enabled := range cpus {
+		if enabled {
+			list = append(list, cpu)
+		}
+	}
+	sort.Ints(list)
+
+	var parts []string
+	start := list[0]
+	end := start
+
+	for i := 1; i < len(list); i++ {
+		if list[i] == end+1 {
+			end = list[i]
+		} else {
+			if start == end {
+				parts = append(parts, fmt.Sprintf("%d", start))
+			} else {
+				parts = append(parts, fmt.Sprintf("%d-%d", start, end))
+			}
+			start = list[i]
+			end = start
+		}
+	}
+	// Final range
+	if start == end {
+		parts = append(parts, fmt.Sprintf("%d", start))
+	} else {
+		parts = append(parts, fmt.Sprintf("%d-%d", start, end))
+	}
+
+	return strings.Join(parts, ",")
 }
