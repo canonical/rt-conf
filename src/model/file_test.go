@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -98,8 +99,8 @@ kernel_cmdline:
 			if cfg == nil {
 				t.Fatalf("expected non-nil config, got nil")
 			}
-			if cfg != tc.cfg {
-
+			if !reflect.DeepEqual(cfg, tc.cfg) {
+				t.Fatalf("expected config %v, got %v", tc.cfg, cfg)
 			}
 		})
 	}
