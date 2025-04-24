@@ -236,11 +236,11 @@ func TestUpdateGrub(t *testing.T) {
 			}
 
 			if strings.Contains(tc.name, "ProcessFile fails") {
-				model.ProcessFile = func(tf model.FileTransformer) error {
+				processFile = func(tf model.FileTransformer) error {
 					return fmt.Errorf("mock write failure")
 				}
 			} else {
-				model.ProcessFile = func(tf model.FileTransformer) error {
+				processFile = func(tf model.FileTransformer) error {
 					// simulate a successful file process
 					return nil
 				}
