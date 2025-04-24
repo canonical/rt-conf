@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
 )
@@ -65,6 +66,10 @@ func TestValidate(t *testing.T) {
 			},
 			err: errors.New("failed to validate cpu governance rule"),
 		},
+	}
+
+	IsOwnedByRoot = func(_ os.FileInfo) bool {
+		return true
 	}
 
 	for _, tc := range tests {

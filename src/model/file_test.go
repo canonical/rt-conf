@@ -61,6 +61,10 @@ kernel_cmdline:
 		},
 	}
 
+	IsOwnedByRoot = func(_ os.FileInfo) bool {
+		return true
+	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			var filePath string
