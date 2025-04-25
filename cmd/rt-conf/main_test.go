@@ -28,7 +28,6 @@ irq_tuning:
 `,
 		},
 	}
-
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
 			if test.yaml != "" {
