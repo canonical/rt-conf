@@ -150,7 +150,7 @@ func duplicatedParams(cmdline string) error {
 	}
 	for _, p := range s {
 		pair := strings.Split(p, "=")
-		// Skip parameters without a value, they can be safelly dropped
+		// Skip parameters without a value, they can be safely dropped
 		if len(pair) != 2 {
 			// Value is optional for some kernel cmdline parameters
 			params[p] = ""
