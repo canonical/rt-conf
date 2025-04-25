@@ -67,10 +67,6 @@ irq_tuning:
 		},
 	}
 
-	model.IsOwnedByRoot = func(_ os.FileInfo) bool {
-		return true
-	}
-
 	for i, c := range happyCases {
 		t.Run("Happy Cases", func(t *testing.T) {
 			_, err := mainLogicIRQ(t, c, i)

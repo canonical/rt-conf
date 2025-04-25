@@ -5,8 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/canonical/rt-conf/src/model"
 )
 
 func TestRunHappy(t *testing.T) {
@@ -29,11 +27,6 @@ cpu_governance:
 irq_tuning:
 `,
 		},
-	}
-
-	// Set up a mock for the IsOwnedByRoot function
-	model.IsOwnedByRoot = func(_ os.FileInfo) bool {
-		return true
 	}
 
 	for _, test := range testCases {

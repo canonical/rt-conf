@@ -21,7 +21,7 @@ func TestIsOwnedByRoot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to stat test file: %v", err)
 	}
-	if isRoot := IsOwnedByRoot(fi); isRoot {
+	if isOwnedByRoot(fi) {
 		t.Fatalf("expected false, got true")
 	}
 
@@ -94,7 +94,7 @@ kernel_cmdline:
 			tmpdir := t.TempDir()
 			cfgFilePath := filepath.Join(tmpdir, "config.yaml")
 
-			IsOwnedByRoot = func(_ os.FileInfo) bool {
+			isOwnedByRoot = func(_ os.FileInfo) bool {
 				return tc.ownedByRoot
 			}
 
