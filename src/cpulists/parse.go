@@ -205,7 +205,7 @@ func handleSingleCPU(item string, cpus CPUs, t int) error {
 	return nil
 }
 
-func GenCPUlist(cpus CPUs) string {
+func GenCPUlist(cpus map[int]bool) string {
 	if len(cpus) == 0 {
 		return ""
 	}

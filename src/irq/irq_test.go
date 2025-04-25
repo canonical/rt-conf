@@ -29,9 +29,10 @@ func (m *mockIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	return irqInfos, nil
 }
 
-func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (
+	write int, managed int, err error) {
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
-		return err
+		return -1, -1, err
 	}
 	if m.WrittenAffinity == nil {
 		m.WrittenAffinity = make(map[int]string)
@@ -39,7 +40,7 @@ func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	// TODO: Find a way to expose this to the test
 	fmt.Printf("Writing affinity for IRQ %d: %s", irqNum, cpus)
 	m.WrittenAffinity[irqNum] = cpus
-	return nil
+	return irqNum, -1, nil
 }
 
 type IRQTestCase struct {
@@ -160,7 +161,7 @@ func TestWriteCPUAffinitySuccessfulWrite(t *testing.T) {
 
 	procIRQ = tmpDir // override to avoid touching /proc
 	writer := &realIRQReaderWriter{}
-	err = writer.WriteCPUAffinity(irqNum, cpus)
+	_, _, err = writer.WriteCPUAffinity(irqNum, cpus)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -179,7 +180,7 @@ func TestWriteCPUAffinityFileNotFound(t *testing.T) {
 	procIRQ = "/this/path/does/not/exist"
 
 	writer := &realIRQReaderWriter{}
-	err := writer.WriteCPUAffinity(99, "1-2")
+	_, _, err := writer.WriteCPUAffinity(99, "1-2")
 
 	if err == nil {
 		t.Fatal("expected an error but got nil")
@@ -195,7 +196,7 @@ func TestWriteCPUAffinityInputOutputErrorIgnored(t *testing.T) {
 		return fmt.Errorf("input/output error") // Simulated /proc error
 	}
 
-	err := writer.WriteCPUAffinity(1, "0")
+	_, _, err := writer.WriteCPUAffinity(1, "0")
 	if err != nil {
 		t.Fatalf("expected nil, got error: %v", err)
 	}
@@ -218,7 +219,7 @@ func TestWriteCPUAffinityAlreadySet(t *testing.T) {
 	}
 
 	writer := &realIRQReaderWriter{}
-	err := writer.WriteCPUAffinity(irqNum, cpus)
+	_, _, err := writer.WriteCPUAffinity(irqNum, cpus)
 
 	if err != nil {
 		t.Errorf("expected no error, got: %v", err)

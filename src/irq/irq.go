@@ -46,27 +46,23 @@ type realIRQReaderWriter struct{}
 var procIRQ = model.ProcIRQ
 var sysKernelIRQ = model.SysKernelIRQ
 
-var managedIRQs = make(cpulists.CPUs)
-
 var writeFile = func(path string, content []byte, perm os.FileMode) error {
 	return os.WriteFile(path, content, perm)
 }
 
 // Write IRQ affinity
-func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (write int, managed int, err error) {
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
-	err := writeFile(affinityFile, []byte(cpus), 0644)
+	err = writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
-			managedIRQs[irqNum] = true // mark as managed IRQ
+			return -1, irqNum, nil
 		} else {
-			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
+			err = fmt.Errorf("error writing to %s: %v", affinityFile, err)
+			return -1, -1, err
 		}
-	} else {
-		log.Printf("Set %s to %s", affinityFile, cpus)
 	}
-
-	return nil
+	return -1, irqNum, nil
 }
 
 func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
@@ -158,7 +154,8 @@ func applyIRQConfig(
 	}
 
 	// cleanup managed IRQs map
-	managedIRQs = make(cpulists.CPUs)
+	managedIRQs := make(IRQs)
+	setIRQs := make(IRQs)
 
 	// Range over IRQ tuning array
 	for _, irqTuning := range config.Data.Interrupts {
@@ -175,15 +172,24 @@ func applyIRQConfig(
 		}
 
 		for irqNum := range matchingIRQs {
-			err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			changed, managed, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
 			}
+			if changed != -1 {
+				managedIRQs[managed] = true
+			}
+			if changed != -1 {
+				setIRQs[irqNum] = true
+			}
 		}
-	}
-	if len(managedIRQs) > 0 {
-		log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
-			cpulists.GenCPUlist(managedIRQs))
+		if len(managedIRQs) > 0 {
+			log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
+				cpulists.GenCPUlist(managedIRQs))
+		}
+		if len(setIRQs) > 0 {
+			log.Printf("Set IRQs: %s", cpulists.GenCPUlist(setIRQs))
+		}
 	}
 	return nil
 }
