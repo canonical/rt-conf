@@ -25,7 +25,7 @@ func LoadConfigFile(confPath string) (*Config, error) {
 			confPath, fileInfo.Mode(), expectedPermission)
 	}
 
-	if isRoot := IsOwnedByRoot(fileInfo); !isRoot {
+	if !IsOwnedByRoot(fileInfo) {
 		return nil, fmt.Errorf("file %s is not owned by root", confPath)
 	}
 
