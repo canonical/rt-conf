@@ -51,18 +51,23 @@ var writeFile = func(path string, content []byte, perm os.FileMode) error {
 }
 
 // Write IRQ affinity
-func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (write int, managed int, err error) {
+
+// returns:
+// - writed: true if the affinity was written successfully false if not
+// - managed: true if the irqNum was a managed (read-only) IRQ false if not
+// - err: error if any occurred nil if no error occurred
+func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (writed bool, managed bool, err error) {
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
 	err = writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
-			return -1, irqNum, nil
+			return false, true, nil
 		} else {
 			err = fmt.Errorf("error writing to %s: %v", affinityFile, err)
-			return -1, -1, err
+			return false, false, err
 		}
 	}
-	return -1, irqNum, nil
+	return true, false, nil
 }
 
 func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
@@ -176,20 +181,14 @@ func applyIRQConfig(
 			if err != nil {
 				return err
 			}
-			if changed != -1 {
-				managedIRQs[managed] = true
+			if managed {
+				managedIRQs[irqNum] = true
 			}
-			if changed != -1 {
+			if changed {
 				setIRQs[irqNum] = true
 			}
 		}
-		if len(managedIRQs) > 0 {
-			log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
-				cpulists.GenCPUlist(managedIRQs))
-		}
-		if len(setIRQs) > 0 {
-			log.Printf("Set IRQs: %s", cpulists.GenCPUlist(setIRQs))
-		}
+		logIRQchanges(setIRQs, managedIRQs, irqTuning.CPUs)
 	}
 	return nil
 }
@@ -221,4 +220,14 @@ func matchesRegex(value, pattern string) bool {
 	}
 	match, err := regexp.MatchString(pattern, value)
 	return err == nil && match
+}
+
+func logIRQchanges(changed, managed IRQs, cpus string) {
+	if len(managed) > 0 {
+		log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
+			cpulists.GenCPUlist(managed))
+	}
+	if len(changed) > 0 {
+		log.Printf("Assigned IRQs %s to CPUs %s", cpulists.GenCPUlist(changed), cpus)
+	}
 }

@@ -3,7 +3,7 @@ package irq
 // IRQReaderWriter is an interface for read and write IRQ data from the filesystem.
 type IRQReaderWriter interface {
 	ReadIRQs() ([]IRQInfo, error)
-	WriteCPUAffinity(irqNum int, cpus string) (write int, managed int, err error)
+	WriteCPUAffinity(irqNum int, cpus string) (writed bool, managed bool, err error)
 }
 
 // IRQInfo represents information about an IRQ.

@@ -30,9 +30,9 @@ func (m *mockIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (
-	write int, managed int, err error) {
+	write bool, managed bool, err error) {
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
-		return -1, -1, err
+		return false, false, err
 	}
 	if m.WrittenAffinity == nil {
 		m.WrittenAffinity = make(map[int]string)
@@ -40,7 +40,7 @@ func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (
 	// TODO: Find a way to expose this to the test
 	fmt.Printf("Writing affinity for IRQ %d: %s", irqNum, cpus)
 	m.WrittenAffinity[irqNum] = cpus
-	return irqNum, -1, nil
+	return true, false, nil
 }
 
 type IRQTestCase struct {
