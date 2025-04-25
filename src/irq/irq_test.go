@@ -167,9 +167,7 @@ func TestWriteCPUAffinitySuccessfulWrite(t *testing.T) {
 	f.Close()
 
 	procIRQ = tmpDir // override to avoid touching /proc
-	writer := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	writer := &realIRQReaderWriter{}
 	err = writer.WriteCPUAffinity(irqNum, cpus)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -184,29 +182,11 @@ func TestWriteCPUAffinitySuccessfulWrite(t *testing.T) {
 	}
 }
 
-type mockFileWriterIOError struct{}
-
-func (mockFileWriterIOError) WriteFile(path string, content []byte, perm os.FileMode) error {
-	return fmt.Errorf("input/output error") // Simulated /proc error
-}
-
-func TestWriteCPUAffinityInputOutputErrorIgnored(t *testing.T) {
-	writer := &realIRQReaderWriter{
-		FileWriter: mockFileWriterIOError{},
-	}
-	err := writer.WriteCPUAffinity(1, "0")
-	if err != nil {
-		t.Fatalf("expected nil, got error: %v", err)
-	}
-}
-
 // Simulate a real write error that's not ignorable (not "input/output error")
 func TestWriteCPUAffinityFileNotFound(t *testing.T) {
 	procIRQ = "/this/path/does/not/exist"
 
-	writer := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	writer := &realIRQReaderWriter{}
 	err := writer.WriteCPUAffinity(99, "1-2")
 
 	if err == nil {
@@ -214,6 +194,18 @@ func TestWriteCPUAffinityFileNotFound(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "error writing to") {
 		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+func TestWriteCPUAffinityInputOutputErrorIgnored(t *testing.T) {
+	writer := &realIRQReaderWriter{}
+	writeFile = func(_ string, _ []byte, _ os.FileMode) error {
+		return fmt.Errorf("input/output error") // Simulated /proc error
+	}
+
+	err := writer.WriteCPUAffinity(1, "0")
+	if err != nil {
+		t.Fatalf("expected nil, got error: %v", err)
 	}
 }
 
@@ -233,9 +225,7 @@ func TestWriteCPUAffinityAlreadySet(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	writer := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	writer := &realIRQReaderWriter{}
 	err := writer.WriteCPUAffinity(irqNum, cpus)
 
 	if err != nil {
@@ -304,9 +294,7 @@ func TestReadIRQsEmptyActionsIgnored(t *testing.T) {
 		},
 	})
 
-	r := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	r := &realIRQReaderWriter{}
 	irqs, err := r.ReadIRQs()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -321,9 +309,7 @@ func TestReadIRQsNonNumericDirectoryIgnored(t *testing.T) {
 	sysKernelIRQ = tmp
 	_ = os.Mkdir(filepath.Join(tmp, "notanumber"), 0755)
 
-	r := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	r := &realIRQReaderWriter{}
 	irqs, err := r.ReadIRQs()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -336,9 +322,7 @@ func TestReadIRQsNonNumericDirectoryIgnored(t *testing.T) {
 func TestReadIRQsReadDirError(t *testing.T) {
 	sysKernelIRQ = "/invalid/path"
 
-	r := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	r := &realIRQReaderWriter{}
 
 	_, err := r.ReadIRQs()
 	if err == nil {
@@ -356,9 +340,7 @@ func TestReadIRQsReadFileErrorHandled(t *testing.T) {
 		},
 	})
 
-	r := &realIRQReaderWriter{
-		FileWriter: realFileWriter{},
-	}
+	r := &realIRQReaderWriter{}
 	irqs, err := r.ReadIRQs()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

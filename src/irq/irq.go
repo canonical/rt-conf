@@ -40,17 +40,19 @@ import (
 type IRQs map[int]bool // use the same logic as CPUs lists
 
 // realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
-type realIRQReaderWriter struct {
-	FileWriter
-}
+type realIRQReaderWriter struct{}
 
 var procIRQ = model.ProcIRQ
 var sysKernelIRQ = model.SysKernelIRQ
 
+var writeFile = func(path string, content []byte, perm os.FileMode) error {
+	return os.WriteFile(path, content, perm)
+}
+
 // Write IRQ affinity
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
-	err := w.WriteFile(affinityFile, []byte(cpus), 0644)
+	err := writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
 			log.Printf("Skipped read-only (managed?) IRQ: %s: %s",
