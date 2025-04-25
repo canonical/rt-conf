@@ -2,6 +2,7 @@ package kcmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/canonical/rt-conf/src/model"
 	"github.com/canonical/rt-conf/src/system"
@@ -14,6 +15,12 @@ var kcmdSys = map[system.SystemType]func(*model.InternalConfig) ([]string, error
 }
 
 func ProcessKcmdArgs(c *model.InternalConfig) ([]string, error) {
+	if c.Data.KernelCmdline == (model.KernelCmdline{}) {
+		// No kernel command line options to process
+		log.Println("No kernel command line options to process")
+		return nil, nil
+	}
+
 	var msgs []string
 	sys, err := system.DetectSystem()
 	if err != nil {

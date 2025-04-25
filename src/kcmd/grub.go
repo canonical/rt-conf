@@ -60,9 +60,9 @@ func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 
-	params, err := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
-	if err != nil {
-		return nil, fmt.Errorf("failed to reconstruct key-value pairs: %v", err)
+	params := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
+	if len(params) == 0 {
+		return nil, fmt.Errorf("no parameters to inject")
 	}
 	grubDefault := &GrubDefaultTransformer{
 		FilePath: cfg.GrubDefault.File,
@@ -95,7 +95,7 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	grubDefault.Cmdline = model.ParamsToCmdline(currParams)
 	log.Println("Final kcmdline:", grubDefault.Cmdline)
 
-	if err := model.ProcessFile(grubDefault); err != nil {
+	if err := processFile(grubDefault); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
 	}
 
@@ -150,15 +150,14 @@ func duplicatedParams(cmdline string) error {
 	}
 	for _, p := range s {
 		pair := strings.Split(p, "=")
+		// Skip parameters without a value, they can be safely dropped
+		if len(pair) != 2 {
+			// Value is optional for some kernel cmdline parameters
+			params[p] = ""
+			continue
+		}
 		param, ok := params[pair[0]]
 		if ok {
-			// Skip parameters without a value, they can be safelly dropped
-			if len(pair) != 2 {
-				// Value is optional for some kernel cmdline parameters
-				params[p] = ""
-				continue
-			}
-
 			// Skip if the value is the same, it can be safelly dropped
 			if param == pair[1] {
 				continue
@@ -169,5 +168,49 @@ func duplicatedParams(cmdline string) error {
 		}
 		params[pair[0]] = pair[1]
 	}
+	return nil
+}
+
+// processFile processes a file with a given FileTransformer, applying
+// its transformation on lines matching the pattern.
+var processFile = func(transformer model.FileTransformer) error {
+	// Open file with read and write permissions
+	file, err := os.OpenFile(transformer.GetFilePath(), os.O_RDWR, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %v", err)
+	}
+	defer file.Close()
+
+	// Read all lines into a slice
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if transformer.GetPattern().MatchString(line) {
+			// This is where the kcmdline params of bootloader file are updated
+			line = transformer.TransformLine(line)
+		}
+		lines = append(lines, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("failed to read file: %v", err)
+	}
+
+	// Truncate file and write transformed lines
+	if err := file.Truncate(0); err != nil {
+		return fmt.Errorf("failed to truncate file: %v", err)
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("failed to seek to start of file: %v", err)
+	}
+
+	for _, line := range lines {
+		_, err := file.WriteString(line + "\n")
+		if err != nil {
+			return fmt.Errorf("failed to write to file: %v", err)
+		}
+	}
+
 	return nil
 }

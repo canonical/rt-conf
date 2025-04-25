@@ -42,14 +42,17 @@ type IRQs map[int]bool // use the same logic as CPUs lists
 // realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
 type realIRQReaderWriter struct{}
 
+var procIRQ = model.ProcIRQ
+var sysKernelIRQ = model.SysKernelIRQ
+
+var writeFile = func(path string, content []byte, perm os.FileMode) error {
+	return os.WriteFile(path, content, perm)
+}
+
 // Write IRQ affinity
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
-	affinityFile :=
-		fmt.Sprintf("%s/%d/smp_affinity_list", model.ProcIRQ, irqNum)
-
-	err := os.WriteFile(affinityFile, []byte(cpus), 0644)
-	// SMI are not allowed to be written to from userspace.
-	// It fails with "input/output error" this error can be ignored.
+	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
+	err := writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
 			log.Printf("Skipped read-only (managed?) IRQ: %s: %s",
@@ -67,7 +70,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 	var irqInfos []IRQInfo
 
 	// Read the directories in /sys/kernel/irq
-	dirEntries, err := os.ReadDir(model.SysKernelIRQ)
+	dirEntries, err := os.ReadDir(sysKernelIRQ)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +93,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 			}
 			for _, file := range files {
 				filePath := filepath.Join(
-					model.SysKernelIRQ, entry.Name(), file,
+					sysKernelIRQ, entry.Name(), file,
 				)
 				content, err := os.ReadFile(filePath)
 				if err != nil {
@@ -128,6 +131,11 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func ApplyIRQConfig(config *model.InternalConfig) error {
+	if len(config.Data.Interrupts) == 0 {
+		// If no IRQ tuning is specified, skip the process
+		log.Println("No IRQ tuning rules found in config")
+		return nil
+	}
 	return applyIRQConfig(config, &realIRQReaderWriter{})
 }
 

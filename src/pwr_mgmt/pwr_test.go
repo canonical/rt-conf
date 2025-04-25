@@ -121,4 +121,57 @@ func TestPwrMgmt(t *testing.T) {
 
 		})
 	}
+
+	var UnhappyCases = []struct {
+		name string
+		cfg  *model.InternalConfig
+		err  error
+	}{
+		{
+			name: "Invalid CPU list",
+			cfg: &model.InternalConfig{
+				Data: model.Config{
+					CpuGovernance: []model.CpuGovernanceRule{
+						{
+							CPUs:    "2-1",
+							ScalGov: "performance",
+						},
+					},
+				},
+			},
+			err: fmt.Errorf("start of range greater than end: 2-1"),
+		},
+	}
+	for _, tc := range UnhappyCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ApplyPwrConfig(tc.cfg)
+			if err == nil {
+				t.Fatalf("expected error, got nil")
+			}
+			if err.Error() != tc.err.Error() {
+				t.Fatalf("expected error: %v, got: %v", tc.err.Error(), err)
+			}
+		})
+	}
+}
+
+func TestEmptyPwrMgmtRules(t *testing.T) {
+	var errorCases = []struct {
+		name string
+		cfg  *model.InternalConfig
+	}{
+		{
+			name: "No CPU Governance rules",
+			cfg:  &model.InternalConfig{},
+		},
+	}
+
+	for _, tc := range errorCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ApplyPwrConfig(tc.cfg)
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
+		})
+	}
 }
