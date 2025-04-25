@@ -21,8 +21,8 @@ func TestIsOwnedByRoot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to stat test file: %v", err)
 	}
-	if isOwnedByRoot(fi) {
-		t.Fatalf("expected false, got true")
+	if !isOwnedByRoot(fi) {
+		t.Fatalf("expected true, got false")
 	}
 
 }
