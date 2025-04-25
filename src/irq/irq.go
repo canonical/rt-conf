@@ -46,20 +46,19 @@ type realIRQReaderWriter struct{}
 var procIRQ = model.ProcIRQ
 var sysKernelIRQ = model.SysKernelIRQ
 
+var managedIRQs = make(cpulists.CPUs)
+
 var writeFile = func(path string, content []byte, perm os.FileMode) error {
 	return os.WriteFile(path, content, perm)
 }
 
 // Write IRQ affinity
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
-	managedIRQs := make(cpulists.CPUs)
-	var managedIRQerr error
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
 	err := writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
 			managedIRQs[irqNum] = true // mark as managed IRQ
-			managedIRQerr = err
 		} else {
 			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
 		}
@@ -67,10 +66,6 @@ func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
 		log.Printf("Set %s to %s", affinityFile, cpus)
 	}
 
-	if len(managedIRQs) > 0 {
-		log.Printf("Skipped read-only (managed?) IRQs: %s: %s",
-			cpulists.GenCPUlist(managedIRQs), managedIRQerr)
-	}
 	return nil
 }
 
@@ -162,6 +157,9 @@ func applyIRQConfig(
 		return fmt.Errorf("no IRQs found")
 	}
 
+	// cleanup managed IRQs map
+	managedIRQs = make(cpulists.CPUs)
+
 	// Range over IRQ tuning array
 	for _, irqTuning := range config.Data.Interrupts {
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
@@ -182,6 +180,10 @@ func applyIRQConfig(
 				return err
 			}
 		}
+	}
+	if len(managedIRQs) > 0 {
+		log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
+			cpulists.GenCPUlist(managedIRQs))
 	}
 	return nil
 }
