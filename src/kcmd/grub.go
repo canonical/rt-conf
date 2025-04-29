@@ -11,34 +11,11 @@ import (
 	"github.com/canonical/rt-conf/src/model"
 )
 
-// grubCfgTransformer handles transformations for /boot/grub/grub.cfg
-type GrubCfgTransformer struct {
-	FilePath string
-	Pattern  *regexp.Regexp
-	Params   []string
-}
-
 // grubDefaultTransformer handles transformations for /etc/default/grub
 type GrubDefaultTransformer struct {
 	FilePath string
 	Pattern  *regexp.Regexp
 	Cmdline  string
-}
-
-func (g *GrubCfgTransformer) TransformLine(line string) string {
-	// Append each kernel command line parameter to the matched line
-	for _, param := range g.Params {
-		line += " " + param
-	}
-	return line
-}
-
-func (g *GrubCfgTransformer) GetFilePath() string {
-	return g.FilePath
-}
-
-func (g *GrubCfgTransformer) GetPattern() *regexp.Regexp {
-	return g.Pattern
 }
 
 func (g *GrubDefaultTransformer) TransformLine(line string) string {
