@@ -30,7 +30,7 @@ func (m *mockIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (
-	write bool, managed bool, err error) {
+	success bool, managed bool, err error) {
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
 		return false, false, err
 	}
