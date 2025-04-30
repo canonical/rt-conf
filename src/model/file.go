@@ -8,21 +8,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// TODO: this should be dropped in favor or parsing the default grub file
-//
-//	** NOTE: instead of using a hardcoded pattern
-//	** we should source the /etc/default/grub file, since it's basically
-//	** an environment file (key=value) and we can parse it with the
-//	** `os` package
-var PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
-
-// TODO: This need to be changed, and etc/default/grub should be parsed
-type FileTransformer interface {
-	TransformLine(string) string
-	GetFilePath() string
-	GetPattern() *regexp.Regexp
-}
-
 type Grub struct {
 	File    string
 	Pattern *regexp.Regexp

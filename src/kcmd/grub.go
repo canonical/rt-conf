@@ -5,34 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
 )
-
-// grubDefaultTransformer handles transformations for /etc/default/grub
-type GrubDefaultTransformer struct {
-	FilePath string
-	Pattern  *regexp.Regexp
-	Cmdline  string
-}
-
-func (g *GrubDefaultTransformer) TransformLine(line string) string {
-	// Extract existing parameters
-	matches := g.Pattern.FindStringSubmatch(line)
-
-	// Reconstruct the line with updated parameters
-	return fmt.Sprintf(`%s%s%s`, matches[1], g.Cmdline, matches[3])
-}
-
-func (g *GrubDefaultTransformer) GetFilePath() string {
-	return g.FilePath
-}
-
-func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
-	return g.Pattern
-}
 
 // InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
