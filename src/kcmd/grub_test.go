@@ -5,12 +5,57 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/canonical/rt-conf/src/model"
 )
+
+func TestProcessFile(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		filePath := filepath.Join(tmpDir, "grub")
+
+		grub := model.Grub{
+			CustomGrubFilePath: filePath,
+			Cmdline:            "isolcpus=1-3 nohz=on",
+		}
+
+		err := processFile(grub)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		content, err := os.ReadFile(filePath)
+		if err != nil {
+			t.Fatalf("failed to read file: %v", err)
+		}
+
+		expected := `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3 nohz=on"`
+		if string(content) != expected {
+			t.Errorf("expected content %q, got %q", expected, string(content))
+		}
+	})
+
+	t.Run("FailToWriteFile", func(t *testing.T) {
+		// Try writing to a directory that doesn't exist
+		badPath := filepath.Join("/nonexistent-dir", "grub")
+
+		grub := model.Grub{
+			CustomGrubFilePath: badPath,
+			Cmdline:            "isolcpus=0",
+		}
+
+		err := processFile(grub)
+		if err == nil {
+			t.Fatal("expected error, got nil")
+		}
+
+		if !strings.Contains(err.Error(), "failed to write to") {
+			t.Errorf("unexpected error message: %v", err)
+		}
+	})
+}
 
 func setupTempFile(t *testing.T, content string, idex int) string {
 	t.Helper()
@@ -48,9 +93,9 @@ func TestParseGrubFileHappy(t *testing.T) {
 			},
 		},
 		{
-			content: `GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=ext4 quiet splash acpi_osi="`,
+			content: `GRUB_CMDLINE_LINUX_DEFAULT_DEFAULT="rootfstype=ext4 quiet splash acpi_osi="`,
 			params: map[string]string{
-				"GRUB_CMDLINE_LINUX_DEFAULT": "rootfstype=ext4 quiet splash acpi_osi=",
+				"GRUB_CMDLINE_LINUX_DEFAULT_DEFAULT": "rootfstype=ext4 quiet splash acpi_osi=",
 			},
 		},
 		{
@@ -59,16 +104,16 @@ func TestParseGrubFileHappy(t *testing.T) {
 				"GRUB_HIDDEN_TIMEOUT_QUIET=true\n" +
 				"GRUB_TIMEOUT=2\n" +
 				"GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`\n" +
-				"GRUB_CMDLINE_LINUX_DEFAULT=\"rootfstype=ext4 quiet splash acpi_osi=\"\n" +
-				"GRUB_CMDLINE_LINUX=\"\"\n",
+				"GRUB_CMDLINE_LINUX_DEFAULT_DEFAULT=\"rootfstype=ext4 quiet splash acpi_osi=\"\n" +
+				"GRUB_CMDLINE_LINUX_DEFAULT=\"\"\n",
 
 			params: map[string]string{
-				"GRUB_DEFAULT":               "0",
-				"GRUB_HIDDEN_TIMEOUT_QUIET":  "true",
-				"GRUB_TIMEOUT":               "2",
-				"GRUB_DISTRIBUTOR":           "`lsb_release -i -s 2> /dev/null || echo Debian`",
-				"GRUB_CMDLINE_LINUX_DEFAULT": "rootfstype=ext4 quiet splash acpi_osi=",
-				"GRUB_CMDLINE_LINUX":         "",
+				"GRUB_DEFAULT":                       "0",
+				"GRUB_HIDDEN_TIMEOUT_QUIET":          "true",
+				"GRUB_TIMEOUT":                       "2",
+				"GRUB_DISTRIBUTOR":                   "`lsb_release -i -s 2> /dev/null || echo Debian`",
+				"GRUB_CMDLINE_LINUX_DEFAULT_DEFAULT": "rootfstype=ext4 quiet splash acpi_osi=",
+				"GRUB_CMDLINE_LINUX_DEFAULT":         "",
 			},
 		},
 	}
@@ -170,16 +215,16 @@ func TestUpdateGrub(t *testing.T) {
 			expectErr: "failed to parse grub file",
 		},
 		{
-			name:        "GRUB_CMDLINE_LINUX missing",
+			name:        "GRUB_CMDLINE_LINUX_DEFAULT missing",
 			grubContent: `GRUB_TIMEOUT=5`,
 			kcmd: model.KernelCmdline{
 				IsolCPUs: "1-3",
 			},
-			expectErr: "GRUB_CMDLINE_LINUX not found",
+			expectErr: "GRUB_CMDLINE_LINUX_DEFAULT not found",
 		},
 		{
 			name: "Duplicate params found",
-			grubContent: `GRUB_CMDLINE_LINUX="isolcpus=1-3 isolcpus=2-4"
+			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3 isolcpus=2-4"
 `,
 			kcmd: model.KernelCmdline{
 				IsolCPUs: "2-4",
@@ -188,7 +233,7 @@ func TestUpdateGrub(t *testing.T) {
 		},
 		{
 			name: "ProcessFile fails",
-			grubContent: `GRUB_CMDLINE_LINUX="isolcpus=1-3"
+			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3"
 `,
 			kcmd: model.KernelCmdline{
 				Nohz: "on",
@@ -197,7 +242,7 @@ func TestUpdateGrub(t *testing.T) {
 		},
 		{
 			name: "Success",
-			grubContent: `GRUB_CMDLINE_LINUX="isolcpus=1-3"
+			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3"
 `,
 			kcmd: model.KernelCmdline{
 				IsolCPUs: "1-3",
@@ -207,40 +252,41 @@ func TestUpdateGrub(t *testing.T) {
 		},
 	}
 
-	model.PatternGrubDefault = regexp.MustCompile(`^(GRUB_CMDLINE_LINUX=")([^"]*)(")$`)
-
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
-			grubPath := filepath.Join(tmpDir, "grub")
+			grubDefaultPath := filepath.Join(tmpDir, "grub")
+			cfgPath := filepath.Join(tmpDir, "rt-conf.cfg")
 
 			// If grub content exists, write it
 			if tc.grubContent != "" {
-				if err := os.WriteFile(grubPath, []byte(tc.grubContent), 0644); err != nil {
+				if err := os.WriteFile(grubDefaultPath, []byte(tc.grubContent), 0644); err != nil {
 					t.Fatal(err)
 				}
 			}
 
 			// If test needs Parse failure, remove the file
 			if tc.name == "ParseDefaultGrubFile fails" {
-				os.Remove(grubPath)
+				os.Remove(grubDefaultPath)
+				os.Remove(cfgPath)
 			}
 
 			conf := &model.InternalConfig{
 				Data: model.Config{
 					KernelCmdline: tc.kcmd,
 				},
-				GrubDefault: model.Grub{
-					File: grubPath,
+				GrubCfg: model.Grub{
+					GrubDefaultFilePath: grubDefaultPath,
+					CustomGrubFilePath:  cfgPath,
 				},
 			}
 
 			if strings.Contains(tc.name, "ProcessFile fails") {
-				processFile = func(tf model.FileTransformer) error {
+				processFile = func(_ model.Grub) error {
 					return fmt.Errorf("mock write failure")
 				}
 			} else {
-				processFile = func(tf model.FileTransformer) error {
+				processFile = func(_ model.Grub) error {
 					// simulate a successful file process
 					return nil
 				}

@@ -36,8 +36,14 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	if err := os.WriteFile(tempConfigPath, []byte(c.Yaml), 0o644); err != nil {
 		t.Fatalf("failed to write config: %v", err)
 	}
-	// Set up temporary grub file
+	// Set up temporary default grub file
 	tempGrubPath := filepath.Join(dir, fmt.Sprintf("grub-%d", i))
+	if err := os.WriteFile(tempGrubPath, []byte(grubSample), 0o644); err != nil {
+		t.Fatalf("failed to write grub: %v", err)
+	}
+
+	// Setup temporary custom grub config file
+	tempCustomCfgPath := filepath.Join(dir, fmt.Sprintf("rt-conf-%d.cfg", i))
 	if err := os.WriteFile(tempGrubPath, []byte(grubSample), 0o644); err != nil {
 		t.Fatalf("failed to write grub: %v", err)
 	}
@@ -45,10 +51,12 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	t.Cleanup(func() {
 		os.Remove(tempConfigPath)
 		os.Remove(tempGrubPath)
+		os.Remove(tempCustomCfgPath)
 	})
 
 	t.Logf("tempConfigPath: %s\n", tempConfigPath)
 	t.Logf("tempGrubPath: %s\n", tempGrubPath)
+	t.Logf("tempCustomCfgPath: %s\n", tempCustomCfgPath)
 
 	var conf model.InternalConfig
 	if d, err := model.LoadConfigFile(tempConfigPath); err != nil {
@@ -57,9 +65,9 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		conf.Data = *d
 	}
 
-	conf.GrubDefault = model.Grub{
-		File:    tempGrubPath,
-		Pattern: model.PatternGrubDefault,
+	conf.GrubCfg = model.Grub{
+		GrubDefaultFilePath: tempGrubPath,
+		CustomGrubFilePath:  tempCustomCfgPath,
 	}
 
 	t.Logf("Config: %+v\n", conf)
@@ -71,7 +79,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	}
 
 	// Verify default-grub updates
-	updatedGrub, err := os.ReadFile(tempGrubPath)
+	updatedGrub, err := os.ReadFile(tempCustomCfgPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read modified grub file: %v", err)
 	}
