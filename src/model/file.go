@@ -9,8 +9,9 @@ import (
 )
 
 type Grub struct {
-	File    string
-	Pattern *regexp.Regexp
+	GrubDefaultFilePath string
+	CustomGrubFilePath  string
+	Cmdline             string
 }
 
 type Core interface {
