@@ -12,7 +12,7 @@ var execCommand = func(name string, arg ...string) ([]byte, error) {
 	return exec.Command(name, arg...).Output()
 }
 
-func totalCPUs() (int, error) {
+var totalCPUs = func() (int, error) {
 	output, err := execCommand("lscpu", "--json")
 	if err != nil {
 		return 0, err
