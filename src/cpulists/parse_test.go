@@ -1,6 +1,7 @@
 package cpulists
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -71,9 +72,19 @@ func TestParseCPUListsHappy(t *testing.T) {
 		},
 	}
 
+	// Since tests run in parallel, we need to save the original totalCPUs
+	// and restore it after the tests.
+	// Otherwise, the tests will fail due a race condition.
+	originalTotalCPUs := totalCPUs
+	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
+
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			res, err := ParseForCPUs(tt.input, tt.tCores)
+			totalCPUs = func() (int, error) {
+				return tt.tCores, nil
+			}
+
+			res, err := Parse(tt.input)
 			if err != nil {
 				t.Fatalf("ParseCPUs failed: %v", err)
 			}
@@ -197,6 +208,26 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 		},
 	}
 
+	// Since tests run in parallel, we need to save the original totalCPUs
+	// and restore it after the tests.
+	// Otherwise, the tests will fail due a race condition.
+	originalTotalCPUs := totalCPUs
+	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
+	t.Run("TestParseCPUListsUnhappy", func(t *testing.T) {
+		totalCPUs = func() (int, error) {
+			return 0, errors.New("access denied")
+		}
+		expectedErr := "failed to get total available CPUs: access denied"
+		_, err := Parse("0-1")
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+		if err.Error() != expectedErr {
+			t.Fatalf("expected '%v', got '%v'", expectedErr, err)
+		}
+
+	})
+
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
 			_, err := ParseForCPUs(tt.input, tt.tCores)
@@ -243,70 +274,93 @@ func TestParseWithFlagsHappy(t *testing.T) {
 		{"managed_irq,0,n", max, isolcpuFlags},
 	}
 
+	// Since tests run in parallel, we need to save the original totalCPUs
+	// and restore it after the tests.
+	// Otherwise, the tests will fail due a race condition.
+	originalTotalCPUs := totalCPUs
+	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
+
 	for _, tc := range testCases {
 		t.Run("TestValidationWithFlags", func(t *testing.T) {
-			_, _, err := ParseWithFlagsForCPUs(tc.value, tc.flags, tc.cpus)
+			totalCPUs = func() (int, error) {
+				return tc.cpus, nil
+			}
+			_, _, err := ParseWithFlags(tc.value, tc.flags)
 			if err != nil {
 				t.Fatalf("Failed ValidateListWithFlags: %v", err)
 			}
 		})
 	}
+
+	t.Run("TestUnhappy-Failed-totalCPUs", func(t *testing.T) {
+		totalCPUs = func() (int, error) {
+			return 0, errors.New("access denied")
+		}
+		expectedErr := "failed to get total available CPUs: access denied"
+		_, _, err := ParseWithFlags("", isolcpuFlags)
+		if err == nil {
+			t.Fatalf("Expected error: %v, got nil", expectedErr)
+		}
+		if err.Error() != expectedErr {
+			t.Fatalf("Expected error: '%v', got '%v'", expectedErr, err)
+		}
+	})
 }
 
 func TestGenCPUlist(t *testing.T) {
 	var testCases = []struct {
 		name   string
-		cpus   CPUs
+		cpus   []int
 		result string
 	}{
 		{
 			name:   "TestEmptyCPUs",
-			cpus:   CPUs{},
+			cpus:   []int{},
 			result: "",
 		},
 		{
 			name:   "TestSingleCPU",
-			cpus:   CPUs{0: true},
+			cpus:   []int{0},
 			result: "0",
 		},
 		{
 			name:   "TestMultipleSingleCPUs",
-			cpus:   CPUs{0: true, 2: true, 4: true, 6: true},
+			cpus:   []int{0, 2, 4, 6},
 			result: "0,2,4,6",
 		},
 		{
 			name:   "TestCPURange",
-			cpus:   CPUs{0: true, 1: true, 2: true},
+			cpus:   []int{0, 1, 2},
 			result: "0-2",
 		},
 		{
 			name:   "TestMultipleCPURanges",
-			cpus:   CPUs{0: true, 1: true, 2: true, 4: true, 5: true},
+			cpus:   []int{0, 1, 2, 4, 5},
 			result: "0-2,4-5",
 		},
 		{
 			name:   "TestNonContiguousCPUs",
-			cpus:   CPUs{0: true, 2: true, 4: true},
+			cpus:   []int{0, 2, 4},
 			result: "0,2,4",
 		},
 		{
 			name:   "TestMixedCPUsRangeAndSingle",
-			cpus:   CPUs{9: true, 1: true, 2: true, 3: true, 6: true},
+			cpus:   []int{9, 1, 2, 3, 6},
 			result: "1-3,6,9",
 		},
 		{
 			name:   "TestMixedCPUsSingleAndRange",
-			cpus:   CPUs{0: true, 2: true, 4: true, 6: true, 7: true},
+			cpus:   []int{0, 2, 4, 6, 7},
 			result: "0,2,4,6-7",
 		},
 		{
 			name:   "TestCPUsWithGaps",
-			cpus:   CPUs{0: true, 1: true, 3: true, 4: true, 6: true},
+			cpus:   []int{0, 1, 3, 4, 6},
 			result: "0-1,3-4,6",
 		},
 		{
 			name:   "TestCPUsWithGapsAndRange",
-			cpus:   CPUs{0: true, 1: true, 3: true, 4: true, 6: true, 7: true},
+			cpus:   []int{0, 1, 3, 4, 6, 7},
 			result: "0-1,3-4,6-7",
 		},
 	}
