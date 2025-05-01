@@ -205,14 +205,15 @@ func handleSingleCPU(item string, cpus CPUs, t int) error {
 	return nil
 }
 
-func GenCPUlist(cpus map[int]bool) string {
+func GenCPUlist(cpus []int) string {
 	if len(cpus) == 0 {
 		return ""
 	}
+	cpusMap := convertToCPUmap(cpus)
 
 	// Extract and sort CPU numbers
 	var list []int
-	for cpu, enabled := range cpus {
+	for cpu, enabled := range cpusMap {
 		if enabled {
 			list = append(list, cpu)
 		}
@@ -244,4 +245,12 @@ func GenCPUlist(cpus map[int]bool) string {
 	}
 
 	return strings.Join(parts, ",")
+}
+
+func convertToCPUmap(cpus []int) CPUs {
+	cpuMap := make(CPUs)
+	for _, cpu := range cpus {
+		cpuMap[cpu] = true
+	}
+	return cpuMap
 }
