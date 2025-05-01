@@ -159,8 +159,8 @@ func applyIRQConfig(
 	}
 
 	// cleanup managed IRQs map
-	managedIRQs := make(IRQs)
-	setIRQs := make(IRQs)
+	managedIRQs := make([]int, 0, len(irqs))
+	setIRQs := make([]int, 0, len(irqs))
 
 	// Range over IRQ tuning array
 	for i, irqTuning := range config.Data.Interrupts {
@@ -179,15 +179,15 @@ func applyIRQConfig(
 		}
 
 		for irqNum := range matchingIRQs {
-			changed, managed, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			sucess, managedIRQ, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
 			}
-			if managed {
-				managedIRQs[irqNum] = true
+			if managedIRQ {
+				managedIRQs = append(managedIRQs, irqNum)
 			}
-			if changed {
-				setIRQs[irqNum] = true
+			if sucess {
+				setIRQs = append(setIRQs, irqNum)
 			}
 		}
 		logIRQchanges(setIRQs, managedIRQs, irqTuning.CPUs)
@@ -224,7 +224,7 @@ func matchesRegex(value, pattern string) bool {
 	return err == nil && match
 }
 
-func logIRQchanges(changed, managed IRQs, cpus string) {
+func logIRQchanges(changed, managed []int, cpus string) {
 	if len(managed) > 0 {
 		log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
 			cpulists.GenCPUlist(managed))
