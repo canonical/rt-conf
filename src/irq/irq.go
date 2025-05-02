@@ -182,14 +182,14 @@ func applyIRQConfig(
 		managedIRQs := make([]int, 0, len(irqs))
 		setIRQs := make([]int, 0, len(irqs))
 		for irqNum := range matchingIRQs {
-			sucess, managedIRQ, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			success, managedIRQ, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
 			}
 			if managedIRQ {
 				managedIRQs = append(managedIRQs, irqNum)
 			}
-			if sucess {
+			if success {
 				setIRQs = append(setIRQs, irqNum)
 			}
 		}
