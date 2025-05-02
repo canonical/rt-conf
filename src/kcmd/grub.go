@@ -69,8 +69,9 @@ func printDiff(old, new string) {
 	green := "\033[32m"
 	reset := "\033[0m"
 
-	log.Println("Kernel cmdline difference:")
+	log.Println("Default kernel command line:")
 	log.Println(red + "-  " + old + reset)
+	log.Println("New kernel command line:")
 	log.Println(green + "+  " + new + reset)
 	log.Println()
 }
