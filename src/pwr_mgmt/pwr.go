@@ -54,7 +54,8 @@ func (wr ReaderWriter) applyPwrConfig(
 			return err
 		}
 
-		setCpus := make([]int, 0)
+		var setCpus []int
+
 		for cpu := range cpus {
 			err := wr.WriteScalingGov(sclgov.ScalGov, cpu)
 			if err != nil {
