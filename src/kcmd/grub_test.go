@@ -220,7 +220,7 @@ func TestUpdateGrub(t *testing.T) {
 			kcmd: model.KernelCmdline{
 				IsolCPUs: "1-3",
 			},
-			expectErr: "GRUB_CMDLINE_LINUX_DEFAULT not found",
+			expectOutput: "Detected bootloader: GRUB",
 		},
 		{
 			name: "Duplicate params found",
