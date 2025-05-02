@@ -162,10 +162,6 @@ func applyIRQConfig(
 		return fmt.Errorf("no IRQs found")
 	}
 
-	// cleanup managed IRQs map
-	managedIRQs := make([]int, 0, len(irqs))
-	setIRQs := make([]int, 0, len(irqs))
-
 	// Range over IRQ tuning array
 	for i, irqTuning := range config.Data.Interrupts {
 		log.Printf("\nRule #%d ( %s )", i+1, formatIRQRule(irqTuning))
@@ -182,6 +178,9 @@ func applyIRQConfig(
 				irqTuning.Filter)
 		}
 
+		// cleanup managed IRQs map
+		managedIRQs := make([]int, 0, len(irqs))
+		setIRQs := make([]int, 0, len(irqs))
 		for irqNum := range matchingIRQs {
 			sucess, managedIRQ, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
