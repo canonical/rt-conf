@@ -72,9 +72,8 @@ func TestParseCPUListsHappy(t *testing.T) {
 		},
 	}
 
-	// Since tests run in parallel, we need to save the original totalCPUs
-	// and restore it after the tests.
-	// Otherwise, the tests will fail due a race condition.
+	// If not set totalCPUs back to the original function, the next tests will fail.
+	// Because totalCPUs is a global function pointer in this module.
 	originalTotalCPUs := totalCPUs
 	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
 
@@ -208,9 +207,8 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 		},
 	}
 
-	// Since tests run in parallel, we need to save the original totalCPUs
-	// and restore it after the tests.
-	// Otherwise, the tests will fail due a race condition.
+	// If not set totalCPUs back to the original function, the next tests will fail.
+	// Because totalCPUs is a global function pointer in this module.
 	originalTotalCPUs := totalCPUs
 	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
 	t.Run("TestParseCPUListsUnhappy", func(t *testing.T) {
@@ -274,9 +272,8 @@ func TestParseWithFlagsHappy(t *testing.T) {
 		{"managed_irq,0,n", max, isolcpuFlags},
 	}
 
-	// Since tests run in parallel, we need to save the original totalCPUs
-	// and restore it after the tests.
-	// Otherwise, the tests will fail due a race condition.
+	// If not set totalCPUs back to the original function, the next tests will fail.
+	// Because totalCPUs is a global function pointer in this module.
 	originalTotalCPUs := totalCPUs
 	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
 
