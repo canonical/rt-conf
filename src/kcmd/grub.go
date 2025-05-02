@@ -57,7 +57,7 @@ func parseGrubCMDLineLinuxDefault(path string) (string, error) {
 	}
 	cmdline, ok := grubMap["GRUB_CMDLINE_LINUX_DEFAULT"]
 	if !ok {
-		log.Printf("WARN: GRUB_CMDLINE_LINUX_DEFAULT not found in %s", path)
+		log.Printf("GRUB_CMDLINE_LINUX_DEFAULT not found in %s", path)
 	}
 	return cmdline, nil
 }
