@@ -168,7 +168,7 @@ func applyIRQConfig(
 
 	// Range over IRQ tuning array
 	for i, irqTuning := range config.Data.Interrupts {
-		log.Println("Applying IRQ tuning rule #", i+1)
+		log.Printf("\nRule #%d ( %s )", i+1, formatIRQRule(irqTuning))
 
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {
@@ -194,7 +194,7 @@ func applyIRQConfig(
 				setIRQs = append(setIRQs, irqNum)
 			}
 		}
-		logIRQchanges(setIRQs, managedIRQs, irqTuning.CPUs)
+		logChanges(setIRQs, managedIRQs, irqTuning.CPUs)
 	}
 	return nil
 }
@@ -228,12 +228,46 @@ func matchesRegex(value, pattern string) bool {
 	return err == nil && match
 }
 
-func logIRQchanges(changed, managed []int, cpus string) {
+func logChanges(changed, managed []int, cpus string) {
 	if len(managed) > 0 {
 		log.Printf("Skipped read-only (managed?) IRQs: %s: input/output error",
 			cpulists.GenCPUlist(managed))
 	}
 	if len(changed) > 0 {
-		log.Printf("Assigned IRQs %s to CPUs %s", cpulists.GenCPUlist(changed), cpus)
+		log.Printf("+ Assigned IRQs %s to CPUs %s", cpulists.GenCPUlist(changed), cpus)
 	}
+}
+
+func formatIRQRule(rule model.IRQTuning) string {
+	type field struct {
+		name  string
+		value string
+	}
+
+	values := []field{
+		{"CPUs", rule.CPUs},
+		{"actions", rule.Filter.Actions},
+		{"chip_name", rule.Filter.ChipName},
+		{"name", rule.Filter.Name},
+		{"type", rule.Filter.Type},
+	}
+
+	var fields []string
+	for _, f := range values {
+		fields = append(fields, f.name+": "+f.value)
+	}
+
+	return strings.Join(filterEmpty(fields), ", ")
+}
+
+// filterEmpty removes strings with empty values (like "name: ")
+func filterEmpty(items []string) []string {
+	var out []string
+	for _, s := range items {
+		parts := strings.SplitN(s, ": ", 2)
+		if len(parts) == 2 && parts[1] != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
