@@ -47,7 +47,7 @@ func (wr ReaderWriter) applyPwrConfig(
 	// Range over all CPU governance rules
 	for i, sclgov := range rules {
 
-		log.Printf("\nRule #%d (CPUs: %s, scaling_governor: %s )\n",
+		log.Printf("\nRule #%d ( CPUs: %s, scaling_governor: %s )\n",
 			i+1, sclgov.CPUs, sclgov.ScalGov)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
