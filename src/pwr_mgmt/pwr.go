@@ -70,8 +70,8 @@ func (wr ReaderWriter) applyPwrConfig(
 }
 
 func logChanges(cpus []int, scalingGov string) {
-	if len(cpus) > 0 {
-		log.Println("[WARN] scaling governor not set for any CPUs.")
+	if len(cpus) == 0 {
+		log.Println("Rule does not match any CPUs.")
 		return
 	}
 	log.Printf("+ Set scaling governance of CPUs %s to %s",
