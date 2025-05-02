@@ -33,10 +33,7 @@ func run(args []string) error {
 
 	flags.Parse(args[1:])
 
-	// If not running as a service, don't print timestamps
-	if !isRunningAsService() {
-		log.SetFlags(0)
-	}
+	log.SetFlags(0)
 
 	if *verbose {
 		fmt.Println("Verbose mode enabled")
@@ -77,8 +74,4 @@ func run(args []string) error {
 	}
 
 	return nil
-}
-
-func isRunningAsService() bool {
-	return os.Getppid() == 1
 }
