@@ -31,6 +31,10 @@ func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 }
 
 func ApplyPwrConfig(config *model.InternalConfig) error {
+	log.Println("\n-----------------------")
+	log.Println("Applying CPU Governance")
+	log.Println("-----------------------")
+
 	if len(config.Data.CpuGovernance) == 0 {
 		log.Println("No CPU governance rules found in config")
 		return nil

@@ -135,6 +135,10 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func ApplyIRQConfig(config *model.InternalConfig) error {
+	log.Println("\n-------------------")
+	log.Println("Applying IRQ tuning")
+	log.Println("-------------------")
+
 	if len(config.Data.Interrupts) == 0 {
 		// If no IRQ tuning is specified, skip the process
 		log.Println("No IRQ tuning rules found in config")
