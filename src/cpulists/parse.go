@@ -209,16 +209,7 @@ func GenCPUlist(cpus []int) string {
 	if len(cpus) == 0 {
 		return ""
 	}
-	cpusMap := convertToCPUmap(cpus)
-
-	// Extract and sort CPU numbers
-	var list []int
-	for cpu, enabled := range cpusMap {
-		if enabled {
-			list = append(list, cpu)
-		}
-	}
-	sort.Ints(list)
+	list := deduplicateCPUs(cpus)
 
 	var parts []string
 	start := list[0]
@@ -247,10 +238,14 @@ func GenCPUlist(cpus []int) string {
 	return strings.Join(parts, ",")
 }
 
-func convertToCPUmap(cpus []int) CPUs {
+func deduplicateCPUs(cpus []int) (cpulist []int) {
 	cpuMap := make(CPUs)
 	for _, cpu := range cpus {
 		cpuMap[cpu] = true
 	}
-	return cpuMap
+	for cpu := range cpuMap {
+		cpulist = append(cpulist, cpu)
+	}
+	sort.Ints(cpulist)
+	return cpulist
 }
