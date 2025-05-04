@@ -7,7 +7,7 @@ import (
 type InternalConfig struct {
 	Data Config
 
-	GrubDefault Grub
+	GrubCfg Grub
 }
 
 type Config struct {
