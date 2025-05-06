@@ -5,10 +5,30 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
 )
+
+
+func sortKcmdlineParams(cmdline string) string {
+	params := strings.Fields(cmdline)
+	sort.Strings(params)
+	return strings.Join(params, " ")
+}
+
+func printDiff(old, new string) {
+	red := "\033[31m"
+	green := "\033[32m"
+	reset := "\033[0m"
+
+	log.Println("Default kernel command line:")
+	log.Println(red + "-  " + old + reset)
+	log.Println("New kernel command line:")
+	log.Println(green + "+  " + new + reset)
+	log.Println()
+}
 
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
 // merges it with the kernel command line parameters specified in the provided config,
@@ -40,6 +60,10 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	}
 
 	cfg.GrubCfg.Cmdline = model.ParamsToCmdline(currParams)
+  cfg.GrubCfg.Cmdline = sortKcmdlineParams(cfg.GrubCfg.Cmdline)
+  cmdline = sortKcmdlineParams(cmdline)
+  
+  printDiff(cmdline, cfg.GrubCfg.Cmdline)
 	log.Println("Final kcmdline:", cfg.GrubCfg.Cmdline)
 
 	if err := processFile(cfg.GrubCfg); err != nil {
