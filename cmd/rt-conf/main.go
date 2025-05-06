@@ -26,7 +26,10 @@ func run(args []string) error {
 		"Path to the configuration file")
 	grubConfigPath := flags.String("grub-file",
 		"/etc/default/grub",
-		"Path to the grub configuration file, relevant only for GRUB bootloader")
+		"Path to the default input grub configuration file, relevant only for GRUB bootloader")
+	grubCfgPath := flags.String("grub-custom-file",
+		"/etc/default/grub.d/60_rt-conf.cfg",
+		"Path to the output drop-in grub configuration file, relevant only for GRUB bootloader")
 	verbose := flags.Bool("verbose",
 		false,
 		"Verbose mode, prints more information to the console")
@@ -52,8 +55,9 @@ func run(args []string) error {
 		conf.Data = *d
 	}
 
-	conf.GrubDefault = model.Grub{
-		File: *grubConfigPath,
+	conf.GrubCfg = model.Grub{
+		GrubDefaultFilePath: *grubConfigPath,
+		CustomGrubFilePath:  *grubCfgPath,
 	}
 
 	// If not running as a service then process the kernel cmdline args

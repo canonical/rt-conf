@@ -5,58 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
 )
 
-// grubCfgTransformer handles transformations for /boot/grub/grub.cfg
-type GrubCfgTransformer struct {
-	FilePath string
-	Pattern  *regexp.Regexp
-	Params   []string
-}
-
-// grubDefaultTransformer handles transformations for /etc/default/grub
-type GrubDefaultTransformer struct {
-	FilePath string
-	Pattern  *regexp.Regexp
-	Cmdline  string
-}
-
-func (g *GrubCfgTransformer) TransformLine(line string) string {
-	// Append each kernel command line parameter to the matched line
-	for _, param := range g.Params {
-		line += " " + param
-	}
-	return line
-}
-
-func (g *GrubCfgTransformer) GetFilePath() string {
-	return g.FilePath
-}
-
-func (g *GrubCfgTransformer) GetPattern() *regexp.Regexp {
-	return g.Pattern
-}
-
-func (g *GrubDefaultTransformer) TransformLine(line string) string {
-	// Extract existing parameters
-	matches := g.Pattern.FindStringSubmatch(line)
-
-	// Reconstruct the line with updated parameters
-	return fmt.Sprintf(`%s%s%s`, matches[1], g.Cmdline, matches[3])
-}
-
-func (g *GrubDefaultTransformer) GetFilePath() string {
-	return g.FilePath
-}
-
-func (g *GrubDefaultTransformer) GetPattern() *regexp.Regexp {
-	return g.Pattern
-}
 
 func sortKcmdlineParams(cmdline string) string {
 	params := strings.Fields(cmdline)
@@ -76,33 +30,26 @@ func printDiff(old, new string) {
 	log.Println()
 }
 
-// InjectToGrubFiles inject the kernel command line parameters to the grub files. /etc/default/grub
+// UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
+// merges it with the kernel command line parameters specified in the provided config,
+// and writes the resulting command line to a drop-in configuration file for GRUB.
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 
 	params := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
 	if len(params) == 0 {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
-	grubDefault := &GrubDefaultTransformer{
-		FilePath: cfg.GrubDefault.File,
-		Pattern:  model.PatternGrubDefault,
-	}
 
-	grubMap, err := ParseDefaultGrubFile(grubDefault.FilePath)
+	cmdline, err := parseGrubCMDLineLinuxDefault(cfg.GrubCfg.GrubDefaultFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse grub file: %v", err)
-	}
-	cmdline, ok := grubMap["GRUB_CMDLINE_LINUX"]
-	if !ok {
-		return nil,
-			fmt.Errorf("GRUB_CMDLINE_LINUX not found in %s",
-				grubDefault.FilePath)
+		return nil, fmt.Errorf("failed to parse %s grub file: %s",
+			cfg.GrubCfg.GrubDefaultFilePath, err.Error())
 	}
 
 	if err := duplicatedParams(cmdline); err != nil {
 		return nil, fmt.Errorf(
-			"invalid existing parameters in %s for GRUB_CMDLINE_LINUX: %s",
-			grubDefault.FilePath, err)
+			"invalid existing parameters in %s for GRUB_CMDLINE_LINUX_DEFAULT: %s",
+			cfg.GrubCfg.GrubDefaultFilePath, err)
 	}
 	currParams := model.CmdlineToParams(cmdline)
 
@@ -111,20 +58,32 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	for k, v := range params {
 		currParams[k] = v
 	}
-	grubDefault.Cmdline = model.ParamsToCmdline(currParams)
 
-	// Sort the parameters to ensure consistent ordering
-	grubDefault.Cmdline = sortKcmdlineParams(grubDefault.Cmdline)
-	cmdline = sortKcmdlineParams(cmdline)
-	printDiff(cmdline, grubDefault.Cmdline)
+	cfg.GrubCfg.Cmdline = model.ParamsToCmdline(currParams)
+  cfg.GrubCfg.Cmdline = sortKcmdlineParams(cfg.GrubCfg.Cmdline)
+  cmdline = sortKcmdlineParams(cmdline)
+  
+  printDiff(cmdline, cfg.GrubCfg.Cmdline)
+	log.Println("Final kcmdline:", cfg.GrubCfg.Cmdline)
 
-	log.Println("Final kcmdline:", grubDefault.Cmdline)
-
-	if err := processFile(grubDefault); err != nil {
-		return nil, fmt.Errorf("error updating %s: %v", grubDefault.FilePath, err)
+	if err := processFile(cfg.GrubCfg); err != nil {
+		return nil, fmt.Errorf("error updating %s: %v",
+			cfg.GrubCfg.CustomGrubFilePath, err)
 	}
 
-	return GrubConclusion(grubDefault.FilePath), nil
+	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath), nil
+}
+
+func parseGrubCMDLineLinuxDefault(path string) (string, error) {
+	grubMap, err := ParseDefaultGrubFile(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse grub file: %v", err)
+	}
+	cmdline, ok := grubMap["GRUB_CMDLINE_LINUX_DEFAULT"]
+	if !ok {
+		log.Printf("GRUB_CMDLINE_LINUX_DEFAULT not found in %s", path)
+	}
+	return cmdline, nil
 }
 
 func ParseDefaultGrubFile(f string) (map[string]string, error) {
@@ -198,44 +157,12 @@ func duplicatedParams(cmdline string) error {
 
 // processFile processes a file with a given FileTransformer, applying
 // its transformation on lines matching the pattern.
-var processFile = func(transformer model.FileTransformer) error {
-	// Open file with read and write permissions
-	file, err := os.OpenFile(transformer.GetFilePath(), os.O_RDWR, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %v", err)
-	}
-	defer file.Close()
+var processFile = func(grub model.Grub) error {
+	cmdline := "GRUB_CMDLINE_LINUX_DEFAULT=\"" + grub.Cmdline + "\""
 
-	// Read all lines into a slice
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if transformer.GetPattern().MatchString(line) {
-			// This is where the kcmdline params of bootloader file are updated
-			line = transformer.TransformLine(line)
-		}
-		lines = append(lines, line)
+	if err := os.WriteFile(grub.CustomGrubFilePath, []byte(cmdline), 0644); err != nil {
+		return fmt.Errorf("failed to write to %s file: %v",
+			grub.CustomGrubFilePath, err)
 	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to read file: %v", err)
-	}
-
-	// Truncate file and write transformed lines
-	if err := file.Truncate(0); err != nil {
-		return fmt.Errorf("failed to truncate file: %v", err)
-	}
-	if _, err := file.Seek(0, 0); err != nil {
-		return fmt.Errorf("failed to seek to start of file: %v", err)
-	}
-
-	for _, line := range lines {
-		_, err := file.WriteString(line + "\n")
-		if err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
-		}
-	}
-
 	return nil
 }
