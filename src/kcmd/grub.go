@@ -17,19 +17,6 @@ func sortKcmdlineParams(cmdline string) string {
 	return strings.Join(params, " ")
 }
 
-func printDiff(old, new string) []string {
-	red := "\033[31m"
-	green := "\033[32m"
-	reset := "\033[0m"
-
-	return []string{
-		"Default kernel command line:\n",
-		red + "-  " + old + reset + "\n",
-		"New kernel command line:\n",
-		green + "+  " + new + reset + "\n",
-	}
-}
-
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
 // merges it with the kernel command line parameters specified in the provided config,
 // and writes the resulting command line to a drop-in configuration file for GRUB.
@@ -69,7 +56,7 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	}
 
 	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath,
-		printDiff(cmdline, cfg.GrubCfg.Cmdline)), nil
+		cmdline, cfg.GrubCfg.Cmdline), nil
 }
 
 func parseGrubCMDLineLinuxDefault(path string) (string, error) {

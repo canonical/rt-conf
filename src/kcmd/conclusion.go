@@ -1,8 +1,16 @@
 package kcmd
 
-func GrubConclusion(grubFile string, diff []string) []string {
+func GrubConclusion(grubFile, old, new string) []string {
+	red := "\033[31m"
+	green := "\033[32m"
+	reset := "\033[0m"
+
 	s := []string{
 		"Detected bootloader: GRUB\n",
+		"Default kernel command line:\n",
+		red + "-  " + old + reset + "\n",
+		"New kernel command line:\n",
+		green + "+  " + new + reset + "\n",
 		"Updated default grub file: " + grubFile + "\n",
 		"\n",
 		"Please run:\n",
@@ -11,7 +19,6 @@ func GrubConclusion(grubFile string, diff []string) []string {
 		"\n",
 		"to apply the changes to your bootloader.\n",
 	}
-	s = append(s[:1], append(diff, s[1:]...)...)
 	return s
 }
 
