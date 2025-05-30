@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/model"
 )
@@ -50,20 +51,23 @@ var writeFile = func(path string, content []byte, perm os.FileMode) error {
 }
 
 // Write IRQ affinity
-func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) error {
+
+// returns:
+// - sucess: true if the affinity was written successfully false if not
+// - managedIRQ: true if the irqNum was a managed (read-only) IRQ false if not
+// - err: error if any occurred nil if no error occurred
+func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (success bool, managedIRQ bool, err error) {
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
-	err := writeFile(affinityFile, []byte(cpus), 0644)
+	err = writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
-			log.Printf("Skipped read-only (managed?) IRQ: %s: %s",
-				affinityFile, err)
+			return false, true, nil
 		} else {
-			return fmt.Errorf("error writing to %s: %v", affinityFile, err)
+			err = fmt.Errorf("error writing to %s: %v", affinityFile, err)
+			return false, false, err
 		}
-	} else {
-		log.Printf("Set %s to %s", affinityFile, cpus)
 	}
-	return nil
+	return true, false, nil
 }
 
 func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
@@ -131,6 +135,10 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func ApplyIRQConfig(config *model.InternalConfig) error {
+	log.Println("\n-------------------")
+	log.Println("Applying IRQ tuning")
+	log.Println("-------------------")
+
 	if len(config.Data.Interrupts) == 0 {
 		// If no IRQ tuning is specified, skip the process
 		log.Println("No IRQ tuning rules found in config")
@@ -155,7 +163,9 @@ func applyIRQConfig(
 	}
 
 	// Range over IRQ tuning array
-	for _, irqTuning := range config.Data.Interrupts {
+	for i, irqTuning := range config.Data.Interrupts {
+		log.Printf("\nRule #%d ( %s )", i+1, formatIRQRule(irqTuning))
+
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {
 			return fmt.Errorf("failed to filter IRQs: %v", err)
@@ -168,12 +178,22 @@ func applyIRQConfig(
 				irqTuning.Filter)
 		}
 
+		// cleanup managed IRQs map
+		managedIRQs := make([]int, 0, len(irqs))
+		setIRQs := make([]int, 0, len(irqs))
 		for irqNum := range matchingIRQs {
-			err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
+			success, managedIRQ, err := handler.WriteCPUAffinity(irqNum, irqTuning.CPUs)
 			if err != nil {
 				return err
 			}
+			if managedIRQ {
+				managedIRQs = append(managedIRQs, irqNum)
+			}
+			if success {
+				setIRQs = append(setIRQs, irqNum)
+			}
 		}
+		logChanges(setIRQs, managedIRQs, irqTuning.CPUs)
 	}
 	return nil
 }
@@ -205,4 +225,48 @@ func matchesRegex(value, pattern string) bool {
 	}
 	match, err := regexp.MatchString(pattern, value)
 	return err == nil && match
+}
+
+func logChanges(changed, managed []int, cpus string) {
+	if len(managed) > 0 {
+		log.Printf("+ Skipped read-only (managed?) IRQs: %s",
+			cpulists.GenCPUlist(managed))
+	}
+	if len(changed) > 0 {
+		log.Printf("+ Assigned IRQs %s to CPUs %s", cpulists.GenCPUlist(changed), cpus)
+	}
+}
+
+func formatIRQRule(rule model.IRQTuning) string {
+	type field struct {
+		name  string
+		value string
+	}
+
+	values := []field{
+		{"CPUs", rule.CPUs},
+		{"actions", rule.Filter.Actions},
+		{"chip_name", rule.Filter.ChipName},
+		{"name", rule.Filter.Name},
+		{"type", rule.Filter.Type},
+	}
+
+	var fields []string
+	for _, f := range values {
+		fields = append(fields, f.name+": "+f.value)
+	}
+
+	return strings.Join(filterEmpty(fields), ", ")
+}
+
+// filterEmpty removes strings with empty values (like "name: ")
+func filterEmpty(items []string) []string {
+	var out []string
+	for _, s := range items {
+		parts := strings.SplitN(s, ": ", 2)
+		if len(parts) == 2 && parts[1] != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }

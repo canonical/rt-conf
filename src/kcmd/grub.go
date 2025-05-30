@@ -5,10 +5,30 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
 )
+
+func sortKcmdlineParams(cmdline string) string {
+	params := strings.Fields(cmdline)
+	sort.Strings(params)
+	return strings.Join(params, " ")
+}
+
+func printDiff(old, new string) []string {
+	red := "\033[31m"
+	green := "\033[32m"
+	reset := "\033[0m"
+
+	return []string{
+		"Default kernel command line:\n",
+		red + "-  " + old + reset + "\n",
+		"New kernel command line:\n",
+		green + "+  " + new + reset + "\n",
+	}
+}
 
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
 // merges it with the kernel command line parameters specified in the provided config,
@@ -40,14 +60,16 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	}
 
 	cfg.GrubCfg.Cmdline = model.ParamsToCmdline(currParams)
-	log.Println("Final kcmdline:", cfg.GrubCfg.Cmdline)
+	cfg.GrubCfg.Cmdline = sortKcmdlineParams(cfg.GrubCfg.Cmdline)
+	cmdline = sortKcmdlineParams(cmdline)
 
 	if err := processFile(cfg.GrubCfg); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v",
 			cfg.GrubCfg.CustomGrubFilePath, err)
 	}
 
-	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath), nil
+	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath,
+		printDiff(cmdline, cfg.GrubCfg.Cmdline)), nil
 }
 
 func parseGrubCMDLineLinuxDefault(path string) (string, error) {

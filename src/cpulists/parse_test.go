@@ -1,6 +1,7 @@
 package cpulists
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -71,9 +72,18 @@ func TestParseCPUListsHappy(t *testing.T) {
 		},
 	}
 
+	// If not set totalCPUs back to the original function, the next tests will fail.
+	// Because totalCPUs is a global function pointer in this module.
+	originalTotalCPUs := totalCPUs
+	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
+
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
-			res, err := ParseForCPUs(tt.input, tt.tCores)
+			totalCPUs = func() (int, error) {
+				return tt.tCores, nil
+			}
+
+			res, err := Parse(tt.input)
 			if err != nil {
 				t.Fatalf("ParseCPUs failed: %v", err)
 			}
@@ -197,6 +207,25 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 		},
 	}
 
+	// If not set totalCPUs back to the original function, the next tests will fail.
+	// Because totalCPUs is a global function pointer in this module.
+	originalTotalCPUs := totalCPUs
+	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
+	t.Run("TestParseCPUListsUnhappy", func(t *testing.T) {
+		totalCPUs = func() (int, error) {
+			return 0, errors.New("access denied")
+		}
+		expectedErr := "failed to get total available CPUs: access denied"
+		_, err := Parse("0-1")
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+		if err.Error() != expectedErr {
+			t.Fatalf("expected '%v', got '%v'", expectedErr, err)
+		}
+
+	})
+
 	for _, tt := range tst {
 		t.Run(tt.input, func(t *testing.T) {
 			_, err := ParseForCPUs(tt.input, tt.tCores)
@@ -243,11 +272,101 @@ func TestParseWithFlagsHappy(t *testing.T) {
 		{"managed_irq,0,n", max, isolcpuFlags},
 	}
 
+	// If not set totalCPUs back to the original function, the next tests will fail.
+	// Because totalCPUs is a global function pointer in this module.
+	originalTotalCPUs := totalCPUs
+	t.Cleanup(func() { totalCPUs = originalTotalCPUs })
+
 	for _, tc := range testCases {
 		t.Run("TestValidationWithFlags", func(t *testing.T) {
-			_, _, err := ParseWithFlagsForCPUs(tc.value, tc.flags, tc.cpus)
+			totalCPUs = func() (int, error) {
+				return tc.cpus, nil
+			}
+			_, _, err := ParseWithFlags(tc.value, tc.flags)
 			if err != nil {
 				t.Fatalf("Failed ValidateListWithFlags: %v", err)
+			}
+		})
+	}
+
+	t.Run("TestUnhappy-Failed-totalCPUs", func(t *testing.T) {
+		totalCPUs = func() (int, error) {
+			return 0, errors.New("access denied")
+		}
+		expectedErr := "failed to get total available CPUs: access denied"
+		_, _, err := ParseWithFlags("", isolcpuFlags)
+		if err == nil {
+			t.Fatalf("Expected error: %v, got nil", expectedErr)
+		}
+		if err.Error() != expectedErr {
+			t.Fatalf("Expected error: '%v', got '%v'", expectedErr, err)
+		}
+	})
+}
+
+func TestGenCPUlist(t *testing.T) {
+	var testCases = []struct {
+		name   string
+		cpus   []int
+		result string
+	}{
+		{
+			name:   "TestEmptyCPUs",
+			cpus:   []int{},
+			result: "",
+		},
+		{
+			name:   "TestSingleCPU",
+			cpus:   []int{0},
+			result: "0",
+		},
+		{
+			name:   "TestMultipleSingleCPUs",
+			cpus:   []int{0, 2, 4, 6},
+			result: "0,2,4,6",
+		},
+		{
+			name:   "TestCPURange",
+			cpus:   []int{0, 1, 2},
+			result: "0-2",
+		},
+		{
+			name:   "TestMultipleCPURanges",
+			cpus:   []int{0, 1, 2, 4, 5},
+			result: "0-2,4-5",
+		},
+		{
+			name:   "TestNonContiguousCPUs",
+			cpus:   []int{0, 2, 4},
+			result: "0,2,4",
+		},
+		{
+			name:   "TestMixedCPUsRangeAndSingle",
+			cpus:   []int{9, 1, 2, 3, 6},
+			result: "1-3,6,9",
+		},
+		{
+			name:   "TestMixedCPUsSingleAndRange",
+			cpus:   []int{0, 2, 4, 6, 7},
+			result: "0,2,4,6-7",
+		},
+		{
+			name:   "TestCPUsWithGaps",
+			cpus:   []int{0, 1, 3, 4, 6},
+			result: "0-1,3-4,6",
+		},
+		{
+			name:   "TestCPUsWithGapsAndRange",
+			cpus:   []int{0, 1, 3, 4, 6, 7},
+			result: "0-1,3-4,6-7",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := GenCPUlist(tc.cpus)
+			if result != tc.result {
+				t.Errorf("Expected %s, got %s", tc.result, result)
 			}
 		})
 	}

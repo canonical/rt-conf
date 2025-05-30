@@ -23,14 +23,15 @@ func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
 	if err != nil {
 		return fmt.Errorf("error writing to %s: %v", scalingGovFile, err)
-	} else {
-		log.Printf("Set %s to %s", scalingGovFile, sclgov)
 	}
-
 	return nil
 }
 
 func ApplyPwrConfig(config *model.InternalConfig) error {
+	log.Println("\n-----------------------")
+	log.Println("Applying CPU Governance")
+	log.Println("-----------------------")
+
 	if len(config.Data.CpuGovernance) == 0 {
 		log.Println("No CPU governance rules found in config")
 		return nil
@@ -40,21 +41,39 @@ func ApplyPwrConfig(config *model.InternalConfig) error {
 
 // Apply changes based on YAML config
 func (wr ReaderWriter) applyPwrConfig(
-	config []model.CpuGovernanceRule,
+	rules []model.CpuGovernanceRule,
 ) error {
 
 	// Range over all CPU governance rules
-	for _, sclgov := range config {
+	for i, sclgov := range rules {
+
+		log.Printf("\nRule #%d ( CPUs: %s, scaling_governor: %s )\n",
+			i+1, sclgov.CPUs, sclgov.ScalGov)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
 		}
+
+		var setCpus []int
+
 		for cpu := range cpus {
 			err := wr.WriteScalingGov(sclgov.ScalGov, cpu)
 			if err != nil {
 				return err
 			}
+			setCpus = append(setCpus, cpu)
 		}
+		logChanges(setCpus, sclgov.CPUs)
 	}
+
 	return nil
+}
+
+func logChanges(cpus []int, scalingGov string) {
+	if len(cpus) == 0 {
+		log.Println("Rule does not match any CPUs.")
+		return
+	}
+	log.Printf("+ Set scaling governance of CPUs %s to %s",
+		cpulists.GenCPUlist(cpus), scalingGov)
 }
