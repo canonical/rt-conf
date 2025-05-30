@@ -14,7 +14,16 @@ func TestGrubConclusion(t *testing.T) {
 		"\n",
 		"to apply the changes to your bootloader.\n",
 	}
-	result := GrubConclusion(grubFile)
+
+	expected = append(expected[:1],
+		append(printDiff("quiet splash",
+			"quiet splash isolcpus=1-2"),
+			expected[1:]...)...)
+
+	result := GrubConclusion(grubFile, printDiff(
+		"quiet splash",
+		"quiet splash isolcpus=1-2",
+	))
 
 	if len(result) != len(expected) {
 		t.Errorf("Expected %d lines, got %d", len(expected), len(result))
