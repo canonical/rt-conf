@@ -229,7 +229,7 @@ func matchesRegex(value, pattern string) bool {
 
 func logChanges(changed, managed []int, cpus string) {
 	if len(managed) > 0 {
-		log.Printf("Skipped read-only (managed?) IRQs: %s",
+		log.Printf("+ Skipped read-only (managed?) IRQs: %s",
 			cpulists.GenCPUlist(managed))
 	}
 	if len(changed) > 0 {
