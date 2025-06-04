@@ -39,6 +39,6 @@ jobs:
         mode: qserver
         project: rt-conf
         branchdir: .
-        viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
+        viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=GoProjects
         ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
         installTics: true
