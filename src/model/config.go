@@ -30,7 +30,10 @@ func LoadConfigFile(confPath string) (*Config, error) {
 	}
 
 	if !isOwnedByRoot(fileInfo) {
-		return nil, fmt.Errorf("file %s is not owned by root", confPath)
+		return nil, fmt.Errorf(
+			"file %s is not owned by root.\n\nHint: Change file ownership with:\nsudo chown root:root %s",
+			confPath, confPath,
+		)
 	}
 
 	content, err := ReadYAML(confPath)
