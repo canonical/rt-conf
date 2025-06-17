@@ -27,7 +27,7 @@ parts:
       - config.yaml
 
 plugs:
-  etc-default-grubd:
+  etc-default-grub:
     interface: system-files
     write:
       - /etc/default/grub.d/60_rt-conf.cfg
@@ -38,7 +38,7 @@ apps:
   rt-conf: &rt-conf
     plugs:
       - cpu-control
-      - etc-default-grubd
+      - etc-default-grub
       - hardware-observe
       - home
     command: bin/rt-conf
