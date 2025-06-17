@@ -31,16 +31,18 @@ plugs:
   home:
     read: all
 
-  etc-default-grub:
+  etc-default-grubd:
     interface: system-files
     write:
+      - /etc/default/grub.d/60_rt-conf.cfg
+    read:
       - /etc/default/grub
 
 apps:
   rt-conf: &rt-conf
     plugs:
       - home
-      - etc-default-grub
+      - etc-default-grubd
       - hardware-observe
       - cpu-control
     command: bin/rt-conf
