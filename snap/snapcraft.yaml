@@ -42,7 +42,6 @@ apps:
       - home
       - etc-default-grub
       - hardware-observe
-      - snapd-control
       - cpu-control
     command: bin/rt-conf
 
