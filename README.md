@@ -18,7 +18,7 @@ Additional access is granted via [snap interfaces](https://snapcraft.io/docs/int
 After the installation it's necessary to connect the interfaces:
 
 - [cpu-control](https://snapcraft.io/docs/cpu-control-interface)
-- `etc-default-grub` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
+- `etc-default-grubd` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 - [hardware-observe](https://snapcraft.io/docs/hardware-observe-interface)
 - [home](https://snapcraft.io/docs/home-interface)
 
@@ -26,7 +26,7 @@ These can be done by running the following commands:
 
 ```shell
 sudo snap connect rt-conf:cpu-control
-sudo snap connect rt-conf:etc-default-grub
+sudo snap connect rt-conf:etc-default-grubd
 sudo snap connect rt-conf:hardware-observe
 sudo snap connect rt-conf:home
 ```
