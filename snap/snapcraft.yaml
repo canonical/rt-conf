@@ -41,10 +41,10 @@ plugs:
 apps:
   rt-conf: &rt-conf
     plugs:
-      - home
+      - cpu-control
       - etc-default-grubd
       - hardware-observe
-      - cpu-control
+      - home
     command: bin/rt-conf
 
   rt-confd:
