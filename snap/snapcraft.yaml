@@ -27,10 +27,6 @@ parts:
       - config.yaml
 
 plugs:
-  # For reading config file from user home directory as root
-  home:
-    read: all
-
   etc-default-grubd:
     interface: system-files
     write:
