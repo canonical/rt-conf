@@ -1,6 +1,6 @@
 name: rt-conf
 base: core24
-version: nil
+version: git
 summary: Configure and tune your real-time system
 description: |
   Tool destined to configure real-time parameters in a Linux system.
@@ -19,8 +19,6 @@ parts:
     plugin: go
     build-snaps:
       - go
-    override-build: |
-      craftctl set version=0.1+$(git describe --always --dirty)
 
   config-file:
     plugin: dump
