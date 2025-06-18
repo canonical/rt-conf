@@ -36,7 +36,8 @@ sudo snap connect rt-conf:sys-kernel-irq
 Copy the example configuration file to a working directory accessible to the snap.
 For example, copy it to the home directory:
 ```shell
-cp /snap/rt-conf/current/config.yaml ~/rt-conf.yaml
+sudo cp /snap/rt-conf/current/config.yaml ~/rt-conf.yaml
+sudo chmod 644 ~/rt-conf.yaml
 ```
 
 ### Default configuration file
