@@ -33,13 +33,6 @@ sudo snap connect rt-conf:proc-irq
 sudo snap connect rt-conf:sys-kernel-irq
 ```
 
-Copy the example configuration file to a working directory accessible to the snap.
-For example, copy it to the home directory:
-```shell
-sudo cp /snap/rt-conf/current/config.yaml ~/rt-conf.yaml
-sudo chmod 644 ~/rt-conf.yaml
-```
-
 ### Default configuration file
 Upon installation the default rt-conf configuration file is added at: `/var/snap/rt-conf/common/config.yaml`.
 
@@ -47,6 +40,7 @@ Upon installation the default rt-conf configuration file is added at: `/var/snap
 
 Edit the [default configuration file](#default-configuration-file) or a copy of it.
 In case of a copy, it must be placed it in a directory accessible to the snap, such as the user home directory.
+The copy must be owned by and writable to the root user only.
 
 Run rt-conf to apply the configurations:
 ```shell
