@@ -1,6 +1,6 @@
 name: rt-conf
 base: core24
-version: '0.1'
+version: git
 summary: Configure and tune your real-time system
 description: |
   Tool destined to configure real-time parameters in a Linux system.
@@ -10,10 +10,10 @@ grade: stable
 confinement: strict
 
 parts:
-  local: 
+  local:
     source: snap/local
     plugin: dump
-    
+
   rt-conf:
     source: .
     plugin: go
