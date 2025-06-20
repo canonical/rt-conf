@@ -20,7 +20,7 @@ After the installation it's necessary to connect the interfaces:
 - [cpu-control](https://snapcraft.io/docs/cpu-control-interface)
 - `etc-default-grub` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
 - [hardware-observe](https://snapcraft.io/docs/hardware-observe-interface)
-- [home](https://snapcraft.io/docs/home-interface)
+- [home](https://snapcraft.io/docs/home-interface) - auto connected on classic distributions
 
 These can be done by running the following commands:
 
