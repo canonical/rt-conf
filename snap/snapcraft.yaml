@@ -27,23 +27,20 @@ parts:
       - config.yaml
 
 plugs:
-  # For reading config file from user home directory as root
-  home:
-    read: all
-
   etc-default-grub:
     interface: system-files
     write:
+      - /etc/default/grub.d/60_rt-conf.cfg
+    read:
       - /etc/default/grub
 
 apps:
   rt-conf: &rt-conf
     plugs:
-      - home
+      - cpu-control
       - etc-default-grub
       - hardware-observe
-      - snapd-control
-      - cpu-control
+      - home
     command: bin/rt-conf
 
   rt-confd:
