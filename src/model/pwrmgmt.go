@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/canonical/rt-conf/src/cpulists"
 )
@@ -34,6 +35,20 @@ func (c CpuGovernanceRule) Validate() error {
 	_, err := cpulists.Parse(c.CPUs)
 	if err != nil {
 		return fmt.Errorf("invalid cpus: %v", err)
+	}
+	if err := c.CheckFreqFormat(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c CpuGovernanceRule) CheckFreqFormat() error {
+	reg := regexp.MustCompile(`^\d*\.?\d*[GM]?(Hz|hz)?$`)
+	if !reg.MatchString(c.MaxFreq) {
+		return fmt.Errorf("invalid frequency format: %s", c.MaxFreq)
+	}
+	if !reg.MatchString(c.MinFreq) {
+		return fmt.Errorf("invalid frequency format: %s", c.MinFreq)
 	}
 	return nil
 }
