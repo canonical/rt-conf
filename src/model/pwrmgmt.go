@@ -53,7 +53,7 @@ func (c CpuGovernanceRule) CheckFreqFormat() error {
 }
 
 func CheckFreqFormat(freq string) error {
-	reg := regexp.MustCompile(`^\d*\.?\d*[GgMm]?([Hh][Zz])?$`)
+	reg := regexp.MustCompile(`^\d*\.?\d*[KkGgMm]?([Hh][Zz])?$`)
 	if !reg.MatchString(freq) {
 		return fmt.Errorf("invalid frequency format: %s", freq)
 	}

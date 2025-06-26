@@ -172,6 +172,9 @@ func ParseFreq(freq string) (int, error) {
 	case strings.HasSuffix(s, "m"):
 		multiplier = 1_000.0
 		s = strings.TrimSuffix(s, "m")
+	case strings.HasSuffix(s, "k"):
+		multiplier = 1.0
+		s = strings.TrimSuffix(s, "k")
 	case hasHz:
 		multiplier = 0.001
 	default:
