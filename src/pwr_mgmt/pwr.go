@@ -157,7 +157,7 @@ func ParseFreq(freq string) (int, error) {
 		return 0, nil
 	}
 	if err := model.CheckFreqFormat(freq); err != nil {
-		return -1, fmt.Errorf("invalid frequency format: %w", err)
+		return -1, err
 	}
 
 	s := strings.ToLower(strings.TrimSpace(freq))
