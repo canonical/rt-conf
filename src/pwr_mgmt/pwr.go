@@ -77,8 +77,7 @@ func (wr ReaderWriter) applyPwrConfig(
 	// Range over all CPU governance rules
 	for i, sclgov := range rules {
 
-		log.Printf("\nRule #%d ( CPUs: %s, scaling_governor: %s, max_freq: %s, min_freq: %s )\n",
-			i+1, sclgov.CPUs, sclgov.ScalGov, sclgov.MaxFreq, sclgov.MinFreq)
+		logRule(i, sclgov)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
@@ -93,19 +92,42 @@ func (wr ReaderWriter) applyPwrConfig(
 			}
 			setCpus = append(setCpus, cpu)
 		}
-		logChanges(setCpus, sclgov.CPUs)
+		logChanges(setCpus, sclgov.MinFreq, sclgov.MaxFreq, sclgov.CPUs)
 	}
 
 	return nil
 }
 
-func logChanges(cpus []int, scalingGov string) {
+func logRule(index int, sclgov model.CpuGovernanceRule) {
+	// Use a slice to build the log message dynamically
+	fields := []string{
+		fmt.Sprintf("CPUs: %s", sclgov.CPUs),
+		fmt.Sprintf("scaling_governor: %s", sclgov.ScalGov),
+	}
+	if sclgov.MinFreq != "" {
+		fields = append(fields, fmt.Sprintf("min_freq: %s", sclgov.MinFreq))
+	}
+	if sclgov.MaxFreq != "" {
+		fields = append(fields, fmt.Sprintf("max_freq: %s", sclgov.MaxFreq))
+	}
+	log.Printf("\nRule #%d ( %s )\n", index+1, strings.Join(fields, ", "))
+}
+
+func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
 	if len(cpus) == 0 {
 		log.Println("Rule does not match any CPUs.")
 		return
 	}
-	log.Printf("+ Set scaling governance of CPUs %s to %s",
+	log.Printf("+ Set scaling governance of CPUs %s to %s\n",
 		cpulists.GenCPUlist(cpus), scalingGov)
+	if minFreq != "" {
+		log.Printf("+-- Set min frequency of CPUs %s to %s\n",
+			cpulists.GenCPUlist(cpus), maxFreq)
+	}
+	if maxFreq != "" {
+		log.Printf("+-- Set max frequency of CPUs %s to %s\n",
+			cpulists.GenCPUlist(cpus), maxFreq)
+	}
 }
 
 func (wr ReaderWriter) applyRule(cpu int,
