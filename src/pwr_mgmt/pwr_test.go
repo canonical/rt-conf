@@ -307,3 +307,83 @@ func TestCheckFequencyRules(t *testing.T) {
 	}
 }
 
+func TestParseFreq(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		expected  int
+		expectErr string
+	}{
+		{
+			name:     "Empty string",
+			input:    "",
+			expected: 0,
+		},
+		{
+			name:     "Raw kHz no unit",
+			input:    "1000",
+			expected: 1000,
+		},
+		{
+			name:     "kHz uppercase",
+			input:    "1000KHz",
+			expected: 1000,
+		},
+		{
+			name:     "Raw Hz with suffix",
+			input:    "100000Hz",
+			expected: 100,
+		},
+		{
+			name:     "MHz lowercase",
+			input:    "2.5m",
+			expected: 2500,
+		},
+		{
+			name:     "MHz uppercase",
+			input:    "2.5MHz",
+			expected: 2500,
+		},
+		{
+			name:     "GHz lowercase",
+			input:    "2.0g",
+			expected: 2_000_000,
+		},
+		{
+			name:     "GHz uppercase",
+			input:    "2.0GHz",
+			expected: 2_000_000,
+		},
+		{
+			name:      "Invalid float",
+			input:     "fooGHz",
+			expectErr: "invalid frequency format: fooGHz",
+		},
+		{
+			name:      "Invalid format",
+			input:     "123.4.5Mhz",
+			expectErr: "invalid frequency format: 123.4.5Mhz",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := ParseFreq(tc.input)
+			if tc.expectErr == "" {
+				if err != nil {
+					t.Fatalf("expected no error, got %v", err)
+				}
+				if got != tc.expected {
+					t.Errorf("expected %d, got %d", tc.expected, got)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("expected error %q, got nil", tc.expectErr)
+				}
+				if !strings.Contains(err.Error(), tc.expectErr) {
+					t.Errorf("expected error to contain %q, got %q", tc.expectErr, err.Error())
+				}
+			}
+		})
+	}
+}
