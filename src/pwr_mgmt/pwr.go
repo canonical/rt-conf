@@ -161,6 +161,7 @@ func ParseFreq(freq string) (int, error) {
 	}
 
 	s := strings.ToLower(strings.TrimSpace(freq))
+	hasHz := strings.HasSuffix(s, "hz")
 	s = strings.TrimSuffix(s, "hz")
 
 	multiplier := 1.0
@@ -171,6 +172,8 @@ func ParseFreq(freq string) (int, error) {
 	case strings.HasSuffix(s, "m"):
 		multiplier = 1_000.0
 		s = strings.TrimSuffix(s, "m")
+	case hasHz:
+		multiplier = 0.001
 	default:
 		multiplier = 1.0
 	}
