@@ -43,12 +43,19 @@ func (c CpuGovernanceRule) Validate() error {
 }
 
 func (c CpuGovernanceRule) CheckFreqFormat() error {
-	reg := regexp.MustCompile(`^\d*\.?\d*[GM]?(Hz|hz)?$`)
-	if !reg.MatchString(c.MaxFreq) {
-		return fmt.Errorf("invalid frequency format: %s", c.MaxFreq)
+	if err := CheckFreqFormat(c.MaxFreq); err != nil {
+		return fmt.Errorf("invalid max frequency: %w", err)
 	}
-	if !reg.MatchString(c.MinFreq) {
-		return fmt.Errorf("invalid frequency format: %s", c.MinFreq)
+	if err := CheckFreqFormat(c.MinFreq); err != nil {
+		return fmt.Errorf("invalid min frequency: %w", err)
+	}
+	return nil
+}
+
+func CheckFreqFormat(freq string) error {
+	reg := regexp.MustCompile(`^\d*\.?\d*[GgMm]?([Hh][Zz])?$`)
+	if !reg.MatchString(freq) {
+		return fmt.Errorf("invalid frequency format: %s", freq)
 	}
 	return nil
 }
