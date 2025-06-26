@@ -77,66 +77,66 @@ func TestCheckFreqFormat(t *testing.T) {
 		{
 			name: "valid GHz and MHz",
 			rule: CpuGovernanceRule{
-				MaxFreq: "3.4GHz",
 				MinFreq: "1.8GHz",
+				MaxFreq: "3.4GHz",
 			},
 			wantErr: "",
 		},
 		{
 			name: "valid G and M suffix only",
 			rule: CpuGovernanceRule{
-				MaxFreq: "2.4G",
 				MinFreq: "1.2M",
+				MaxFreq: "2.4G",
 			},
 			wantErr: "",
 		},
 		{
 			name: "valid no unit suffix",
 			rule: CpuGovernanceRule{
-				MaxFreq: "2400000",
 				MinFreq: "1800000",
+				MaxFreq: "2400000",
 			},
 			wantErr: "",
 		},
 		{
 			name: "valid float without unit",
 			rule: CpuGovernanceRule{
-				MaxFreq: "2.5",
 				MinFreq: "1.2",
+				MaxFreq: "2.5",
 			},
 			wantErr: "",
 		},
 		{
 			name: "valid lowercase hz",
 			rule: CpuGovernanceRule{
-				MaxFreq: "3.0ghz",
 				MinFreq: "1.0mhz",
+				MaxFreq: "3.0gghz",
 			},
-			wantErr: "invalid frequency format: 3.0ghz",
+			wantErr: "invalid max frequency: invalid frequency format: 3.0gghz",
 		},
 		{
 			name: "invalid max freq string",
 			rule: CpuGovernanceRule{
-				MaxFreq: "threeGHz",
 				MinFreq: "1.2GHz",
+				MaxFreq: "threeGHz",
 			},
-			wantErr: "invalid frequency format: threeGHz",
+			wantErr: "invalid max frequency: invalid frequency format: threeGHz",
 		},
 		{
 			name: "invalid min freq string",
 			rule: CpuGovernanceRule{
-				MaxFreq: "3.4GHz",
 				MinFreq: "oneGHz",
+				MaxFreq: "3.4GHz",
 			},
-			wantErr: "invalid frequency format: oneGHz",
+			wantErr: "invalid min frequency: invalid frequency format: oneGHz",
 		},
 		{
 			name: "both max and min invalid",
 			rule: CpuGovernanceRule{
-				MaxFreq: "badMax",
 				MinFreq: "badMin",
+				MaxFreq: "badMax",
 			},
-			wantErr: "invalid frequency format: badMax", // Only first invalid is returned
+			wantErr: "invalid min frequency: invalid frequency format: badMin",
 		},
 	}
 
@@ -151,7 +151,9 @@ func TestCheckFreqFormat(t *testing.T) {
 					t.Fatalf("expected error: %q, got nil", tc.wantErr)
 				}
 				if err.Error() != tc.wantErr {
-					t.Errorf("expected error: %q, got: %q", tc.wantErr, err.Error())
+					t.Errorf("expected error: %q, got: %q",
+						tc.wantErr,
+						err.Error())
 				}
 			}
 		})

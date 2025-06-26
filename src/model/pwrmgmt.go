@@ -24,8 +24,8 @@ var scalProfilesMap = map[string]ScalProfiles{
 type CpuGovernanceRule struct {
 	CPUs    string `yaml:"cpus"`
 	ScalGov string `yaml:"scaling_governor"`
-	MaxFreq string `yaml:"max_frequency"`
 	MinFreq string `yaml:"min_frequency"`
+	MaxFreq string `yaml:"max_frequency"`
 }
 
 func (c CpuGovernanceRule) Validate() error {
@@ -43,11 +43,11 @@ func (c CpuGovernanceRule) Validate() error {
 }
 
 func (c CpuGovernanceRule) CheckFreqFormat() error {
-	if err := CheckFreqFormat(c.MaxFreq); err != nil {
-		return fmt.Errorf("invalid max frequency: %w", err)
-	}
 	if err := CheckFreqFormat(c.MinFreq); err != nil {
 		return fmt.Errorf("invalid min frequency: %w", err)
+	}
+	if err := CheckFreqFormat(c.MaxFreq); err != nil {
+		return fmt.Errorf("invalid max frequency: %w", err)
 	}
 	return nil
 }
