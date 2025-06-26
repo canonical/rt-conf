@@ -30,20 +30,33 @@ func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 	// Create files from 0 to n-1.
 	for i := 0; i < maxCpus; i++ {
 		filename := strconv.Itoa(i)
-		filePath := filepath.Join(tempDir, filename)
-		f, err := os.Create(filePath)
-		if err != nil {
-			t.Fatalf("failed to create file %s: %v", filePath, err)
+		cpuPath := filepath.Join(tempDir, filename)
+		if err := os.Mkdir(cpuPath, 0755); err != nil {
+			t.Fatalf("failed to create directory %s: %v", cpuPath, err)
 		}
-		nb, err := f.Write([]byte(prvRule))
+
+		scalGov := filepath.Join(cpuPath, "scalgov")
+		fscalGov, err := os.Create(scalGov)
 		if err != nil {
-			t.Fatalf("failed to write to file %s: %v", filePath, err)
+			t.Fatalf("failed to create file %s: %v", scalGov, err)
+		}
+
+		nb, err := fscalGov.Write([]byte(prvRule))
+		if err != nil {
+			t.Fatalf("failed to write to file %s: %v", scalGov, err)
 		}
 		if nb != len(prvRule) {
 			t.Fatalf("number of written bytes doesn't match on file %s",
-				filePath)
+				scalGov)
 		}
-		f.Close()
+		fscalGov.Close()
+
+		for _, file := range []string{"maxfreq", "minfreq"} {
+			filePath := filepath.Join(cpuPath, file)
+			if err := os.WriteFile(filePath, []byte("0"), 0644); err != nil {
+				t.Fatalf("failed to create file %s: %v", filePath, err)
+			}
+		}
 	}
 
 	return tempDir
@@ -87,14 +100,67 @@ func TestPwrMgmt(t *testing.T) {
 				},
 			},
 		},
+		{
+			4,
+			"balanced",
+			[]model.CpuGovernanceRule{
+				{
+					CPUs:    "0",
+					ScalGov: "powersave",
+					MaxFreq: "5584000",
+					MinFreq: "545000",
+				},
+			},
+		},
+		{
+			4,
+			"balanced",
+			[]model.CpuGovernanceRule{
+				{
+					CPUs:    "0",
+					ScalGov: "powersave",
+					MaxFreq: "2.5GHz",
+					MinFreq: "2.1GHz",
+				},
+			},
+		},
+		{
+			4,
+			"balanced",
+			[]model.CpuGovernanceRule{
+				{
+					CPUs:    "0",
+					ScalGov: "powersave",
+					MaxFreq: "2.5G",
+					MinFreq: "2.1G",
+				},
+			},
+		},
+		{
+			4,
+			"performance",
+			[]model.CpuGovernanceRule{
+				{
+					CPUs:    "0",
+					ScalGov: "powersave",
+					MaxFreq: "4000mHz",
+					MinFreq: "2000mHz",
+				},
+			},
+		},
 	}
 
 	for index, tc := range happyCases {
 		t.Run(fmt.Sprintf("case-%d", index), func(t *testing.T) {
 
 			basePath := setupTempDirWithFiles(t, tc.prevRule, tc.maxCpus)
-			scalingGovernorReaderWriter.Path = basePath + "/%d"
-			err := scalingGovernorReaderWriter.applyPwrConfig(tc.d)
+
+			// Create a new ReaderWriter instance with the base path
+			pwrmgmtReaderWriter.ScalingGovernorPath = basePath + "/%d/scalgov"
+			pwrmgmtReaderWriter.MaxFreqPath = basePath + "/%d/maxfreq"
+			pwrmgmtReaderWriter.MinFreqPath = basePath + "/%d/minfreq"
+
+			err := pwrmgmtReaderWriter.applyPwrConfig(tc.d)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}
@@ -107,7 +173,7 @@ func TestPwrMgmt(t *testing.T) {
 				}
 				for cpu := range parsedCpus {
 					content, err := os.ReadFile(
-						filepath.Join(basePath, strconv.Itoa(cpu)))
+						filepath.Join(basePath, strconv.Itoa(cpu), "scalgov"))
 					if err != nil {
 						t.Fatalf("error reading file: %v", err)
 					}
