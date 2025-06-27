@@ -69,6 +69,7 @@ func TestPwrMgmtValidationUnhappy(t *testing.T) {
 }
 
 func TestCheckFreqFormat(t *testing.T) {
+	exFormat := "expected formats: 3.4GHz, 2000MHz, 100000KHz, got: "
 	tests := []struct {
 		name    string
 		rule    CpuGovernanceRule
@@ -83,28 +84,31 @@ func TestCheckFreqFormat(t *testing.T) {
 			wantErr: "",
 		},
 		{
-			name: "valid G and M suffix only",
+			name: "invalid G and M suffix only",
 			rule: CpuGovernanceRule{
 				MinFreq: "1.2M",
 				MaxFreq: "2.4G",
 			},
-			wantErr: "",
+			wantErr: "invalid min frequency: invalid frequency format: " +
+				exFormat + "1.2M",
 		},
 		{
-			name: "valid no unit suffix",
+			name: "invalid no unit suffix",
 			rule: CpuGovernanceRule{
 				MinFreq: "1800000",
 				MaxFreq: "2400000",
 			},
-			wantErr: "",
+			wantErr: "invalid min frequency: invalid frequency format: " +
+				exFormat + "1800000",
 		},
 		{
-			name: "valid float without unit",
+			name: "invalid float without unit",
 			rule: CpuGovernanceRule{
 				MinFreq: "1.2",
 				MaxFreq: "2.5",
 			},
-			wantErr: "",
+			wantErr: "invalid min frequency: invalid frequency format: " +
+				exFormat + "1.2",
 		},
 		{
 			name: "valid lowercase hz",
@@ -112,7 +116,8 @@ func TestCheckFreqFormat(t *testing.T) {
 				MinFreq: "1.0mhz",
 				MaxFreq: "3.0gghz",
 			},
-			wantErr: "invalid max frequency: invalid frequency format: 3.0gghz",
+			wantErr: "invalid max frequency: invalid frequency format: " +
+				exFormat + "3.0gghz",
 		},
 		{
 			name: "invalid max freq string",
@@ -120,7 +125,8 @@ func TestCheckFreqFormat(t *testing.T) {
 				MinFreq: "1.2GHz",
 				MaxFreq: "threeGHz",
 			},
-			wantErr: "invalid max frequency: invalid frequency format: threeGHz",
+			wantErr: "invalid max frequency: invalid frequency format: " +
+				exFormat + "threeGHz",
 		},
 		{
 			name: "invalid min freq string",
@@ -128,7 +134,8 @@ func TestCheckFreqFormat(t *testing.T) {
 				MinFreq: "oneGHz",
 				MaxFreq: "3.4GHz",
 			},
-			wantErr: "invalid min frequency: invalid frequency format: oneGHz",
+			wantErr: "invalid min frequency: invalid frequency format: " +
+				exFormat + "oneGHz",
 		},
 		{
 			name: "both max and min invalid",
@@ -136,7 +143,8 @@ func TestCheckFreqFormat(t *testing.T) {
 				MinFreq: "badMin",
 				MaxFreq: "badMax",
 			},
-			wantErr: "invalid min frequency: invalid frequency format: badMin",
+			wantErr: "invalid min frequency: invalid frequency format: " +
+				exFormat + "badMin",
 		},
 	}
 

@@ -68,11 +68,14 @@ func TestPwrMgmt(t *testing.T) {
 	// for CpuGovernanceRule.CPUs are set to 0 so it can be tested with any
 	// amount of cpus
 	var happyCases = []struct {
+		name     string
 		maxCpus  int
 		prevRule string
 		d        []model.CpuGovernanceRule // add only one rule here
 	}{
-		{3,
+		{
+			"powersave to performance",
+			3,
 			"powersave",
 			[]model.CpuGovernanceRule{
 				{
@@ -82,6 +85,7 @@ func TestPwrMgmt(t *testing.T) {
 			},
 		},
 		{
+			"performance to powersave",
 			8,
 			"performance",
 			[]model.CpuGovernanceRule{
@@ -92,6 +96,7 @@ func TestPwrMgmt(t *testing.T) {
 			},
 		},
 		{
+			"balanced to powersave",
 			4,
 			"balanced",
 			[]model.CpuGovernanceRule{
@@ -102,42 +107,45 @@ func TestPwrMgmt(t *testing.T) {
 			},
 		},
 		{
+			"balanced to powersave with min and max freq",
 			4,
 			"balanced",
 			[]model.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "powersave",
-					MaxFreq: "5584000",
-					MinFreq: "545000",
+					MinFreq: "5.45GHz",
+					MaxFreq: "5.584GHz",
 				},
 			},
 		},
 		{
+			"balanced to powersave with min and max freq with different case",
 			4,
 			"balanced",
 			[]model.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "powersave",
-					MaxFreq: "2.5GHz",
-					MinFreq: "2.1GHz",
+					MinFreq: "2.1ghz",
+					MaxFreq: "2.5GHZ",
 				},
 			},
 		},
 		{
+			"balanced to powersave with only min freq",
 			4,
 			"balanced",
 			[]model.CpuGovernanceRule{
 				{
 					CPUs:    "0",
 					ScalGov: "powersave",
-					MaxFreq: "2.5G",
-					MinFreq: "2.1G",
+					MinFreq: "2.1ghz",
 				},
 			},
 		},
 		{
+			"performance to powersave with only max freq",
 			4,
 			"performance",
 			[]model.CpuGovernanceRule{
@@ -145,7 +153,6 @@ func TestPwrMgmt(t *testing.T) {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MaxFreq: "4000mHz",
-					MinFreq: "2000mHz",
 				},
 			},
 		},
@@ -308,6 +315,7 @@ func TestCheckFequencyRules(t *testing.T) {
 }
 
 func TestParseFreq(t *testing.T) {
+	defaultErr := "invalid frequency format: expected formats: 3.4GHz, 2000MHz, 100000KHz, got: "
 	tests := []struct {
 		name      string
 		input     string
@@ -317,12 +325,13 @@ func TestParseFreq(t *testing.T) {
 		{
 			name:     "Empty string",
 			input:    "",
-			expected: 0,
+			expected: -1,
 		},
 		{
-			name:     "Raw kHz no unit",
-			input:    "1000",
-			expected: 1000,
+			name:      "invalid raw kHz no unit",
+			input:     "1000",
+			expected:  1000,
+			expectErr: defaultErr + "1000",
 		},
 		{
 			name:     "kHz uppercase",
@@ -330,14 +339,14 @@ func TestParseFreq(t *testing.T) {
 			expected: 1000,
 		},
 		{
-			name:     "Raw Hz with suffix",
-			input:    "100000Hz",
-			expected: 100,
+			name:      "invalid raw Hz with suffix",
+			input:     "100000Hz",
+			expectErr: defaultErr + "100000Hz",
 		},
 		{
-			name:     "MHz lowercase",
-			input:    "2.5m",
-			expected: 2500,
+			name:      "invalid MHz lowercase",
+			input:     "2.5m",
+			expectErr: defaultErr + "2.5m",
 		},
 		{
 			name:     "MHz uppercase",
@@ -345,9 +354,9 @@ func TestParseFreq(t *testing.T) {
 			expected: 2500,
 		},
 		{
-			name:     "GHz lowercase",
-			input:    "2.0g",
-			expected: 2_000_000,
+			name:      "invalid GHz lowercase",
+			input:     "2.0g",
+			expectErr: defaultErr + "2.0g",
 		},
 		{
 			name:     "GHz uppercase",
@@ -357,12 +366,12 @@ func TestParseFreq(t *testing.T) {
 		{
 			name:      "Invalid float",
 			input:     "fooGHz",
-			expectErr: "invalid frequency format: fooGHz",
+			expectErr: defaultErr + "fooGHz",
 		},
 		{
 			name:      "Invalid format",
 			input:     "123.4.5Mhz",
-			expectErr: "invalid frequency format: 123.4.5Mhz",
+			expectErr: defaultErr + "123.4.5Mhz",
 		},
 	}
 
