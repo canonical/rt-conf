@@ -4,26 +4,57 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/model"
 )
 
 type ReaderWriter struct {
-	Path string
+	ScalingGovernorPath string
+	MinFreqPath         string
+	MaxFreqPath         string
 }
 
-var scalingGovernorReaderWriter = ReaderWriter{
-	Path: "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor",
+var pwrmgmtReaderWriter = ReaderWriter{
+	ScalingGovernorPath: "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor",
+	MinFreqPath:         "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_min_freq",
+	MaxFreqPath:         "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_max_freq",
 }
 
 func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
-	scalingGovFile := fmt.Sprintf(w.Path, cpu)
+	scalingGovFile := fmt.Sprintf(w.ScalingGovernorPath, cpu)
 
 	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
 	if err != nil {
 		return fmt.Errorf("error writing to %s: %v", scalingGovFile, err)
 	}
+	return nil
+}
+
+func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
+	if err := CheckFequencyRules(freqMin, freqMax); err != nil {
+		return fmt.Errorf("invalid frequency values: %v", err)
+	}
+
+	// If min frequency is set to 0 or -1, it means no limit was set
+	if freqMin != 0 && freqMin != -1 {
+		minFreqSysfs := fmt.Sprintf(w.MinFreqPath, cpu)
+		if err := os.WriteFile(minFreqSysfs, []byte(strconv.Itoa(freqMin)),
+			0644); err != nil {
+			return fmt.Errorf("error writing to %s: %v", minFreqSysfs, err)
+		}
+	}
+	// If max frequency is set to 0 or -1, it means no limit was set
+	if freqMax != 0 && freqMax != -1 {
+		maxFreqSysfs := fmt.Sprintf(w.MaxFreqPath, cpu)
+		if err := os.WriteFile(maxFreqSysfs, []byte(strconv.Itoa(freqMax)),
+			0644); err != nil {
+			return fmt.Errorf("error writing to %s: %v", maxFreqSysfs, err)
+		}
+	}
+
 	return nil
 }
 
@@ -36,7 +67,7 @@ func ApplyPwrConfig(config *model.InternalConfig) error {
 		log.Println("No CPU governance rules found in config")
 		return nil
 	}
-	return scalingGovernorReaderWriter.applyPwrConfig(config.Data.CpuGovernance)
+	return pwrmgmtReaderWriter.applyPwrConfig(config.Data.CpuGovernance)
 }
 
 // Apply changes based on YAML config
@@ -47,8 +78,7 @@ func (wr ReaderWriter) applyPwrConfig(
 	// Range over all CPU governance rules
 	for i, sclgov := range rules {
 
-		log.Printf("\nRule #%d ( CPUs: %s, scaling_governor: %s )\n",
-			i+1, sclgov.CPUs, sclgov.ScalGov)
+		logRule(i, sclgov)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
@@ -57,23 +87,133 @@ func (wr ReaderWriter) applyPwrConfig(
 		var setCpus []int
 
 		for cpu := range cpus {
-			err := wr.WriteScalingGov(sclgov.ScalGov, cpu)
-			if err != nil {
-				return err
+			if err := wr.applyRule(cpu, sclgov); err != nil {
+				return fmt.Errorf("failed to apply CPU governance rule #%d for CPU %d: %v",
+					i+1, cpu, err)
 			}
 			setCpus = append(setCpus, cpu)
 		}
-		logChanges(setCpus, sclgov.CPUs)
+		logChanges(setCpus, sclgov.MinFreq, sclgov.MaxFreq, sclgov.CPUs)
 	}
 
 	return nil
 }
 
-func logChanges(cpus []int, scalingGov string) {
+func logRule(index int, sclgov model.CpuGovernanceRule) {
+	// Use a slice to build the log message dynamically
+	fields := []string{
+		fmt.Sprintf("CPUs: %s", sclgov.CPUs),
+		fmt.Sprintf("scaling_governor: %s", sclgov.ScalGov),
+	}
+	if sclgov.MinFreq != "" {
+		fields = append(fields, fmt.Sprintf("min_freq: %s", sclgov.MinFreq))
+	}
+	if sclgov.MaxFreq != "" {
+		fields = append(fields, fmt.Sprintf("max_freq: %s", sclgov.MaxFreq))
+	}
+	log.Printf("\nRule #%d ( %s )\n", index+1, strings.Join(fields, ", "))
+}
+
+func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
 	if len(cpus) == 0 {
 		log.Println("Rule does not match any CPUs.")
 		return
 	}
-	log.Printf("+ Set scaling governance of CPUs %s to %s",
+	log.Printf("+ Set scaling governance of CPUs %s to %s\n",
 		cpulists.GenCPUlist(cpus), scalingGov)
+
+	minFreqConnector := "└── "
+	if minFreq != "" {
+		if maxFreq != "" {
+			minFreqConnector = "├── "
+		}
+		log.Printf("%sSet min frequency of CPUs %s to %s\n",
+			minFreqConnector, cpulists.GenCPUlist(cpus), minFreq)
+	}
+	if maxFreq != "" {
+		log.Printf("└── Set max frequency of CPUs %s to %s\n",
+			cpulists.GenCPUlist(cpus), maxFreq)
+	}
+}
+
+func (wr ReaderWriter) applyRule(cpu int,
+	sclgov model.CpuGovernanceRule) error {
+	if err := wr.WriteScalingGov(sclgov.ScalGov, cpu); err != nil {
+		return err
+	}
+	minFreq, err := ParseFreq(sclgov.MinFreq)
+	if err != nil {
+		return err
+	}
+	maxFreq, err := ParseFreq(sclgov.MaxFreq)
+	if err != nil {
+		return err
+	}
+	if err := wr.WriteCPUFreq(
+		minFreq,
+		maxFreq,
+		cpu); err != nil {
+		return fmt.Errorf("failed to set CPU frequency for CPU %d: %v", cpu, err)
+	}
+	return nil
+}
+
+func ParseFreq(freq string) (int, error) {
+	if freq == "" {
+		return -1, nil // No frequency limits set, nothing to parse
+	}
+	if err := model.CheckFreqFormat(freq); err != nil {
+		return -1, err
+	}
+
+	s := strings.ToLower(strings.TrimSpace(freq))
+	s = strings.TrimSuffix(s, "hz")
+
+	multiplier := 1.0
+	switch {
+	case strings.HasSuffix(s, "g"):
+		multiplier = 1_000_000.0
+		s = strings.TrimSuffix(s, "g")
+	case strings.HasSuffix(s, "m"):
+		multiplier = 1_000.0
+		s = strings.TrimSuffix(s, "m")
+	case strings.HasSuffix(s, "k"):
+		multiplier = 1.0
+		s = strings.TrimSuffix(s, "k")
+	default:
+		multiplier = 1.0
+	}
+
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return -1, fmt.Errorf("failed to parse frequency value: %v", err)
+	}
+
+	kHz := int(val * multiplier)
+	return kHz, nil
+}
+
+func CheckFequencyRules(min, max int) error {
+	// -1 is used to indicate no limit
+	minAndmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
+
+	if min == 0 && max == 0 {
+		return nil // No frequency limits set, valid case
+	}
+	// Check if min and max are invalid non-negative integers
+	// -1 is used to indicate no limit
+	if (max < 0 || min < 0) && minAndmaxAreSet {
+		return fmt.Errorf("frequency values must be non-negative, got max: %d, min: %d",
+			max, min)
+	}
+
+	// Check if man > min
+	if (max < min) && minAndmaxAreSet {
+		return fmt.Errorf("max frequency (%d) cannot be less than min frequency (%d)",
+			max, min)
+	}
+	if (min == max) && minAndmaxAreSet {
+		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
+	}
+	return nil
 }
