@@ -165,8 +165,8 @@ func TestPwrMgmt(t *testing.T) {
 
 			// Create a new ReaderWriter instance with the base path
 			pwrmgmtReaderWriter.ScalingGovernorPath = basePath + "/%d/scalgov"
-			pwrmgmtReaderWriter.MaxFreqPath = basePath + "/%d/maxfreq"
 			pwrmgmtReaderWriter.MinFreqPath = basePath + "/%d/minfreq"
+			pwrmgmtReaderWriter.MaxFreqPath = basePath + "/%d/maxfreq"
 
 			err := pwrmgmtReaderWriter.applyPwrConfig(tc.d)
 			if err != nil {
