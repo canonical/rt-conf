@@ -190,24 +190,24 @@ func ParseFreq(freq string) (int, error) {
 
 func CheckFequencyRules(min, max int) error {
 	// -1 is used to indicate no limit
-	minANDmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
+	minAndmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
 
 	if min == 0 && max == 0 {
 		return nil // No frequency limits set, valid case
 	}
 	// Check if min and max are invalid non-negative integers
 	// -1 is used to indicate no limit
-	if (max < 0 || min < 0) && minANDmaxAreSet {
+	if (max < 0 || min < 0) && minAndmaxAreSet {
 		return fmt.Errorf("frequency values must be non-negative, got max: %d, min: %d",
 			max, min)
 	}
 
 	// Check if man > min
-	if (max < min) && minANDmaxAreSet {
+	if (max < min) && minAndmaxAreSet {
 		return fmt.Errorf("max frequency (%d) cannot be less than min frequency (%d)",
 			max, min)
 	}
-	if (min == max) && minANDmaxAreSet {
+	if (min == max) && minAndmaxAreSet {
 		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
 	}
 	return nil
