@@ -53,9 +53,13 @@ func (c CpuGovernanceRule) CheckFreqFormat() error {
 }
 
 func CheckFreqFormat(freq string) error {
-	reg := regexp.MustCompile(`^\d*\.?\d*[KkGgMm]?([Hh][Zz])?$`)
+	if freq == "" {
+		return nil // No frequency limits set, nothing to validate
+	}
+	reg := regexp.MustCompile(`^\d*\.?\d*[KkGgMm]{1}([Hh][Zz]){1}$`)
 	if !reg.MatchString(freq) {
-		return fmt.Errorf("invalid frequency format: %s", freq)
+		msg := "expected formats: 3.4GHz, 2000MHz, 100000KHz, got: " + freq
+		return fmt.Errorf("invalid frequency format: %s", msg)
 	}
 	return nil
 }
