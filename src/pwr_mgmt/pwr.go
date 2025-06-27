@@ -38,15 +38,16 @@ func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
 		return fmt.Errorf("invalid frequency values: %v", err)
 	}
 
-	if freqMin != 0 { // If min frequency is set to 0, it means no limit was set
+	// If min frequency is set to 0 or -1, it means no limit was set
+	if freqMin != 0 && freqMin != -1 {
 		minFreqSysfs := fmt.Sprintf(w.MinFreqPath, cpu)
 		if err := os.WriteFile(minFreqSysfs, []byte(strconv.Itoa(freqMin)),
 			0644); err != nil {
 			return fmt.Errorf("error writing to %s: %v", minFreqSysfs, err)
 		}
 	}
-
-	if freqMax != 0 { // If max frequency is set to 0, it means no limit was set
+	// If max frequency is set to 0 or -1, it means no limit was set
+	if freqMax != 0 && freqMax != -1 {
 		maxFreqSysfs := fmt.Sprintf(w.MaxFreqPath, cpu)
 		if err := os.WriteFile(maxFreqSysfs, []byte(strconv.Itoa(freqMax)),
 			0644); err != nil {
