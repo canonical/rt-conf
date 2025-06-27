@@ -155,7 +155,7 @@ func (wr ReaderWriter) applyRule(cpu int,
 
 func ParseFreq(freq string) (int, error) {
 	if freq == "" {
-		return 0, nil
+		return -1, nil // No frequency limits set, nothing to parse
 	}
 	if err := model.CheckFreqFormat(freq); err != nil {
 		return -1, err
@@ -181,7 +181,7 @@ func ParseFreq(freq string) (int, error) {
 
 	val, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse frequency value: %v", err)
+		return -1, fmt.Errorf("failed to parse frequency value: %v", err)
 	}
 
 	kHz := int(val * multiplier)
@@ -189,18 +189,25 @@ func ParseFreq(freq string) (int, error) {
 }
 
 func CheckFequencyRules(min, max int) error {
+	// -1 is used to indicate no limit
+	minANDmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
+
 	if min == 0 && max == 0 {
 		return nil // No frequency limits set, valid case
 	}
-	if max < 0 || min < 0 {
+	// Check if min and max are invalid non-negative integers
+	// -1 is used to indicate no limit
+	if (max < 0 || min < 0) && minANDmaxAreSet {
 		return fmt.Errorf("frequency values must be non-negative, got max: %d, min: %d",
 			max, min)
 	}
-	if max < min {
+
+	// Check if man > min
+	if (max < min) && minANDmaxAreSet {
 		return fmt.Errorf("max frequency (%d) cannot be less than min frequency (%d)",
 			max, min)
 	}
-	if min == max {
+	if (min == max) && minANDmaxAreSet {
 		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
 	}
 	return nil
