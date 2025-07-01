@@ -127,7 +127,7 @@ cpu_governance:
 				t.Fatalf("expected error, got nil")
 			}
 			if !strings.Contains(err.Error(), test.err) {
-				t.Fatalf("expected error '%s', got: %v", test.err, err)
+				t.Fatalf("expected error '%s', got: '%v'", test.err, err)
 			}
 		})
 	}
