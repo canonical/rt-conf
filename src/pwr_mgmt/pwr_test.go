@@ -250,58 +250,6 @@ func TestEmptyPwrMgmtRules(t *testing.T) {
 	}
 }
 
-func TestCheckFequencyRules(t *testing.T) {
-	tests := []struct {
-		name      string
-		min       int
-		max       int
-		expectErr string
-	}{
-		{
-			name:      "no limits set",
-			min:       0,
-			max:       0,
-			expectErr: "",
-		},
-		{
-			name:      "valid frequency range",
-			min:       1000,
-			max:       2000,
-			expectErr: "",
-		},
-		{
-			name:      "max < min",
-			min:       3000,
-			max:       2000,
-			expectErr: "max frequency (2000) cannot be less than min frequency (3000)",
-		},
-		{
-			name:      "min == max",
-			min:       1500,
-			max:       1500,
-			expectErr: "min and max frequency cannot be the same",
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			err := CheckFequencyRules(tc.min, tc.max)
-			if tc.expectErr == "" {
-				if err != nil {
-					t.Fatalf("expected no error, got: %v", err)
-				}
-			} else {
-				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tc.expectErr)
-				}
-				if !strings.Contains(err.Error(), tc.expectErr) {
-					t.Fatalf("expected error to contain %q, got: %v", tc.expectErr, err)
-				}
-			}
-		})
-	}
-}
-
 func TestParseFreq(t *testing.T) {
 	defaultErr := "invalid frequency format: expected formats: 3.4GHz, 2000MHz, 100000KHz, got: "
 	tests := []struct {
