@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 
 	"github.com/canonical/rt-conf/src/cpulists"
@@ -22,36 +23,10 @@ var scalProfilesMap = map[string]ScalProfiles{
 }
 
 type CpuGovernanceRule struct {
-	CPUs    string `yaml:"cpus"`
-	ScalGov string `yaml:"scaling_governor"`
-	MinFreq string `yaml:"min_freq"`
-	MaxFreq string `yaml:"max_freq"`
-}
-
-func (c CpuGovernanceRule) Validate() error {
-	if c.ScalGov != "" {
-		if _, ok := scalProfilesMap[c.ScalGov]; !ok {
-			return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
-		}
-	}
-	_, err := cpulists.Parse(c.CPUs)
-	if err != nil {
-		return fmt.Errorf("invalid cpus: %v", err)
-	}
-	if err := c.CheckFreqFormat(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c CpuGovernanceRule) CheckFreqFormat() error {
-	if err := CheckFreqFormat(c.MinFreq); err != nil {
-		return fmt.Errorf("invalid min frequency: %w", err)
-	}
-	if err := CheckFreqFormat(c.MaxFreq); err != nil {
-		return fmt.Errorf("invalid max frequency: %w", err)
-	}
-	return nil
+	CPUs    string `yaml:"cpus" validation:"cpulist"`
+	ScalGov string `yaml:"scaling_governor" validation:"scalgov"`
+	MinFreq string `yaml:"min_freq" validation:"freq"`
+	MaxFreq string `yaml:"max_freq" validation:"freq"`
 }
 
 func CheckFreqFormat(freq string) error {
@@ -63,5 +38,48 @@ func CheckFreqFormat(freq string) error {
 		msg := "expected formats: 3.4GHz, 2000MHz, 100000KHz, got: " + freq
 		return fmt.Errorf("invalid frequency format: %s", msg)
 	}
+	return nil
+}
+
+func (c CpuGovernanceRule) Validate() error {
+	v := reflect.ValueOf(c)
+	t := reflect.TypeOf(c)
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		val := v.Field(i).String()
+		tag := field.Tag.Get("validation")
+
+		switch tag {
+		case "cpulist":
+			if _, err := cpulists.Parse(val); err != nil {
+				return fmt.Errorf("invalid cpus: %v", err)
+			}
+		case "scalgov":
+			if val != "" {
+				if _, ok := scalProfilesMap[val]; !ok {
+					return fmt.Errorf("invalid cpu scaling governor: %v", val)
+				}
+			}
+		case "freq":
+			if err := CheckFreqFormat(val); err != nil {
+				return fmt.Errorf("invalid %s: %v", field.Tag.Get("yaml"), err)
+			}
+		}
+	}
+
+	// Checking frequency range logic
+	min, _ := ParseFreq(c.MinFreq)
+	max, _ := ParseFreq(c.MaxFreq)
+	minAndmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
+	if (max < min) && minAndmaxAreSet {
+		return fmt.Errorf(
+			"max frequency (%d) cannot be less than min frequency (%d)",
+			max, min)
+	}
+	if (min == max) && minAndmaxAreSet {
+		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
+	}
+
 	return nil
 }
