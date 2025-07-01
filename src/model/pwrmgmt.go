@@ -56,10 +56,8 @@ func (c CpuGovernanceRule) Validate() error {
 				return fmt.Errorf("invalid cpus: %v", err)
 			}
 		case "scalgov":
-			if val != "" {
-				if _, ok := scalProfilesMap[val]; !ok {
+			if _, ok := scalProfilesMap[val]; !ok && val != "" {
 					return fmt.Errorf("invalid cpu scaling governor: %v", val)
-				}
 			}
 		case "freq":
 			if err := CheckFreqFormat(val); err != nil {
