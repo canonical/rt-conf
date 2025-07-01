@@ -156,6 +156,29 @@ func TestPwrMgmt(t *testing.T) {
 				},
 			},
 		},
+		{
+			"Only max freq set",
+			4,
+			"powersave",
+			[]model.CpuGovernanceRule{
+				{
+					CPUs:    "0",
+					MaxFreq: "4gHz",
+				},
+			},
+		},
+		{
+			"Only max and min freq set",
+			4,
+			"powersave",
+			[]model.CpuGovernanceRule{
+				{
+					CPUs:    "0",
+					MaxFreq: "4gHz",
+					MinFreq: "1gHz",
+				},
+			},
+		},
 	}
 
 	for index, tc := range happyCases {
@@ -185,7 +208,7 @@ func TestPwrMgmt(t *testing.T) {
 					if err != nil {
 						t.Fatalf("error reading file: %v", err)
 					}
-					if string(content) != tc.d[idx].ScalGov {
+					if string(content) != tc.d[idx].ScalGov && tc.d[idx].ScalGov != "" {
 						t.Fatalf("expected %s, got %s", tc.d[idx].ScalGov,
 							string(content))
 					}
