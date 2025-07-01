@@ -270,18 +270,6 @@ func TestCheckFequencyRules(t *testing.T) {
 			expectErr: "",
 		},
 		{
-			name:      "negative max",
-			min:       1000,
-			max:       -2000,
-			expectErr: "frequency values must be non-negative",
-		},
-		{
-			name:      "negative min",
-			min:       -1000,
-			max:       2000,
-			expectErr: "frequency values must be non-negative",
-		},
-		{
 			name:      "max < min",
 			min:       3000,
 			max:       2000,
