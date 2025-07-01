@@ -127,12 +127,12 @@ func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
 		if maxFreq != "" {
 			minFreqConnector = "├── "
 		}
-		log.Printf("%sSet min frequency of CPUs %s to %s\n",
-			minFreqConnector, cpulists.GenCPUlist(cpus), minFreq)
+		log.Printf("%sSet min frequency of %s %s to %s\n",
+			minFreqConnector, cpusName, cpulists.GenCPUlist(cpus), minFreq)
 	}
 	if maxFreq != "" {
-		log.Printf("└── Set max frequency of CPUs %s to %s\n",
-			cpulists.GenCPUlist(cpus), maxFreq)
+		log.Printf("└── Set max frequency of %s %s to %s\n",
+			cpusName, cpulists.GenCPUlist(cpus), maxFreq)
 	}
 }
 
