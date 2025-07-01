@@ -115,12 +115,12 @@ func logRule(index int, sclgov model.CpuGovernanceRule) {
 }
 
 func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
-	if len(cpus) == 0 {
-		log.Println("Rule does not match any CPUs.")
-		return
+	cpusName := "CPUs"
+	if len(cpus) == 1 {
+		cpusName = "CPU"
 	}
-	log.Printf("+ Set scaling governance of CPUs %s to %s\n",
-		cpulists.GenCPUlist(cpus), scalingGov)
+	log.Printf("+ Set scaling governance of %s %s to %s\n",
+		cpusName, cpulists.GenCPUlist(cpus), scalingGov)
 
 	minFreqConnector := "└── "
 	if minFreq != "" {
@@ -180,8 +180,6 @@ func ParseFreq(freq string) (int, error) {
 	case strings.HasSuffix(s, "k"):
 		multiplier = 1.0
 		s = strings.TrimSuffix(s, "k")
-	default:
-		multiplier = 1.0
 	}
 
 	val, err := strconv.ParseFloat(s, 64)
@@ -200,14 +198,8 @@ func CheckFequencyRules(min, max int) error {
 	if min == 0 && max == 0 {
 		return nil // No frequency limits set, valid case
 	}
-	// Check if min and max are invalid non-negative integers
-	// -1 is used to indicate no limit
-	if (max < 0 || min < 0) && minAndmaxAreSet {
-		return fmt.Errorf("frequency values must be non-negative, got max: %d, min: %d",
-			max, min)
-	}
 
-	// Check if man > min
+	// Check if max > min
 	if (max < min) && minAndmaxAreSet {
 		return fmt.Errorf("max frequency (%d) cannot be less than min frequency (%d)",
 			max, min)
