@@ -82,10 +82,28 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 			name: "valid GHz and MHz",
 			rule: CpuGovernanceRule{
 				CPUs:    "0",
-				MinFreq: "1.8GHz",
+				MinFreq: "1800mHz",
 				MaxFreq: "3.4GHz",
 			},
 			wantErr: "",
+		},
+		{
+			name: "valid MHz and KHz",
+			rule: CpuGovernanceRule{
+				CPUs:    "0",
+				MinFreq: "1800mHz",
+				MaxFreq: "2000000000000kHz",
+			},
+			wantErr: "",
+		},
+		{
+			name: "invalid cpulist",
+			rule: CpuGovernanceRule{
+				CPUs:    "zz",
+				MinFreq: "1800mHz",
+				MaxFreq: "2000000000000kHz",
+			},
+			wantErr: "invalid CPU: zz",
 		},
 		{
 			name: "invalid unit only value",
@@ -166,6 +184,24 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 			},
 			wantErr: "invalid min_freq: invalid frequency format: " +
 				exFormat + "badMin",
+		},
+		{
+			name: "max freq less than min",
+			rule: CpuGovernanceRule{
+				CPUs:    "0",
+				MinFreq: "3.4GHz",
+				MaxFreq: "2.1GHz",
+			},
+			wantErr: "cannot be less than min frequency",
+		},
+		{
+			name: "min and max frequency cannot be the same",
+			rule: CpuGovernanceRule{
+				CPUs:    "0",
+				MinFreq: "2.1GHz",
+				MaxFreq: "2.1GHz",
+			},
+			wantErr: "min and max frequency cannot be the same",
 		},
 	}
 
