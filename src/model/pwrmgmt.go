@@ -29,8 +29,10 @@ type CpuGovernanceRule struct {
 }
 
 func (c CpuGovernanceRule) Validate() error {
-	if _, ok := scalProfilesMap[c.ScalGov]; !ok {
-		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
+	if c.ScalGov != "" {
+		if _, ok := scalProfilesMap[c.ScalGov]; !ok {
+			return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
+		}
 	}
 	_, err := cpulists.Parse(c.CPUs)
 	if err != nil {

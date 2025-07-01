@@ -24,6 +24,9 @@ var pwrmgmtReaderWriter = ReaderWriter{
 }
 
 func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
+	if sclgov == "" {
+		return nil // No scaling governor set, nothing to write
+	}
 	scalingGovFile := fmt.Sprintf(w.ScalingGovernorPath, cpu)
 
 	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
