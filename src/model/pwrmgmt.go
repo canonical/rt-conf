@@ -55,7 +55,7 @@ func (c CpuGovernanceRule) Validate() error {
 		switch tag {
 		case "cpulist":
 			if _, err := cpulists.Parse(val); err != nil {
-				return fmt.Errorf("invalid cpus: %v", err)
+				return err
 			}
 		case "scalgov":
 			if _, ok := scalProfilesMap[val]; !ok && val != "" {
