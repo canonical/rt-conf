@@ -93,7 +93,7 @@ func (wr ReaderWriter) applyPwrConfig(
 			}
 			setCpus = append(setCpus, cpu)
 		}
-		logChanges(setCpus, sclgov.MinFreq, sclgov.MaxFreq, sclgov.CPUs)
+		logChanges(setCpus, sclgov.MinFreq, sclgov.MaxFreq, sclgov.ScalGov)
 	}
 
 	return nil
