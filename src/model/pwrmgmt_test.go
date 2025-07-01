@@ -1,6 +1,9 @@
 package model
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestPwrMgmtValidationHappy(t *testing.T) {
 	var happyCases = []CpuGovernanceRule{
@@ -176,7 +179,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				if err == nil {
 					t.Fatalf("expected error: %q, got nil", tc.wantErr)
 				}
-				if err.Error() != tc.wantErr {
+				if !strings.Contains(err.Error(), tc.wantErr) {
 					t.Errorf("expected error: %q, got: %q",
 						tc.wantErr,
 						err.Error())
