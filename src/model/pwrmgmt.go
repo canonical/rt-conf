@@ -24,8 +24,8 @@ var scalProfilesMap = map[string]ScalProfiles{
 type CpuGovernanceRule struct {
 	CPUs    string `yaml:"cpus"`
 	ScalGov string `yaml:"scaling_governor"`
-	MinFreq string `yaml:"min_frequency"`
-	MaxFreq string `yaml:"max_frequency"`
+	MinFreq string `yaml:"min_freq"`
+	MaxFreq string `yaml:"max_freq"`
 }
 
 func (c CpuGovernanceRule) Validate() error {
