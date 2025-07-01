@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
 )
@@ -57,7 +59,7 @@ func (c CpuGovernanceRule) Validate() error {
 			}
 		case "scalgov":
 			if _, ok := scalProfilesMap[val]; !ok && val != "" {
-					return fmt.Errorf("invalid cpu scaling governor: %v", val)
+				return fmt.Errorf("invalid cpu scaling governor: %v", val)
 			}
 		case "freq":
 			if err := CheckFreqFormat(val); err != nil {
@@ -80,4 +82,37 @@ func (c CpuGovernanceRule) Validate() error {
 	}
 
 	return nil
+}
+
+func ParseFreq(freq string) (int, error) {
+	if freq == "" {
+		return -1, nil // No frequency limits set, nothing to parse
+	}
+	if err := CheckFreqFormat(freq); err != nil {
+		return -1, err
+	}
+
+	s := strings.ToLower(strings.TrimSpace(freq))
+	s = strings.TrimSuffix(s, "hz")
+
+	multiplier := 1.0
+	switch {
+	case strings.HasSuffix(s, "g"):
+		multiplier = 1_000_000.0
+		s = strings.TrimSuffix(s, "g")
+	case strings.HasSuffix(s, "m"):
+		multiplier = 1_000.0
+		s = strings.TrimSuffix(s, "m")
+	case strings.HasSuffix(s, "k"):
+		multiplier = 1.0
+		s = strings.TrimSuffix(s, "k")
+	}
+
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return -1, fmt.Errorf("failed to parse frequency value: %v", err)
+	}
+
+	kHz := int(val * multiplier)
+	return kHz, nil
 }

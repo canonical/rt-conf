@@ -365,7 +365,7 @@ func TestParseFreq(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := ParseFreq(tc.input)
+			got, err := model.ParseFreq(tc.input)
 			if tc.expectErr == "" {
 				if err != nil {
 					t.Fatalf("expected no error, got %v", err)

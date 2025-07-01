@@ -37,9 +37,6 @@ func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 }
 
 func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
-	if err := CheckFequencyRules(freqMin, freqMax); err != nil {
-		return fmt.Errorf("invalid frequency values: %v", err)
-	}
 
 	// If min frequency is set to 0 or -1, it means no limit was set
 	if freqMin != 0 && freqMin != -1 {
@@ -144,11 +141,11 @@ func (wr ReaderWriter) applyRule(cpu int,
 	if err := wr.WriteScalingGov(sclgov.ScalGov, cpu); err != nil {
 		return err
 	}
-	minFreq, err := ParseFreq(sclgov.MinFreq)
+	minFreq, err := model.ParseFreq(sclgov.MinFreq)
 	if err != nil {
 		return err
 	}
-	maxFreq, err := ParseFreq(sclgov.MaxFreq)
+	maxFreq, err := model.ParseFreq(sclgov.MaxFreq)
 	if err != nil {
 		return err
 	}
@@ -157,58 +154,6 @@ func (wr ReaderWriter) applyRule(cpu int,
 		maxFreq,
 		cpu); err != nil {
 		return fmt.Errorf("failed to set CPU frequency for CPU %d: %v", cpu, err)
-	}
-	return nil
-}
-
-func ParseFreq(freq string) (int, error) {
-	if freq == "" {
-		return -1, nil // No frequency limits set, nothing to parse
-	}
-	if err := model.CheckFreqFormat(freq); err != nil {
-		return -1, err
-	}
-
-	s := strings.ToLower(strings.TrimSpace(freq))
-	s = strings.TrimSuffix(s, "hz")
-
-	multiplier := 1.0
-	switch {
-	case strings.HasSuffix(s, "g"):
-		multiplier = 1_000_000.0
-		s = strings.TrimSuffix(s, "g")
-	case strings.HasSuffix(s, "m"):
-		multiplier = 1_000.0
-		s = strings.TrimSuffix(s, "m")
-	case strings.HasSuffix(s, "k"):
-		multiplier = 1.0
-		s = strings.TrimSuffix(s, "k")
-	}
-
-	val, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return -1, fmt.Errorf("failed to parse frequency value: %v", err)
-	}
-
-	kHz := int(val * multiplier)
-	return kHz, nil
-}
-
-func CheckFequencyRules(min, max int) error {
-	// -1 is used to indicate no limit
-	minAndmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
-
-	if min == 0 && max == 0 {
-		return nil // No frequency limits set, valid case
-	}
-
-	// Check if max > min
-	if (max < min) && minAndmaxAreSet {
-		return fmt.Errorf("max frequency (%d) cannot be less than min frequency (%d)",
-			max, min)
-	}
-	if (min == max) && minAndmaxAreSet {
-		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
 	}
 	return nil
 }
