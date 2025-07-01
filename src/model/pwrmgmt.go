@@ -56,7 +56,7 @@ func CheckFreqFormat(freq string) error {
 	if freq == "" {
 		return nil // No frequency limits set, nothing to validate
 	}
-	reg := regexp.MustCompile(`^\d*\.?\d*[KkGgMm]{1}([Hh][Zz]){1}$`)
+	reg := regexp.MustCompile(`^\d+\.?\d*[KkGgMm]{1}([Hh][Zz]){1}$`)
 	if !reg.MatchString(freq) {
 		msg := "expected formats: 3.4GHz, 2000MHz, 100000KHz, got: " + freq
 		return fmt.Errorf("invalid frequency format: %s", msg)

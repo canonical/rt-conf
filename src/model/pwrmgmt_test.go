@@ -84,6 +84,15 @@ func TestCheckFreqFormat(t *testing.T) {
 			wantErr: "",
 		},
 		{
+			name: "invalid unit only value",
+			rule: CpuGovernanceRule{
+				MinFreq: "MHz",
+				MaxFreq: "GHz",
+			},
+			wantErr: "invalid min frequency: invalid frequency format: " +
+				exFormat + "MHz",
+		},
+		{
 			name: "invalid G and M suffix only",
 			rule: CpuGovernanceRule{
 				MinFreq: "1.2M",
