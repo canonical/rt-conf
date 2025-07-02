@@ -209,7 +209,7 @@ func TestPwrMgmt(t *testing.T) {
 						t.Fatalf("error reading file: %v", err)
 					}
 					if string(content) != tc.d[idx].ScalGov && tc.d[idx].ScalGov != "" {
-						t.Fatalf("expected %s, got %s", tc.d[idx].ScalGov,
+						t.Fatalf("expected %q, got %q", tc.d[idx].ScalGov,
 							string(content))
 					}
 				}
@@ -246,7 +246,7 @@ func TestPwrMgmt(t *testing.T) {
 				t.Fatalf("expected error, got nil")
 			}
 			if err.Error() != tc.err.Error() {
-				t.Fatalf("expected error: %v, got: %v", tc.err.Error(), err)
+				t.Fatalf("expected error: %q, got: %q", tc.err.Error(), err)
 			}
 		})
 	}
