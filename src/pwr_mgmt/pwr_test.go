@@ -298,9 +298,9 @@ func TestParseFreq(t *testing.T) {
 			expected: 1000,
 		},
 		{
-			name:      "invalid raw Hz with suffix",
-			input:     "100000Hz",
-			expectErr: defaultErr + "100000Hz",
+			name:     "valid raw Hz with suffix",
+			input:    "100000Hz",
+			expected: 100,
 		},
 		{
 			name:      "invalid MHz lowercase",

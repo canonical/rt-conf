@@ -35,7 +35,7 @@ func CheckFreqFormat(freq string) error {
 	if freq == "" {
 		return nil // No frequency limits set, nothing to validate
 	}
-	reg := regexp.MustCompile(`^\d+\.?\d*[KkGgMm]{1}([Hh][Zz]){1}$`)
+	reg := regexp.MustCompile(`^\d+\.?\d*[KkGgMm]?([Hh][Zz]){1}$`)
 	if !reg.MatchString(freq) {
 		msg := "expected formats: 3.4GHz, 2000MHz, 100000KHz, got: " + freq
 		return fmt.Errorf("invalid frequency format: %s", msg)
@@ -106,6 +106,8 @@ func ParseFreq(freq string) (int, error) {
 	case strings.HasSuffix(s, "k"):
 		multiplier = 1.0
 		s = strings.TrimSuffix(s, "k")
+	default:
+		multiplier = 0.001 // Default to raw Hz if no suffix is provided
 	}
 
 	val, err := strconv.ParseFloat(s, 64)

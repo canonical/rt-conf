@@ -97,6 +97,15 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 			wantErr: "",
 		},
 		{
+			name: "valid raw Hz and KHz",
+			rule: CpuGovernanceRule{
+				CPUs:    "0",
+				MinFreq: "1800000000Hz",
+				MaxFreq: "2000000000000kHz",
+			},
+			wantErr: "",
+		},
+		{
 			name: "invalid cpulist",
 			rule: CpuGovernanceRule{
 				CPUs:    "zz",
