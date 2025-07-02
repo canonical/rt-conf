@@ -2,8 +2,6 @@ package model
 
 import (
 	"fmt"
-	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -25,52 +23,28 @@ var scalProfilesMap = map[string]ScalProfiles{
 }
 
 type CpuGovernanceRule struct {
-	CPUs    string `yaml:"cpus" validation:"cpulist"`
-	ScalGov string `yaml:"scaling_governor" validation:"scalgov"`
-	MinFreq string `yaml:"min_freq" validation:"freq"`
-	MaxFreq string `yaml:"max_freq" validation:"freq"`
-}
-
-func CheckFreqFormat(freq string) error {
-	if freq == "" {
-		return nil // No frequency limits set, nothing to validate
-	}
-	reg := regexp.MustCompile(`^\d+\.?\d*[KkGgMm]?([Hh][Zz]){1}$`)
-	if !reg.MatchString(freq) {
-		msg := "expected formats: 3.4GHz, 2000MHz, 100000KHz, got: " + freq
-		return fmt.Errorf("invalid frequency format: %s", msg)
-	}
-	return nil
+	CPUs    string `yaml:"cpus"`
+	ScalGov string `yaml:"scaling_governor"`
+	MinFreq string `yaml:"min_freq"`
+	MaxFreq string `yaml:"max_freq"`
 }
 
 func (c CpuGovernanceRule) Validate() error {
-	v := reflect.ValueOf(c)
-	t := reflect.TypeOf(c)
-
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		val := v.Field(i).String()
-		tag := field.Tag.Get("validation")
-
-		switch tag {
-		case "cpulist":
-			if _, err := cpulists.Parse(val); err != nil {
-				return err
-			}
-		case "scalgov":
-			if _, ok := scalProfilesMap[val]; !ok && val != "" {
-				return fmt.Errorf("invalid cpu scaling governor: %v", val)
-			}
-		case "freq":
-			if err := CheckFreqFormat(val); err != nil {
-				return fmt.Errorf("invalid %s: %v", field.Tag.Get("yaml"), err)
-			}
-		}
+	if _, err := cpulists.Parse(c.CPUs); err != nil {
+		return err
+	}
+	if _, ok := scalProfilesMap[c.ScalGov]; !ok && c.ScalGov != "" {
+		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
+	}
+	min, errMin := ParseFreq(c.MinFreq)
+	if errMin != nil {
+		return fmt.Errorf("invalid min_freq: %v", errMin)
+	}
+	max, errMax := ParseFreq(c.MaxFreq)
+	if errMax != nil {
+		return fmt.Errorf("invalid max_freq: %v", errMax)
 	}
 
-	// Checking frequency range logic
-	min, _ := ParseFreq(c.MinFreq)
-	max, _ := ParseFreq(c.MaxFreq)
 	minAndmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)
 	if (max < min) && minAndmaxAreSet {
 		return fmt.Errorf(
@@ -88,11 +62,13 @@ func ParseFreq(freq string) (int, error) {
 	if freq == "" {
 		return -1, nil // No frequency limits set, nothing to parse
 	}
-	if err := CheckFreqFormat(freq); err != nil {
-		return -1, err
-	}
 
 	s := strings.ToLower(strings.TrimSpace(freq))
+	if !strings.HasSuffix(s, "hz") {
+		return -1, fmt.Errorf(
+			"invalid format: frequency must end with 'Hz': %s", s)
+	}
+
 	s = strings.TrimSuffix(s, "hz")
 
 	multiplier := 1.0
@@ -113,6 +89,10 @@ func ParseFreq(freq string) (int, error) {
 	val, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return -1, fmt.Errorf("failed to parse frequency value: %v", err)
+	}
+
+	if val < 0 {
+		return -1, fmt.Errorf("frequency value cannot be negative: %s", s)
 	}
 
 	kHz := int(val * multiplier)
