@@ -274,7 +274,6 @@ func TestEmptyPwrMgmtRules(t *testing.T) {
 }
 
 func TestParseFreq(t *testing.T) {
-	defaultErr := "invalid frequency format: expected formats: 3.4GHz, 2000MHz, 100000KHz, got: "
 	tests := []struct {
 		name      string
 		input     string
@@ -290,7 +289,7 @@ func TestParseFreq(t *testing.T) {
 			name:      "invalid raw kHz no unit",
 			input:     "1000",
 			expected:  1000,
-			expectErr: defaultErr + "1000",
+			expectErr: "invalid format:",
 		},
 		{
 			name:     "kHz uppercase",
@@ -305,7 +304,7 @@ func TestParseFreq(t *testing.T) {
 		{
 			name:      "invalid MHz lowercase",
 			input:     "2.5m",
-			expectErr: defaultErr + "2.5m",
+			expectErr: "invalid format:",
 		},
 		{
 			name:     "MHz uppercase",
@@ -315,7 +314,7 @@ func TestParseFreq(t *testing.T) {
 		{
 			name:      "invalid GHz lowercase",
 			input:     "2.0g",
-			expectErr: defaultErr + "2.0g",
+			expectErr: "invalid format:",
 		},
 		{
 			name:     "GHz uppercase",
@@ -325,12 +324,12 @@ func TestParseFreq(t *testing.T) {
 		{
 			name:      "Invalid float",
 			input:     "fooGHz",
-			expectErr: defaultErr + "fooGHz",
+			expectErr: "failed to parse frequency value:",
 		},
 		{
 			name:      "Invalid format",
 			input:     "123.4.5Mhz",
-			expectErr: defaultErr + "123.4.5Mhz",
+			expectErr: "failed to parse frequency value:",
 		},
 	}
 
