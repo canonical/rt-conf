@@ -47,7 +47,7 @@ func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
 		}
 	}
 	// If max frequency is -1 means no limit was set, and cannot bet set to 0
-	if freqMax != 0 && freqMax != -1 {
+	if freqMax > 0 {
 		maxFreqSysfs := fmt.Sprintf(w.MaxFreqPath, cpu)
 		if err := os.WriteFile(maxFreqSysfs, []byte(strconv.Itoa(freqMax)),
 			0644); err != nil {
