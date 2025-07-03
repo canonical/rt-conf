@@ -194,15 +194,6 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 			},
 			wantErr: "cannot be less than min frequency",
 		},
-		{
-			name: "min and max frequency cannot be the same",
-			rule: CpuGovernanceRule{
-				CPUs:    "0",
-				MinFreq: "2.1GHz",
-				MaxFreq: "2.1GHz",
-			},
-			wantErr: "min and max frequency cannot be the same",
-		},
 	}
 
 	for _, tc := range tests {
