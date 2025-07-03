@@ -86,7 +86,7 @@ func ParseFreq(freq string) (int, error) {
 		multiplier = 1.0
 		s = strings.TrimSuffix(s, "k")
 	default:
-		multiplier = 0.001 // Default to raw Hz if no suffix is provided
+		multiplier = 0.001 // Default to raw Hz if no metric prefix is provided
 	}
 
 	val, err := strconv.ParseFloat(s, 64)
