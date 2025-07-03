@@ -42,4 +42,10 @@ cpu_governance:
   #   # Format: CPU Lists
   #   cpus: "0-1"
   #   scaling_governor: "performance"
+  #   # Minimum CPU frequency
+  #   # Format: frequency with unit, one of "GHz", "MHz", "kHz", "Hz"
+  #   min_freq: "1.2GHz"
+  #   # Maximum CPU frequency
+  #   # Format: same as min_freq
+  #   max_freq: "2.5GHz"
 
