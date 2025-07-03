@@ -63,9 +63,7 @@ func checkFreqLimits(min, max int) error {
 			"max frequency (%d) cannot be less than min frequency (%d)",
 			max, min)
 	}
-	if min == max && minAndMaxAreSet {
-		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
-	}
+
 	return nil
 }
 
