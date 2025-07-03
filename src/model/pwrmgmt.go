@@ -33,34 +33,35 @@ func (c CpuGovernanceRule) Validate() error {
 	if _, err := cpulists.Parse(c.CPUs); err != nil {
 		return err
 	}
+
 	if _, ok := scalProfilesMap[c.ScalGov]; !ok && c.ScalGov != "" {
 		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
 	}
-	min, errMin := ParseFreq(c.MinFreq)
-	if errMin != nil {
-		return fmt.Errorf("invalid min frequency: %v", errMin)
+
+	min, err := ParseFreq(c.MinFreq)
+	if err != nil {
+		return fmt.Errorf("invalid min frequency: %v", err)
 	}
-	max, errMax := ParseFreq(c.MaxFreq)
-	if errMax != nil {
-		return fmt.Errorf("invalid max frequency: %v", errMax)
+	max, err := ParseFreq(c.MaxFreq)
+	if err != nil {
+		return fmt.Errorf("invalid max frequency: %v", err)
 	}
 
-	if err := checkFreqLimits(min, max); err != nil {
-		return fmt.Errorf("frequency limits check failed: %v", err)
+	if err := validateFreqRange(min, max); err != nil {
+		return fmt.Errorf("invalid frequency range: %v", err)
 	}
 
 	return nil
 }
 
-func checkFreqLimits(min, max int) error {
+func validateFreqRange(min, max int) error {
 	if min == -1 && max == -1 {
-		return nil // No frequency limits set, nothing to check
+		return nil // No frequency bounds
 	}
-	// The following checks only makes sense if both min and max are set
-	minAndMaxAreSet := min != -1 && max != -1
-	if max < min && minAndMaxAreSet {
+
+	if (min != -1 && max != -1) && max < min {
 		return fmt.Errorf(
-			"max frequency (%d) cannot be less than min frequency (%d)",
+			"max frequency (%d) should not be less than min frequency (%d)",
 			max, min)
 	}
 

@@ -192,7 +192,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "3.4GHz",
 				MaxFreq: "2.1GHz",
 			},
-			wantErr: "cannot be less than min frequency",
+			wantErr: "should not be less than min frequency",
 		},
 	}
 
