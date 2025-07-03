@@ -38,11 +38,11 @@ func (c CpuGovernanceRule) Validate() error {
 	}
 	min, errMin := ParseFreq(c.MinFreq)
 	if errMin != nil {
-		return fmt.Errorf("invalid min_freq: %v", errMin)
+		return fmt.Errorf("invalid min frequency: %v", errMin)
 	}
 	max, errMax := ParseFreq(c.MaxFreq)
 	if errMax != nil {
-		return fmt.Errorf("invalid max_freq: %v", errMax)
+		return fmt.Errorf("invalid max frequency: %v", errMax)
 	}
 
 	minAndmaxAreSet := (min != -1 && max != -1) && (min != 0 && max != 0)

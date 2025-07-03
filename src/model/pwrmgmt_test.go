@@ -120,7 +120,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "MHz",
 				MaxFreq: "GHz",
 			},
-			wantErr: "invalid min_freq:",
+			wantErr: "invalid min frequency:",
 		},
 		{
 			name: "invalid G and M suffix only",
@@ -129,7 +129,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "1.2M",
 				MaxFreq: "2.4G",
 			},
-			wantErr: "invalid min_freq:",
+			wantErr: "invalid min frequency:",
 		},
 		{
 			name: "invalid no unit suffix",
@@ -138,7 +138,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "1800000",
 				MaxFreq: "2400000",
 			},
-			wantErr: "invalid min_freq:",
+			wantErr: "invalid min frequency:",
 		},
 		{
 			name: "invalid float without unit",
@@ -147,7 +147,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "1.2",
 				MaxFreq: "2.5",
 			},
-			wantErr: "invalid min_freq:",
+			wantErr: "invalid min frequency:",
 		},
 		{
 			name: "valid lowercase hz",
@@ -156,7 +156,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "1.0mhz",
 				MaxFreq: "3.0gghz",
 			},
-			wantErr: "invalid max_freq:",
+			wantErr: "invalid max frequency:",
 		},
 		{
 			name: "invalid max freq string",
@@ -165,7 +165,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "1.2GHz",
 				MaxFreq: "threeGHz",
 			},
-			wantErr: "invalid max_freq:",
+			wantErr: "invalid max frequency:",
 		},
 		{
 			name: "invalid min freq string",
@@ -174,7 +174,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "oneGHz",
 				MaxFreq: "3.4GHz",
 			},
-			wantErr: "invalid min_freq:",
+			wantErr: "invalid min frequency:",
 		},
 		{
 			name: "both max and min invalid",
@@ -183,7 +183,7 @@ func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
 				MinFreq: "badMin",
 				MaxFreq: "badMax",
 			},
-			wantErr: "invalid min_freq:",
+			wantErr: "invalid min frequency:",
 		},
 		{
 			name: "max freq less than min",
