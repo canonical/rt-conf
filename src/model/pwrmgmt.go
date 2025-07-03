@@ -45,10 +45,17 @@ func (c CpuGovernanceRule) Validate() error {
 		return fmt.Errorf("invalid max frequency: %v", errMax)
 	}
 
-	if min == -1 && max == -1 { // No frequency limits set, nothing to validate
-		return nil
+	if err := checkFreqLimits(min, max); err != nil {
+		return fmt.Errorf("frequency limits check failed: %v", err)
 	}
 
+	return nil
+}
+
+func checkFreqLimits(min, max int) error {
+	if min == -1 && max == -1 {
+		return nil // No frequency limits set, nothing to check
+	}
 	if max < min {
 		return fmt.Errorf(
 			"max frequency (%d) cannot be less than min frequency (%d)",
@@ -57,7 +64,6 @@ func (c CpuGovernanceRule) Validate() error {
 	if min == max {
 		return fmt.Errorf("min and max frequency cannot be the same: %d", min)
 	}
-
 	return nil
 }
 
