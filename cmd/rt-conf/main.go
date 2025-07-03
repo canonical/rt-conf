@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/irq"
@@ -20,9 +21,12 @@ func main() {
 }
 
 func run(args []string) error {
+	envConfigFile := os.Getenv("CONFIG_FILE")
+	envVerbose, _ := strconv.ParseBool(os.Getenv("VERBOSE"))
+
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	configPath := flags.String("file",
-		"",
+		envConfigFile,
 		"Path to the configuration file")
 	grubConfigPath := flags.String("grub-file",
 		"/etc/default/grub",
@@ -31,7 +35,7 @@ func run(args []string) error {
 		"/etc/default/grub.d/60_rt-conf.cfg",
 		"Path to the output drop-in grub configuration file, relevant only for GRUB bootloader")
 	verbose := flags.Bool("verbose",
-		false,
+		envVerbose,
 		"Verbose mode, prints more information to the console")
 
 	flags.Parse(args[1:])

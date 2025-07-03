@@ -8,3 +8,7 @@ if [[ -n "$verbose" && "$verbose" != "true" && "$verbose" != "false" ]]; then
 fi
 
 
+# revert to default if config-file is unset
+if [[ -z "$(snapctl get config-file)" ]]; then
+  snapctl set config-file="$DEFAULT_CONFIG_FILE"
+fi

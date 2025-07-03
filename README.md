@@ -15,21 +15,6 @@ sudo snap install rt-conf
 This snap is confined, which means that it can access a limited set of resources on the system.
 Additional access is granted via [snap interfaces](https://snapcraft.io/docs/interfaces).
 
-After the installation it's necessary to connect the interfaces:
-
-- [cpu-control](https://snapcraft.io/docs/cpu-control-interface)
-- `etc-default-grub` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
-- [hardware-observe](https://snapcraft.io/docs/hardware-observe-interface)
-- [home](https://snapcraft.io/docs/home-interface) - auto connected on classic distributions
-
-These can be done by running the following commands:
-
-```shell
-sudo snap connect rt-conf:cpu-control
-sudo snap connect rt-conf:etc-default-grub
-sudo snap connect rt-conf:hardware-observe
-sudo snap connect rt-conf:home
-```
 
 ### Default configuration file
 
@@ -44,16 +29,15 @@ The copy must be owned by and writable to the root user only.
 Run rt-conf to apply the configurations:
 
 ```shell
-sudo rt-conf --file=/var/snap/rt-conf/common/config.yaml
+sudo rt-conf
 ```
 
 Set `--help` for more details.
 
-The rt-conf app can be set to run as a oneshot service on system startup.
+The rt-conf app runs a oneshot service on system startup.
 This is useful for re-applying non-persistent IRQ tuning and power management settings on boot.
 
 By default, the service reads the [default configuration file](#default-configuration-file).
-
 To change the config file path, use the `config-file` snap configuration. Example:
 
 ```shell
@@ -63,10 +47,10 @@ sudo snap set rt-conf config-file=/home/ubuntu/rt-conf.yaml
 Then, start and enable the service:
 
 ```shell
-sudo snap start --enable rt-conf
+sudo snap restart rt-conf
 ```
 
-Verify that it ran successfully by looking into the logs:
+Verify that it runs successfully by looking at the logs:
 
 ```shell
 sudo snap logs -n 100 rt-conf
@@ -119,4 +103,18 @@ Then, install it in [dangerous mode](https://snapcraft.io/docs/install-modes#hea
 
 ```shell
 sudo snap install --dangerous *.snap
+```
+
+After the installation connect the following interfaces:
+
+- [cpu-control](https://snapcraft.io/docs/cpu-control-interface)
+- `etc-default-grub` plug into the [system-files](https://snapcraft.io/docs/system-files-interface) interface;
+- [hardware-observe](https://snapcraft.io/docs/hardware-observe-interface)
+- [home](https://snapcraft.io/docs/home-interface)
+
+```shell
+sudo snap connect rt-conf:cpu-control
+sudo snap connect rt-conf:etc-default-grub
+sudo snap connect rt-conf:hardware-observe
+sudo snap connect rt-conf:home
 ```

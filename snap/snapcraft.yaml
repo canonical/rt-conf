@@ -9,6 +9,9 @@ description: |
 grade: stable
 confinement: strict
 
+environment:
+  DEFAULT_CONFIG_FILE: $SNAP_COMMON/config.yaml
+
 parts:
   local:
     source: snap/local
@@ -41,9 +44,11 @@ apps:
       - etc-default-grub
       - hardware-observe
       - home
+    command-chain:
+      - bin/export-env.sh
     command: bin/rt-conf
 
-  rt-confd:
+  # Run the same app as a oneshot service
+  d:
     <<: *rt-conf
     daemon: oneshot
-    command: bin/rt-confd
