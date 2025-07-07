@@ -38,16 +38,20 @@ func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 
 func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
 
-	minFreqSysfs := fmt.Sprintf(w.MinFreqPath, cpu)
-	if err := os.WriteFile(minFreqSysfs, []byte(strconv.Itoa(freqMin)),
-		0644); err != nil {
-		return fmt.Errorf("error writing to %s: %v", minFreqSysfs, err)
+	if freqMin != -1 {
+		minFreqSysfs := fmt.Sprintf(w.MinFreqPath, cpu)
+		if err := os.WriteFile(minFreqSysfs, []byte(strconv.Itoa(freqMin)),
+			0644); err != nil {
+			return fmt.Errorf("error writing to %s: %v", minFreqSysfs, err)
+		}
 	}
 
-	maxFreqSysfs := fmt.Sprintf(w.MaxFreqPath, cpu)
-	if err := os.WriteFile(maxFreqSysfs, []byte(strconv.Itoa(freqMax)),
-		0644); err != nil {
-		return fmt.Errorf("error writing to %s: %v", maxFreqSysfs, err)
+	if freqMax != -1 {
+		maxFreqSysfs := fmt.Sprintf(w.MaxFreqPath, cpu)
+		if err := os.WriteFile(maxFreqSysfs, []byte(strconv.Itoa(freqMax)),
+			0644); err != nil {
+			return fmt.Errorf("error writing to %s: %v", maxFreqSysfs, err)
+		}
 	}
 
 	return nil
