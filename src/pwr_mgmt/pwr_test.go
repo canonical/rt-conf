@@ -354,3 +354,58 @@ func TestParseFreq(t *testing.T) {
 		})
 	}
 }
+
+func TestWriteOnly(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	testCases := []struct {
+		name        string
+		prepare     func(path string) // setup, e.g., permissions
+		path        string
+		data        string
+		expectError bool
+	}{
+		{
+			name: "success",
+			prepare: func(path string) {
+				// Create the file with write permission
+				_ = os.WriteFile(path, []byte("old content"), 0644)
+			},
+			path:        filepath.Join(tmpDir, "success.txt"),
+			data:        "new data",
+			expectError: false,
+		},
+		{
+			name: "fail to open (no such file)",
+			prepare: func(path string) {
+				// Do not create the file
+			},
+			path:        filepath.Join(tmpDir, "doesnotexist.txt"),
+			data:        "won't matter",
+			expectError: true,
+		},
+		{
+			name: "fail to write (read-only file)",
+			prepare: func(path string) {
+				_ = os.WriteFile(path, []byte("content"), 0444) // Read-only
+			},
+			path:        filepath.Join(tmpDir, "readonly.txt"),
+			data:        "",
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.prepare(tc.path)
+
+			err := writeOnly(tc.path, tc.data)
+			if tc.expectError && err == nil {
+				t.Errorf("expected error but got none")
+			}
+			if !tc.expectError && err != nil {
+				t.Errorf("did not expect error, but got: %v", err)
+			}
+		})
+	}
+}
