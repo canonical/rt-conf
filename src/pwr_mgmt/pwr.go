@@ -30,7 +30,7 @@ func writeOnly(path string, data string) error {
 	}
 	defer f.Close()
 
-	f.Write([]byte(data))
+	_, err = f.Write([]byte(data))
 	if err != nil {
 		return fmt.Errorf("error writing to %s: %v", path, err)
 	}
