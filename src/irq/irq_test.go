@@ -54,7 +54,7 @@ func TestHappyIRQtuning(t *testing.T) {
 		{
 			Yaml: `
 irq_tuning:
-  "rule":
+  "foo":
     cpus: 0
     filter:
       action: floppy

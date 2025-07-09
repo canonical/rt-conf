@@ -57,7 +57,7 @@ func TestValidate(t *testing.T) {
 			name: "Invalid CPU governance rule",
 			cfg: &Config{
 				CpuGovernance: PwrMgmt{
-					"rule": {
+					"foo": {
 						CPUs:    "0-1",
 						ScalGov: "potato", // Invalid governor
 					},

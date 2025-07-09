@@ -78,7 +78,7 @@ func TestPwrMgmt(t *testing.T) {
 			3,
 			"powersave",
 			model.PwrMgmt{
-				"rule": {
+				"foo": {
 					CPUs:    "0",
 					ScalGov: "performance",
 				},
@@ -89,7 +89,7 @@ func TestPwrMgmt(t *testing.T) {
 			8,
 			"performance",
 			model.PwrMgmt{
-				"rule": {
+				"bar": {
 					CPUs:    "0",
 					ScalGov: "balanced",
 				},
@@ -100,7 +100,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"balanced",
 			model.PwrMgmt{
-				"rule": {
+				"baz": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 				},
@@ -111,7 +111,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"balanced",
 			model.PwrMgmt{
-				"rule": {
+				"buz": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MinFreq: "5.45GHz",
@@ -124,7 +124,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"balanced",
 			model.PwrMgmt{
-				"rule": {
+				"qux": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MinFreq: "2.1ghz",
@@ -137,7 +137,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"balanced",
 			model.PwrMgmt{
-				"rule": {
+				"foobar": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MinFreq: "2.1ghz",
@@ -149,7 +149,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"performance",
 			model.PwrMgmt{
-				"rule": {
+				"quux": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MaxFreq: "4000mHz",
@@ -161,7 +161,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"powersave",
 			model.PwrMgmt{
-				"rule": {
+				"corge": {
 					CPUs:    "0",
 					MaxFreq: "4gHz",
 				},
@@ -172,7 +172,7 @@ func TestPwrMgmt(t *testing.T) {
 			4,
 			"powersave",
 			model.PwrMgmt{
-				"rule": {
+				"grault": {
 					CPUs:    "0",
 					MaxFreq: "4gHz",
 					MinFreq: "1gHz",
@@ -229,7 +229,7 @@ func TestPwrMgmt(t *testing.T) {
 			cfg: &model.InternalConfig{
 				Data: model.Config{
 					CpuGovernance: model.PwrMgmt{
-						"rule": {
+						"foo": {
 							CPUs:    "2-1",
 							ScalGov: "performance",
 						},
