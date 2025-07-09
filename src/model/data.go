@@ -10,6 +10,9 @@ type InternalConfig struct {
 	GrubCfg Grub
 }
 
+type PwrMgmt map[string]CpuGovernanceRule
+type Interrupts map[string]IRQTuning
+
 type Config struct {
 	Interrupts    []IRQTuning         `yaml:"irq_tuning"`
 	KernelCmdline KernelCmdline       `yaml:"kernel_cmdline"`
