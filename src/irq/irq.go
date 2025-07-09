@@ -163,8 +163,8 @@ func applyIRQConfig(
 	}
 
 	// Range over IRQ tuning array
-	for i, irqTuning := range config.Data.Interrupts {
-		log.Printf("\nRule #%d ( %s )", i+1, formatIRQRule(irqTuning))
+	for label, irqTuning := range config.Data.Interrupts {
+		log.Printf("\nRule #%s ( %s )", label, formatIRQRule(irqTuning))
 
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {

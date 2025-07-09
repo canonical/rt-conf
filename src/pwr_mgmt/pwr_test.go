@@ -71,14 +71,14 @@ func TestPwrMgmt(t *testing.T) {
 		name     string
 		maxCpus  int
 		prevRule string
-		d        []model.CpuGovernanceRule // add only one rule here
+		d        model.PwrMgmt // add only one rule here
 	}{
 		{
 			"powersave to performance",
 			3,
 			"powersave",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "performance",
 				},
@@ -88,8 +88,8 @@ func TestPwrMgmt(t *testing.T) {
 			"performance to powersave",
 			8,
 			"performance",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "balanced",
 				},
@@ -99,8 +99,8 @@ func TestPwrMgmt(t *testing.T) {
 			"balanced to powersave",
 			4,
 			"balanced",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 				},
@@ -110,8 +110,8 @@ func TestPwrMgmt(t *testing.T) {
 			"balanced to powersave with min and max freq",
 			4,
 			"balanced",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MinFreq: "5.45GHz",
@@ -123,8 +123,8 @@ func TestPwrMgmt(t *testing.T) {
 			"balanced to powersave with min and max freq with different case",
 			4,
 			"balanced",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MinFreq: "2.1ghz",
@@ -136,8 +136,8 @@ func TestPwrMgmt(t *testing.T) {
 			"balanced to powersave with only min freq",
 			4,
 			"balanced",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MinFreq: "2.1ghz",
@@ -148,8 +148,8 @@ func TestPwrMgmt(t *testing.T) {
 			"performance to powersave with only max freq",
 			4,
 			"performance",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					ScalGov: "powersave",
 					MaxFreq: "4000mHz",
@@ -160,8 +160,8 @@ func TestPwrMgmt(t *testing.T) {
 			"Only max freq set",
 			4,
 			"powersave",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					MaxFreq: "4gHz",
 				},
@@ -171,8 +171,8 @@ func TestPwrMgmt(t *testing.T) {
 			"Only max and min freq set",
 			4,
 			"powersave",
-			[]model.CpuGovernanceRule{
-				{
+			model.PwrMgmt{
+				"rule": {
 					CPUs:    "0",
 					MaxFreq: "4gHz",
 					MinFreq: "1gHz",
@@ -228,8 +228,8 @@ func TestPwrMgmt(t *testing.T) {
 			name: "Invalid CPU list",
 			cfg: &model.InternalConfig{
 				Data: model.Config{
-					CpuGovernance: []model.CpuGovernanceRule{
-						{
+					CpuGovernance: model.PwrMgmt{
+						"rule": {
 							CPUs:    "2-1",
 							ScalGov: "performance",
 						},

@@ -97,9 +97,10 @@ kernel_cmdline:
 			err:  "failed to process interrupts",
 			yaml: `
 irq_tuning:
-    - cpus: "0"
-      filter:
-          actions: "xxxxxx"
+  "rule":
+    cpus: "0"
+    filter:
+      actions: "xxxxxx"
 `,
 		},
 		{
@@ -108,8 +109,9 @@ irq_tuning:
 			err:  "failed to process power management config",
 			yaml: `
 cpu_governance:
-    - cpus: "0"
-      scaling_governor: "performance"
+  "rule":
+    cpus: "0"
+    scaling_governor: "performance"
 `,
 		},
 	}

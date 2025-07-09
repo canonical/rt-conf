@@ -71,13 +71,13 @@ func ApplyPwrConfig(config *model.InternalConfig) error {
 
 // Apply changes based on YAML config
 func (wr ReaderWriter) applyPwrConfig(
-	rules []model.CpuGovernanceRule,
+	rules model.PwrMgmt,
 ) error {
 
 	// Range over all CPU governance rules
-	for i, sclgov := range rules {
+	for label, sclgov := range rules {
 
-		logRule(i, sclgov)
+		logRule(label, sclgov)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
@@ -87,8 +87,8 @@ func (wr ReaderWriter) applyPwrConfig(
 
 		for cpu := range cpus {
 			if err := wr.applyRule(cpu, sclgov); err != nil {
-				return fmt.Errorf("failed to apply CPU governance rule #%d for CPU %d: %v",
-					i+1, cpu, err)
+				return fmt.Errorf("failed to apply CPU governance rule #%s for CPU %d: %v",
+					label, cpu, err)
 			}
 			setCpus = append(setCpus, cpu)
 		}
@@ -98,7 +98,7 @@ func (wr ReaderWriter) applyPwrConfig(
 	return nil
 }
 
-func logRule(index int, sclgov model.CpuGovernanceRule) {
+func logRule(label string, sclgov model.CpuGovernanceRule) {
 	// Use a slice to build the log message dynamically
 	fields := []string{
 		fmt.Sprintf("CPUs: %s", sclgov.CPUs),
@@ -110,7 +110,7 @@ func logRule(index int, sclgov model.CpuGovernanceRule) {
 	if sclgov.MaxFreq != "" {
 		fields = append(fields, fmt.Sprintf("max_freq: %s", sclgov.MaxFreq))
 	}
-	log.Printf("\nRule #%d ( %s )\n", index+1, strings.Join(fields, ", "))
+	log.Printf("\nRule #%s ( %s )\n", label, strings.Join(fields, ", "))
 }
 
 func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
