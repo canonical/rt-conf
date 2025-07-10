@@ -23,13 +23,27 @@ var pwrmgmtReaderWriter = ReaderWriter{
 	MaxFreqPath:         "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_max_freq",
 }
 
+func writeOnly(path string, data string) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0)
+	if err != nil {
+		return fmt.Errorf("error opening %s: %v", path, err)
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte(data))
+	if err != nil {
+		return fmt.Errorf("error writing to %s: %v", path, err)
+	}
+	return nil
+}
+
 func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 	if sclgov == "" {
 		return nil // No scaling governor set, nothing to write
 	}
 	scalingGovFile := fmt.Sprintf(w.ScalingGovernorPath, cpu)
 
-	err := os.WriteFile(scalingGovFile, []byte(sclgov), 0644)
+	err := writeOnly(scalingGovFile, sclgov)
 	if err != nil {
 		return fmt.Errorf("error writing to %s: %v", scalingGovFile, err)
 	}
@@ -37,19 +51,18 @@ func (w ReaderWriter) WriteScalingGov(sclgov string, cpu int) error {
 }
 
 func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
-
 	if freqMin != -1 {
 		minFreqSysfs := fmt.Sprintf(w.MinFreqPath, cpu)
-		if err := os.WriteFile(minFreqSysfs, []byte(strconv.Itoa(freqMin)),
-			0644); err != nil {
+		if err := writeOnly(minFreqSysfs,
+			strconv.Itoa(freqMin)); err != nil {
 			return fmt.Errorf("error writing to %s: %v", minFreqSysfs, err)
 		}
 	}
 
 	if freqMax != -1 {
 		maxFreqSysfs := fmt.Sprintf(w.MaxFreqPath, cpu)
-		if err := os.WriteFile(maxFreqSysfs, []byte(strconv.Itoa(freqMax)),
-			0644); err != nil {
+		if err := writeOnly(maxFreqSysfs,
+			strconv.Itoa(freqMax)); err != nil {
 			return fmt.Errorf("error writing to %s: %v", maxFreqSysfs, err)
 		}
 	}
