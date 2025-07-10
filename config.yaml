@@ -27,7 +27,7 @@ kernel_cmdline:
 # Runtime options for IRQ affinity
 irq_tuning:
   # # label for the IRQ tuning rule
-  # network:
+  # my wireless interface:
   #   # CPUs to which the IRQs are to be moved
   #   # Format: range, e.g. 0-2
   #   cpus: "2-3"
@@ -41,7 +41,7 @@ irq_tuning:
 # Runtime options for CPU frequency scaling
 cpu_governance: 
   # # label for the CPU governance rule
-  # "init cpus": 
+  # kernel cores:
   #   # CPUs to which the scaling_governor options are to be applied
   #   # Format: CPU Lists
   #   cpus: "0-1"
