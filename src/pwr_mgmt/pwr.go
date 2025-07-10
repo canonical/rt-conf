@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/model"
@@ -77,7 +76,7 @@ func (wr ReaderWriter) applyPwrConfig(
 	// Range over all CPU governance rules
 	for label, sclgov := range rules {
 
-		logRule(label, sclgov)
+		log.Printf("\nRule: %s \n", label)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
@@ -96,21 +95,6 @@ func (wr ReaderWriter) applyPwrConfig(
 	}
 
 	return nil
-}
-
-func logRule(label string, sclgov model.CpuGovernanceRule) {
-	// Use a slice to build the log message dynamically
-	fields := []string{
-		fmt.Sprintf("CPUs: %s", sclgov.CPUs),
-		fmt.Sprintf("scaling_governor: %s", sclgov.ScalGov),
-	}
-	if sclgov.MinFreq != "" {
-		fields = append(fields, fmt.Sprintf("min_freq: %s", sclgov.MinFreq))
-	}
-	if sclgov.MaxFreq != "" {
-		fields = append(fields, fmt.Sprintf("max_freq: %s", sclgov.MaxFreq))
-	}
-	log.Printf("\nRule #%s ( %s )\n", label, strings.Join(fields, ", "))
 }
 
 func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {

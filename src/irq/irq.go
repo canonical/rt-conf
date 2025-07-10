@@ -164,7 +164,7 @@ func applyIRQConfig(
 
 	// Range over IRQ tuning array
 	for label, irqTuning := range config.Data.Interrupts {
-		log.Printf("\nRule #%s ( %s )", label, formatIRQRule(irqTuning))
+		log.Printf("\nRule: %s\n", label)
 
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {
@@ -235,38 +235,4 @@ func logChanges(changed, managed []int, cpus string) {
 	if len(changed) > 0 {
 		log.Printf("+ Assigned IRQs %s to CPUs %s", cpulists.GenCPUlist(changed), cpus)
 	}
-}
-
-func formatIRQRule(rule model.IRQTuning) string {
-	type field struct {
-		name  string
-		value string
-	}
-
-	values := []field{
-		{"CPUs", rule.CPUs},
-		{"actions", rule.Filter.Actions},
-		{"chip_name", rule.Filter.ChipName},
-		{"name", rule.Filter.Name},
-		{"type", rule.Filter.Type},
-	}
-
-	var fields []string
-	for _, f := range values {
-		fields = append(fields, f.name+": "+f.value)
-	}
-
-	return strings.Join(filterEmpty(fields), ", ")
-}
-
-// filterEmpty removes strings with empty values (like "name: ")
-func filterEmpty(items []string) []string {
-	var out []string
-	for _, s := range items {
-		parts := strings.SplitN(s, ": ", 2)
-		if len(parts) == 2 && parts[1] != "" {
-			out = append(out, s)
-		}
-	}
-	return out
 }
