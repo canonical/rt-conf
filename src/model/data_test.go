@@ -42,8 +42,8 @@ func TestValidate(t *testing.T) {
 		{
 			name: "Invalid IRQ tuning",
 			cfg: &Config{
-				Interrupts: []IRQTuning{
-					{
+				Interrupts: Interrupts{
+					"invalid": {
 						CPUs: "0",
 						Filter: IRQFilter{
 							Name: "**", // Invalid regex
@@ -56,8 +56,8 @@ func TestValidate(t *testing.T) {
 		{
 			name: "Invalid CPU governance rule",
 			cfg: &Config{
-				CpuGovernance: []CpuGovernanceRule{
-					{
+				CpuGovernance: PwrMgmt{
+					"foo": {
 						CPUs:    "0-1",
 						ScalGov: "potato", // Invalid governor
 					},

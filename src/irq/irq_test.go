@@ -54,9 +54,10 @@ func TestHappyIRQtuning(t *testing.T) {
 		{
 			Yaml: `
 irq_tuning:
-- cpus: 0
-  filter:
-    action: floppy
+  "foo":
+    cpus: 0
+    filter:
+      action: floppy
 `,
 			Handler: &mockIRQReaderWriter{
 				IRQs: map[uint]IRQInfo{
@@ -346,7 +347,7 @@ func TestReadIRQsReadFileErrorHandled(t *testing.T) {
 func TestApplyIRQConfig(t *testing.T) {
 	config := &model.InternalConfig{
 		Data: model.Config{
-			Interrupts: []model.IRQTuning{},
+			Interrupts: model.Interrupts{},
 		},
 	}
 	err := ApplyIRQConfig(config)
