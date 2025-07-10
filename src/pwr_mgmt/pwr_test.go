@@ -439,10 +439,16 @@ func TestApplyRuleUnhappy(t *testing.T) {
 			expectedErrPart: "invalid format",
 		},
 		{
-			name: "WriteCPUFreq fails",
+			name: "WriteCPUFreq fails on min frequency",
 			sclgov: model.CpuGovernanceRule{
 				MinFreq: "1GHz",
-				MaxFreq: "2GHz",
+			},
+			expectedErrPart: "failed to set CPU frequency",
+		},
+		{
+			name: "WriteCPUFreq fails on max frequency",
+			sclgov: model.CpuGovernanceRule{
+				MaxFreq: "5GHz",
 			},
 			expectedErrPart: "failed to set CPU frequency",
 		},
