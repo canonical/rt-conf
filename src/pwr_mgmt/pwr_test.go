@@ -416,32 +416,32 @@ func TestApplyRuleUnhappy(t *testing.T) {
 		sclgov model.CpuGovernanceRule
 	}{
 		{
-			name: "WriteScalingGov fails",
+			name: "WriteScalingGov fails (needs root)",
 			sclgov: model.CpuGovernanceRule{
 				ScalGov: "performance",
 			},
 		},
 		{
-			name: "ParseFreq MinFreq fails",
+			name: "ParseFreq MinFreq fails (invalid format)",
 			sclgov: model.CpuGovernanceRule{
 				MinFreq: "invalid!",
 			},
 		},
 		{
-			name: "ParseFreq MaxFreq fails",
+			name: "ParseFreq MaxFreq fails (invalid format)",
 			sclgov: model.CpuGovernanceRule{
 				MinFreq: "1GHz",
 				MaxFreq: "oops!",
 			},
 		},
 		{
-			name: "WriteCPUFreq fails on min frequency",
+			name: "WriteCPUFreq fails on min frequency (needs root)",
 			sclgov: model.CpuGovernanceRule{
 				MinFreq: "1GHz",
 			},
 		},
 		{
-			name: "WriteCPUFreq fails on max frequency",
+			name: "WriteCPUFreq fails on max frequency (needs root)",
 			sclgov: model.CpuGovernanceRule{
 				MaxFreq: "5GHz",
 			},
