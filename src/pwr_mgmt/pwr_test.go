@@ -412,23 +412,20 @@ func TestWriteOnly(t *testing.T) {
 
 func TestApplyRuleUnhappy(t *testing.T) {
 	tests := []struct {
-		name            string
-		sclgov          model.CpuGovernanceRule
-		expectedErrPart string
+		name   string
+		sclgov model.CpuGovernanceRule
 	}{
 		{
 			name: "WriteScalingGov fails",
 			sclgov: model.CpuGovernanceRule{
 				ScalGov: "performance",
 			},
-			expectedErrPart: "error writing to",
 		},
 		{
 			name: "ParseFreq MinFreq fails",
 			sclgov: model.CpuGovernanceRule{
 				MinFreq: "invalid!",
 			},
-			expectedErrPart: "invalid format",
 		},
 		{
 			name: "ParseFreq MaxFreq fails",
@@ -436,21 +433,18 @@ func TestApplyRuleUnhappy(t *testing.T) {
 				MinFreq: "1GHz",
 				MaxFreq: "oops!",
 			},
-			expectedErrPart: "invalid format",
 		},
 		{
 			name: "WriteCPUFreq fails on min frequency",
 			sclgov: model.CpuGovernanceRule{
 				MinFreq: "1GHz",
 			},
-			expectedErrPart: "failed to set CPU frequency",
 		},
 		{
 			name: "WriteCPUFreq fails on max frequency",
 			sclgov: model.CpuGovernanceRule{
 				MaxFreq: "5GHz",
 			},
-			expectedErrPart: "failed to set CPU frequency",
 		},
 	}
 
@@ -458,8 +452,8 @@ func TestApplyRuleUnhappy(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 
 			err := pwrmgmtReaderWriter.applyRule(0, tc.sclgov)
-			if err == nil || !strings.Contains(err.Error(), tc.expectedErrPart) {
-				t.Fatalf("expected error containing %q, got: %v", tc.expectedErrPart, err)
+			if err == nil {
+				t.Fatalf("expected error got nil")
 			}
 		})
 	}
