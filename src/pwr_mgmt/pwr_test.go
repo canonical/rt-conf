@@ -453,7 +453,9 @@ func TestApplyRuleUnhappy(t *testing.T) {
 
 			err := pwrmgmtReaderWriter.applyRule(0, tc.sclgov)
 			if err == nil {
-				t.Fatalf("expected error got nil")
+				t.Fatalf(
+					"expected error when processing %+v got nil", tc.sclgov,
+				)
 			}
 		})
 	}
