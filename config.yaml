@@ -5,23 +5,23 @@
 # Kernel command line parameters
 kernel_cmdline:
   # Isolate CPUs from general execution
-  # Format: CPU Lists
+  # Format is CPU Lists
   # isolcpus: "2-3"
 
   # Enable/disable dynamic ticks during idle time
-  # Supported values: on | off
+  # Supported values are on | off
   # nohz: "on"
 
   # Enable/disable full dynamic ticks
-  # Format: CPU Lists
+  # Format is CPU Lists
   # nohz_full: "2-3"
 
   # Allocated CPUs for kernel threads
-  # Format: CPU Lists
+  # Format is CPU Lists
   # kthread_cpus: "0-1"
 
   # Allocate CPUs for IRQ handling
-  # Format: CPU Lists
+  # Format is CPU Lists
   # irqaffinity: "0-1"
 
 # Runtime options for IRQ affinity
@@ -29,7 +29,7 @@ irq_tuning:
   # # label for the IRQ tuning rule
   # my wireless interface:
   #   # CPUs to which the IRQs are to be moved
-  #   # Format: range, e.g. 0-2
+  #   # Format is CPU lists, e.g. 0-2
   #   cpus: "2-3"
   #   # Arguments used to filter IRQs
   #   filter:
@@ -39,11 +39,11 @@ irq_tuning:
   #     type: "edge"
 
 # Runtime options for CPU frequency scaling
-cpu_governance: 
+cpu_governance:
   # # label for the CPU governance rule
   # kernel cores:
   #   # CPUs to which the scaling_governor options are to be applied
-  #   # Format: CPU Lists
+  #   # Format is CPU Lists
   #   cpus: "0-1"
   #   scaling_governor: "performance"
   #   # Minimum CPU frequency
