@@ -38,7 +38,7 @@ plugs:
       - /etc/default/grub
 
 hooks:
-  remove:
+  disconnect-plug-etc-default-grub:
     plugs:
       - etc-default-grub
 
