@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/bin/bash -eu
 
-set -eu
+tag="snap.$SNAP_INSTANCE_NAME.hook.refresh" # matching what snapd sets
 
 if snapctl is-connected etc-default-grub; then
-  rm /etc/default/grub.d/60_rt-conf.cfg || true
-  exit 0
+  rm -f /etc/default/grub.d/60_rt-conf.cfg
+else
+  logger --stderr --priority error --tag=$tag "The 'etc-default-grub' plug is not connected. Please manually remove the configuration file at /etc/default/grub.d/60_rt-conf.cfg."
 fi
-
-echo "[rt-conf snap] WARNING: The 'etc-default-grub' plug is not connected. Please manually remove the configuration file at /etc/default/grub.d/60_rt-conf.cfg." | logger
