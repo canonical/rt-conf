@@ -12,6 +12,7 @@ import (
 	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/model"
+	"github.com/canonical/rt-conf/src/utils"
 )
 
 // NOTE: to be able to remap IRQs:
@@ -135,10 +136,7 @@ func (r *realIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func ApplyIRQConfig(config *model.InternalConfig) error {
-	log.Println("\n-------------------")
-	log.Println("Applying IRQ tuning")
-	log.Println("-------------------")
-
+	utils.PrintTitle("IRQ Tuning")
 	if len(config.Data.Interrupts) == 0 {
 		// If no IRQ tuning is specified, skip the process
 		log.Println("No IRQ tuning rules found in config")
@@ -164,7 +162,7 @@ func applyIRQConfig(
 
 	// Range over IRQ tuning array
 	for label, irqTuning := range config.Data.Interrupts {
-		log.Printf("\nRule: %s\n", label)
+		log.Printf("Rule: %s\n", label)
 
 		matchingIRQs, err := filterIRQs(irqs, irqTuning.Filter)
 		if err != nil {
@@ -228,11 +226,16 @@ func matchesRegex(value, pattern string) bool {
 }
 
 func logChanges(changed, managed []int, cpus string) {
-	if len(managed) > 0 {
-		log.Printf("+ Skipped read-only (managed?) IRQs: %s",
-			cpulists.GenCPUlist(managed))
-	}
+	var msgs []string
 	if len(changed) > 0 {
-		log.Printf("+ Assigned IRQs %s to CPUs %s", cpulists.GenCPUlist(changed), cpus)
+		msgs = append(msgs, fmt.Sprintf("Assigned IRQs %s to CPUs %s",
+			cpulists.GenCPUlist(changed), cpus))
 	}
+
+	if len(managed) > 0 {
+		msgs = append(msgs, fmt.Sprintf("Ignored managed IRQs: %s",
+			cpulists.GenCPUlist(managed)))
+
+	}
+	utils.LogTreeStyle(msgs)
 }
