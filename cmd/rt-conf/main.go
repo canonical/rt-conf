@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/canonical/go-snapctl/env"
 	"github.com/canonical/rt-conf/src/debug"
 	"github.com/canonical/rt-conf/src/irq"
 	"github.com/canonical/rt-conf/src/kcmd"
@@ -53,10 +54,16 @@ func run(args []string) error {
 	}
 
 	var conf model.InternalConfig
-	if d, err := model.LoadConfigFile(*configPath); err != nil {
+
+	if err := conf.Data.LoadFromFile(*configPath); err != nil {
 		return fmt.Errorf("failed to load config file: %w", err)
-	} else {
-		conf.Data = *d
+	}
+
+	// If running as a snap, override config with snap options
+	if env.Snap() != "" {
+		if err := conf.Data.LoadSnapOptions(); err != nil {
+			return fmt.Errorf("failed to load config from snap options: %v", err)
+		}
 	}
 
 	conf.GrubCfg = model.Grub{
@@ -64,7 +71,6 @@ func run(args []string) error {
 		CustomGrubFilePath:  *grubCfgPath,
 	}
 
-	// If not running as a service then process the kernel cmdline args
 	if msgs, err := kcmd.ProcessKcmdArgs(&conf); err != nil {
 		return fmt.Errorf("failed to process kernel cmdline args: %v", err)
 	} else {
