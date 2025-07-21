@@ -8,25 +8,18 @@ import (
 // Print title in bold inside box with an orange background color
 func PrintTitle(title string) {
 
-	// fmt.Printf("┌")
 	printBoldBgText("┌")
 	for i := 0; i <= len(title)+1; i++ {
-		// fmt.Printf("─")
 		printBoldBgText("─")
 	}
-	// fmt.Println("┐")
 	printlnBoldBgText("┐")
 
-	// fmt.Printf("│ %s │\n", title)
 	printlnBoldBgText("│ %s │", title)
 
-	// fmt.Printf("└")
 	printBoldBgText("└")
 	for i := 0; i <= len(title)+1; i++ {
-		// fmt.Printf("─")
 		printBoldBgText("─")
 	}
-	// fmt.Println("┘")
 	printlnBoldBgText("┘")
 
 	log.Println()
