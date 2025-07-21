@@ -6,4 +6,5 @@ if snapctl is-connected etc-default-grub; then
   rm -f /etc/default/grub.d/60_rt-conf.cfg
 else
   logger --stderr --priority error --tag=$tag "The 'etc-default-grub' plug is not connected. Please manually remove the configuration file at /etc/default/grub.d/60_rt-conf.cfg."
+  exit 1
 fi
