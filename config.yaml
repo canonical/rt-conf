@@ -29,7 +29,7 @@ irq_tuning:
   # # label for the IRQ tuning rule
   # my wireless interface:
   #   # CPUs to which the IRQs are to be moved
-  #   # Format is CPU lists, e.g. 0-2
+  #   # Format is range or comma separated, e.g. 0-2,4,7
   #   cpus: "2-3"
   #   # Arguments used to filter IRQs
   #   filter:
