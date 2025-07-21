@@ -2,9 +2,9 @@
 
 set -eu
 
-if snapctl is-connected etc-default-grubd; then
+if snapctl is-connected etc-default-grub; then
   rm /etc/default/grub.d/60_rt-conf.cfg || true
   exit 0
 fi
 
-echo "[rt-conf snap] WARNING: The 'etc-default-grubd' plug is not connected. Please manually remove the configuration file at /etc/default/grub.d/60_rt-conf.cfg." | logger
+echo "[rt-conf snap] WARNING: The 'etc-default-grub' plug is not connected. Please manually remove the configuration file at /etc/default/grub.d/60_rt-conf.cfg." | logger
