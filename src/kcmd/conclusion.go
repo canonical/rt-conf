@@ -18,6 +18,7 @@ func GrubConclusion(grubFile, old, new string) []string {
 		"\tsudo update-grub\n",
 		"\n",
 		"to apply the changes to your bootloader.\n",
+		"\n",
 	}
 	return s
 }
@@ -41,6 +42,7 @@ func UbuntuCoreConclusion() []string {
 		"\n",
 		"Sucessfully applied the changes.\n",
 		"Please reboot your system to apply the changes.\n",
+		"\n",
 	}
 	return s
 }
