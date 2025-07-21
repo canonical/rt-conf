@@ -226,10 +226,15 @@ func matchesRegex(value, pattern string) bool {
 }
 
 func logChanges(changed, managed []int, cpus string) {
+	cpusName := "CPUs"
+	if len(cpus) == 1 {
+		cpusName = "CPU"
+	}
+
 	var msgs []string
 	if len(changed) > 0 {
-		msgs = append(msgs, fmt.Sprintf("Assigned IRQs %s to CPUs %s",
-			cpulists.GenCPUlist(changed), cpus))
+		msgs = append(msgs, fmt.Sprintf("Assigned IRQs %s to %s %s",
+			cpulists.GenCPUlist(changed), cpusName, cpus))
 	}
 
 	if len(managed) > 0 {
