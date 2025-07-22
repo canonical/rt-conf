@@ -33,7 +33,7 @@ func TestPrintBoldBgText(t *testing.T) {
 	output := captureLogOutput(func() {
 		printBoldBgText("Hello %s", "world")
 	})
-	expectedSubstring := initColor + "Hello world" + endColor
+	expectedSubstring := "\033[1mHello world\033[0m"
 	assertContains(t, output, expectedSubstring)
 }
 
@@ -41,7 +41,7 @@ func TestPrintlnBoldBgText(t *testing.T) {
 	output := captureLogOutput(func() {
 		printlnBoldBgText("Test %d", 123)
 	})
-	expectedSubstring := initColor + "Test 123" + endColor
+	expectedSubstring := "\033[1mTest 123\033[0m"
 	assertContains(t, output, "\n")
 	assertContains(t, output, expectedSubstring)
 }
