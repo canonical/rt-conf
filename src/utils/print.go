@@ -10,7 +10,7 @@ const (
 	// Bold text
 	initColor = "\033[1m"
 
-	// Reset color
+	// Reset formatting
 	endColor = "\033[0m"
 )
 
