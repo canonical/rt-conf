@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	// Bold text with Ubuntu orange background
-	initColor = "\033[1;48;2;233;84;32m"
+	// Bold text
+	initColor = "\033[1m"
 
 	// Reset color
 	endColor = "\033[0m"
