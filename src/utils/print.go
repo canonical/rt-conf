@@ -14,7 +14,7 @@ const (
 	endFmt = "\033[0m"
 )
 
-// Print title in bold inside box with an orange background color
+// Print title in bold inside box
 func PrintTitle(title string) {
 	log.Println()
 	tittleLine := strings.Repeat("─", len(title)+2)
