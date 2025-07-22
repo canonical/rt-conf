@@ -8,10 +8,10 @@ import (
 
 const (
 	// Bold text
-	initColor = "\033[1m"
+	initFmt = "\033[1m"
 
 	// Reset formatting
-	endColor = "\033[0m"
+	endFmt = "\033[0m"
 )
 
 // Print title in bold inside box with an orange background color
@@ -26,12 +26,12 @@ func PrintTitle(title string) {
 
 func printBoldBgText(format string, args ...any) {
 	text := fmt.Sprintf(format, args...)
-	log.Printf("%s%s%s", initColor, text, endColor)
+	log.Printf("%s%s%s", initFmt, text, endFmt)
 }
 
 func printlnBoldBgText(format string, args ...any) {
 	text := fmt.Sprintf(format, args...)
-	log.Printf("%s%s%s\n", initColor, text, endColor)
+	log.Printf("%s%s%s\n", initFmt, text, endFmt)
 }
 
 func LogTreeStyle(entries []string) {

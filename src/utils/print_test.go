@@ -52,7 +52,7 @@ func TestPrintTitle(t *testing.T) {
 	})
 
 	assertContains(t, output, "│ Header │")
-	assertContains(t, output, initColor)
+	assertContains(t, output, initFmt)
 }
 
 func TestLogTreeStyle(t *testing.T) {
