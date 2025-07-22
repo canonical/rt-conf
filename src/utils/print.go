@@ -16,10 +16,11 @@ const (
 
 // Print title in bold inside box with an orange background color
 func PrintTitle(title string) {
+	log.Println()
 	tittleLine := strings.Repeat("─", len(title)+2)
-	printlnBoldBgText("┌" + tittleLine + "┐")
-	printlnBoldBgText("│ %s │", title)
-	printlnBoldBgText("└" + tittleLine + "┘")
+	printlnBoldBgText("  ┌" + tittleLine + "┐")
+	printlnBoldBgText("  │ %s │", title)
+	printBoldBgText("  └" + tittleLine + "┘")
 	log.Println()
 }
 
