@@ -109,27 +109,27 @@ func (wr ReaderWriter) applyPwrConfig(
 }
 
 func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
-	cpusName := "CPUs"
+	pluralSuffix := "s"
 	if len(cpus) == 1 {
-		cpusName = "CPU"
+		pluralSuffix = ""
 	}
 	cpuList := cpulists.GenCPUlist(cpus)
 
 	var msg []string
 	if scalingGov != "" {
 		msg = append(msg,
-			fmt.Sprintf("Set scaling governance of %s %s to %s", cpusName,
+			fmt.Sprintf("Set scaling governance of CPU%s %s to %s", pluralSuffix,
 				cpuList, scalingGov))
 	}
 	if minFreq != "" {
 		msg = append(msg,
-			fmt.Sprintf("Set min frequency of %s %s to %s", cpusName, cpuList,
-				minFreq))
+			fmt.Sprintf("Set min frequency of CPU%s %s to %s", pluralSuffix,
+				cpuList, minFreq))
 	}
 	if maxFreq != "" {
 		msg = append(msg,
-			fmt.Sprintf("Set max frequency of %s %s to %s", cpusName, cpuList,
-				maxFreq))
+			fmt.Sprintf("Set max frequency of CPU%s %s to %s", pluralSuffix,
+				cpuList, maxFreq))
 	}
 
 	utils.LogTreeStyle(msg)

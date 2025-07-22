@@ -196,8 +196,7 @@ func applyIRQConfig(
 		if err != nil {
 			return err
 		}
-		logChanges(setIRQs, managedIRQs, defineIfUsePluralForCPUs(cpus),
-			irqTuning.CPUs)
+		logChanges(setIRQs, managedIRQs, cpus, irqTuning.CPUs)
 	}
 	return nil
 }
@@ -231,11 +230,16 @@ func matchesRegex(value, pattern string) bool {
 	return err == nil && match
 }
 
-func logChanges(changed, managed []int, cpusName, cpus string) {
+func logChanges(changed, managed []int, cpuList cpulists.CPUs, cpus string) {
+	pluralSuffix := "s"
+	if len(cpuList) == 1 {
+		pluralSuffix = ""
+	}
+
 	var msgs []string
 	if len(changed) > 0 {
-		msgs = append(msgs, fmt.Sprintf("Assigned IRQs %s to %s %s",
-			cpulists.GenCPUlist(changed), cpusName, cpus))
+		msgs = append(msgs, fmt.Sprintf("Assigned IRQs %s to CPU%s %s",
+			cpulists.GenCPUlist(changed), pluralSuffix, cpus))
 	}
 
 	if len(managed) > 0 {
@@ -244,16 +248,4 @@ func logChanges(changed, managed []int, cpusName, cpus string) {
 
 	}
 	utils.LogTreeStyle(msgs)
-}
-
-func defineIfUsePluralForCPUs(cpuList cpulists.CPUs) string {
-	var cpusSlice []int
-	for cpu := range cpuList {
-		cpusSlice = append(cpusSlice, cpu)
-	}
-	cpus := cpulists.GenCPUlist(cpusSlice)
-	if len(cpus) == 1 {
-		return "CPU"
-	}
-	return "CPUs"
 }
