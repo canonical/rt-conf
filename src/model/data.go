@@ -14,8 +14,8 @@ type PwrMgmt map[string]CpuGovernanceRule
 type Interrupts map[string]IRQTuning
 
 type Config struct {
-	Interrupts    Interrupts    `yaml:"irq-tuning"`
 	KernelCmdline KernelCmdline `yaml:"kernel-cmdline"`
+	Interrupts    Interrupts    `yaml:"irq-tuning"`
 	CpuGovernance PwrMgmt       `yaml:"cpu-governance"`
 }
 

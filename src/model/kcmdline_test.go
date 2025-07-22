@@ -59,10 +59,8 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	t.Logf("tempCustomCfgPath: %s\n", tempCustomCfgPath)
 
 	var conf model.InternalConfig
-	if d, err := model.LoadConfigFile(tempConfigPath); err != nil {
+	if err := conf.Data.LoadFromFile(tempConfigPath); err != nil {
 		return "", fmt.Errorf("failed to load config file: %v", err)
-	} else {
-		conf.Data = *d
 	}
 
 	conf.GrubCfg = model.Grub{
@@ -93,7 +91,7 @@ func TestHappyYamlKcmd(t *testing.T) {
 	var happyCases = []TestCase{
 		{
 			Yaml: `
-kernel_cmdline:
+kernel-cmdline:
   isolcpus: "0-n"
   nohz: "on"
   nohz_full: "0-n"
@@ -113,7 +111,7 @@ kernel_cmdline:
 		},
 		{
 			Yaml: `
-kernel_cmdline:
+kernel-cmdline:
   isolcpus: "0"
   nohz: "off"
   nohz_full: "0-n"
@@ -156,7 +154,7 @@ func TestUnhappyYamlKcmd(t *testing.T) {
 		{
 			// isolcpus: "a" is valid
 			Yaml: `
-kernel_cmdline:
+kernel-cmdline:
   isolcpus: "a"
   nohz: "on"
   nohz_full: "0-n"
@@ -168,7 +166,7 @@ kernel_cmdline:
 		{
 			// irqaffinity: "z" is valid
 			Yaml: `
-kernel_cmdline:
+kernel-cmdline:
   isolcpus: "0"
   nohz: "on"
   nohz_full: "0-n"
@@ -180,7 +178,7 @@ kernel_cmdline:
 		{
 			// nohz: "true" is valid it should be 'on' or 'off'
 			Yaml: `
-kernel_cmdline:
+kernel-cmdline:
   isolcpus: "0"
   nohz: "true"
   nohz_full: "0-n"
@@ -192,7 +190,7 @@ kernel_cmdline:
 		{
 			// isolcpus: "100000000" is invalid
 			Yaml: `
-kernel_cmdline:
+kernel-cmdline:
   isolcpus: "100000000"
   nohz: "off"
   nohz_full: "0-n"
