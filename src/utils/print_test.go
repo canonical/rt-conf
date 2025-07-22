@@ -13,7 +13,6 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// Helper: capture log output
 func captureLogOutput(f func()) string {
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
@@ -52,7 +51,6 @@ func TestPrintTitle(t *testing.T) {
 		PrintTitle("Header")
 	})
 
-	// We expect box-drawing characters and colored title line
 	assertContains(t, output, "│ Header │")
 	assertContains(t, output, initColor)
 }
