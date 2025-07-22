@@ -57,7 +57,11 @@ func (c *Config) LoadFromFile(confPath string) error {
 // When a value is set, the whole object gets overridden.
 func (c *Config) LoadSnapOptions() error {
 
-	value, err := snapctl.Get("irq-tuning", "cpu-governance").Document().Run()
+	value, err := snapctl.Get(
+		"kernel-cmdline",
+		"irq-tuning",
+		"cpu-governance",
+	).Document().Run()
 	if err != nil {
 		return fmt.Errorf("failed to get snap option: %v", err)
 	}
@@ -69,6 +73,11 @@ func (c *Config) LoadSnapOptions() error {
 	err = yaml.Unmarshal([]byte(value), &confOptions)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal snap options: %v", err)
+	}
+
+	// reject kernel command line arguments
+	if confOptions.KernelCmdline != (KernelCmdline{}) {
+		return fmt.Errorf("kernel-cmdline snap option is not supported, use the config file instead")
 	}
 
 	// override full objects
