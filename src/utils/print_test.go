@@ -23,14 +23,19 @@ func captureLogOutput(f func()) string {
 	return buf.String()
 }
 
+func assertContains(t *testing.T, haystack, needle string) {
+	t.Helper()
+	if !strings.Contains(haystack, needle) {
+		t.Errorf("expected to find %q in output: %q", needle, haystack)
+	}
+}
+
 func TestPrintBoldBgText(t *testing.T) {
 	output := captureLogOutput(func() {
 		printBoldBgText("Hello %s", "world")
 	})
 	expectedSubstring := initColor + "Hello world" + endColor
-	if !strings.Contains(output, expectedSubstring) {
-		t.Errorf("expected escape sequence with colored text, got: %q", output)
-	}
+	assertContains(t, output, expectedSubstring)
 }
 
 func TestPrintlnBoldBgText(t *testing.T) {
@@ -38,22 +43,18 @@ func TestPrintlnBoldBgText(t *testing.T) {
 		printlnBoldBgText("Test %d", 123)
 	})
 	expectedSubstring := initColor + "Test 123" + endColor
-	if !strings.Contains(output, expectedSubstring) {
-		t.Errorf("expected: %q, got: %q", expectedSubstring, output)
-	}
+	assertContains(t, output, "\n")
+	assertContains(t, output, expectedSubstring)
 }
 
 func TestPrintTitle(t *testing.T) {
 	output := captureLogOutput(func() {
 		PrintTitle("Header")
 	})
+
 	// We expect box-drawing characters and colored title line
-	if !strings.Contains(output, "│ Header │") {
-		t.Errorf("title box missing expected content, got: %q", output)
-	}
-	if !strings.Contains(output, initColor) {
-		t.Errorf("expected background color escape sequence, got: %q", output)
-	}
+	assertContains(t, output, "| Header |")
+	assertContains(t, output, initColor)
 }
 
 func TestLogTreeStyle(t *testing.T) {
@@ -67,8 +68,6 @@ func TestLogTreeStyle(t *testing.T) {
 		"└── three",
 	}
 	for _, line := range expected {
-		if !strings.Contains(output, line) {
-			t.Errorf("missing expected tree log entry: %q", line)
-		}
+		assertContains(t, output, line)
 	}
 }
