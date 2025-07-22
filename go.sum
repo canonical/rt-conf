@@ -1,11 +1,5 @@
-github.com/canonical/go-snapctl v1.0.0-beta.2 h1:3M+9+uAg8vu5hIGQN/yOOcG6Esud7/eQgtZbD7DNjco=
-github.com/canonical/go-snapctl v1.0.0-beta.2/go.mod h1:c2Kkyh24L/nYD7YSLzoA6n/mI3/86IQekwXvBHL3G+Q=
-github.com/canonical/go-snapctl v1.0.0-beta.2.0.20250722081214-f29c4ec18c72 h1:kyA1ZM+CcCuOzuurHJ6wNXBhPhiMNEnVQmBlMnnRVpg=
-github.com/canonical/go-snapctl v1.0.0-beta.2.0.20250722081214-f29c4ec18c72/go.mod h1:c2Kkyh24L/nYD7YSLzoA6n/mI3/86IQekwXvBHL3G+Q=
-github.com/canonical/go-snapctl v1.0.0-beta.2.0.20250722082917-7e307c35615b h1:4NgUUWr17XD1+WyjhKnmEZw5Q5bbKlmxyXPFj7Zty+M=
-github.com/canonical/go-snapctl v1.0.0-beta.2.0.20250722082917-7e307c35615b/go.mod h1:c2Kkyh24L/nYD7YSLzoA6n/mI3/86IQekwXvBHL3G+Q=
-github.com/canonical/go-snapctl v1.0.0-beta.2.0.20250722084158-0310595e9e52 h1:p3Sp4bY1C5CDubvnOuEfwpDjQH55dyhWs6jNdIuAgNc=
-github.com/canonical/go-snapctl v1.0.0-beta.2.0.20250722084158-0310595e9e52/go.mod h1:c2Kkyh24L/nYD7YSLzoA6n/mI3/86IQekwXvBHL3G+Q=
+github.com/canonical/go-snapctl v1.0.0-beta.3 h1:lVfhh+7aRndPABZIVfDV19tdsxaSNKFWi3tkQ71XjEY=
+github.com/canonical/go-snapctl v1.0.0-beta.3/go.mod h1:c2Kkyh24L/nYD7YSLzoA6n/mI3/86IQekwXvBHL3G+Q=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
