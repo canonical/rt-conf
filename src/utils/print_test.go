@@ -53,7 +53,7 @@ func TestPrintTitle(t *testing.T) {
 	})
 
 	// We expect box-drawing characters and colored title line
-	assertContains(t, output, "| Header |")
+	assertContains(t, output, "│ Header │")
 	assertContains(t, output, initColor)
 }
 
