@@ -8,20 +8,9 @@ import (
 	"testing"
 )
 
-// Helper: capture stdout
-func captureStdout(f func()) string {
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	f()
-
-	w.Close()
-	os.Stdout = old
-
-	var buf bytes.Buffer
-	buf.ReadFrom(r)
-	return buf.String()
+func TestMain(m *testing.M) {
+	log.SetFlags(0)
+	os.Exit(m.Run())
 }
 
 // Helper: capture log output
@@ -35,34 +24,34 @@ func captureLogOutput(f func()) string {
 }
 
 func TestPrintBoldBgText(t *testing.T) {
-	output := captureStdout(func() {
+	output := captureLogOutput(func() {
 		printBoldBgText("Hello %s", "world")
 	})
-	expectedSubstring := "\033[1;48;2;233;84;32mHello world\033[0m"
+	expectedSubstring := initColor + "Hello world" + endColor
 	if !strings.Contains(output, expectedSubstring) {
 		t.Errorf("expected escape sequence with colored text, got: %q", output)
 	}
 }
 
 func TestPrintlnBoldBgText(t *testing.T) {
-	output := captureStdout(func() {
+	output := captureLogOutput(func() {
 		printlnBoldBgText("Test %d", 123)
 	})
-	expectedSubstring := "\033[1;48;2;233;84;32mTest 123\033[0m"
+	expectedSubstring := initColor + "Test 123" + endColor
 	if !strings.Contains(output, expectedSubstring) {
-		t.Errorf("expected colored output with newline, got: %q", output)
+		t.Errorf("expected: %q, got: %q", expectedSubstring, output)
 	}
 }
 
 func TestPrintTitle(t *testing.T) {
-	output := captureStdout(func() {
+	output := captureLogOutput(func() {
 		PrintTitle("Header")
 	})
 	// We expect box-drawing characters and colored title line
 	if !strings.Contains(output, "│ Header │") {
 		t.Errorf("title box missing expected content, got: %q", output)
 	}
-	if !strings.Contains(output, "\033[1;48;2;233;84;32m") {
+	if !strings.Contains(output, initColor) {
 		t.Errorf("expected background color escape sequence, got: %q", output)
 	}
 }

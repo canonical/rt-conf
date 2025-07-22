@@ -3,40 +3,34 @@ package utils
 import (
 	"fmt"
 	"log"
+	"strings"
+)
+
+const (
+	// Bold text with Ubuntu orange background
+	initColor = "\033[1;48;2;233;84;32m"
+
+	// Reset color
+	endColor = "\033[0m"
 )
 
 // Print title in bold inside box with an orange background color
 func PrintTitle(title string) {
-
-	printBoldBgText("┌")
-	for i := 0; i <= len(title)+1; i++ {
-		printBoldBgText("─")
-	}
-	printlnBoldBgText("┐")
-
+	tittleLine := strings.Repeat("─", len(title)+2)
+	printlnBoldBgText("┌" + tittleLine + "┐")
 	printlnBoldBgText("│ %s │", title)
-
-	printBoldBgText("└")
-	for i := 0; i <= len(title)+1; i++ {
-		printBoldBgText("─")
-	}
-	printlnBoldBgText("┘")
-
+	printlnBoldBgText("└" + tittleLine + "┘")
 	log.Println()
 }
 
 func printBoldBgText(format string, args ...any) {
-	// Ubuntu orange color
-	r, g, b := 0xE9, 0x54, 0x20
 	text := fmt.Sprintf(format, args...)
-	fmt.Printf("\033[1;48;2;%d;%d;%dm%s\033[0m", r, g, b, text)
+	log.Printf("%s%s%s", initColor, text, endColor)
 }
 
 func printlnBoldBgText(format string, args ...any) {
-	// Ubuntu orange color
-	r, g, b := 0xE9, 0x54, 0x20
 	text := fmt.Sprintf(format, args...)
-	fmt.Printf("\033[1;48;2;%d;%d;%dm%s\033[0m\n", r, g, b, text)
+	log.Printf("%s%s%s\n", initColor, text, endColor)
 }
 
 func LogTreeStyle(entries []string) {
