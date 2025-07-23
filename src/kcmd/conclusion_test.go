@@ -23,6 +23,7 @@ func TestGrubConclusion(t *testing.T) {
 		"\tsudo update-grub\n",
 		"\n",
 		"to apply the changes to your bootloader.\n",
+		"\n",
 	}
 
 	result := GrubConclusion(grubFile, old, new)
@@ -68,6 +69,7 @@ func TestUbuntuCoreConclusion(t *testing.T) {
 		"\n",
 		"Sucessfully applied the changes.\n",
 		"Please reboot your system to apply the changes.\n",
+		"\n",
 	}
 	result := UbuntuCoreConclusion()
 

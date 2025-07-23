@@ -67,6 +67,22 @@ irq_tuning:
 				},
 			},
 		},
+		{
+			Yaml: `
+irq_tuning:
+  "foo":
+    cpus: 0,1
+    filter:
+      action: nvme01
+`,
+			Handler: &mockIRQReaderWriter{
+				IRQs: map[uint]IRQInfo{
+					0: {
+						Actions: "nvme01",
+					},
+				},
+			},
+		},
 	}
 
 	for i, c := range happyCases {

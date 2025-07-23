@@ -8,6 +8,7 @@ import (
 
 	"github.com/canonical/rt-conf/src/cpulists"
 	"github.com/canonical/rt-conf/src/model"
+	"github.com/canonical/rt-conf/src/utils"
 )
 
 type ReaderWriter struct {
@@ -70,10 +71,7 @@ func (w ReaderWriter) WriteCPUFreq(freqMin, freqMax, cpu int) error {
 }
 
 func ApplyPwrConfig(config *model.InternalConfig) error {
-	log.Println("\n-----------------------")
-	log.Println("Applying CPU Governance")
-	log.Println("-----------------------")
-
+	utils.PrintTitle("CPU Governance")
 	if len(config.Data.CpuGovernance) == 0 {
 		log.Println("No CPU governance rules found in config")
 		return nil
@@ -89,7 +87,7 @@ func (wr ReaderWriter) applyPwrConfig(
 	// Range over all CPU governance rules
 	for label, sclgov := range rules {
 
-		log.Printf("\nRule: %s \n", label)
+		log.Printf("Rule: %s \n", label)
 		cpus, err := cpulists.Parse(sclgov.CPUs)
 		if err != nil {
 			return err
@@ -111,25 +109,30 @@ func (wr ReaderWriter) applyPwrConfig(
 }
 
 func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
-	cpusName := "CPUs"
+	pluralSuffix := "s"
 	if len(cpus) == 1 {
-		cpusName = "CPU"
+		pluralSuffix = ""
 	}
-	log.Printf("+ Set scaling governance of %s %s to %s\n",
-		cpusName, cpulists.GenCPUlist(cpus), scalingGov)
+	cpuList := cpulists.GenCPUlist(cpus)
 
-	minFreqConnector := "└── "
+	var msg []string
+	if scalingGov != "" {
+		msg = append(msg,
+			fmt.Sprintf("Set scaling governance of CPU%s %s to %s", pluralSuffix,
+				cpuList, scalingGov))
+	}
 	if minFreq != "" {
-		if maxFreq != "" {
-			minFreqConnector = "├── "
-		}
-		log.Printf("%sSet min frequency of %s %s to %s\n",
-			minFreqConnector, cpusName, cpulists.GenCPUlist(cpus), minFreq)
+		msg = append(msg,
+			fmt.Sprintf("Set min frequency of CPU%s %s to %s", pluralSuffix,
+				cpuList, minFreq))
 	}
 	if maxFreq != "" {
-		log.Printf("└── Set max frequency of %s %s to %s\n",
-			cpusName, cpulists.GenCPUlist(cpus), maxFreq)
+		msg = append(msg,
+			fmt.Sprintf("Set max frequency of CPU%s %s to %s", pluralSuffix,
+				cpuList, maxFreq))
 	}
+
+	utils.LogTreeStyle(msg)
 }
 
 func (wr ReaderWriter) applyRule(cpu int,
