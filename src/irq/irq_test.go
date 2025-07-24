@@ -53,7 +53,7 @@ func TestHappyIRQtuning(t *testing.T) {
 	var happyCases = []IRQTestCase{
 		{
 			Yaml: `
-irq_tuning:
+irq-tuning:
   "foo":
     cpus: 0
     filter:
@@ -63,6 +63,22 @@ irq_tuning:
 				IRQs: map[uint]IRQInfo{
 					0: {
 						Actions: "floppy",
+					},
+				},
+			},
+		},
+		{
+			Yaml: `
+irq_tuning:
+  "foo":
+    cpus: 0,1
+    filter:
+      action: nvme01
+`,
+			Handler: &mockIRQReaderWriter{
+				IRQs: map[uint]IRQInfo{
+					0: {
+						Actions: "nvme01",
 					},
 				},
 			},
@@ -85,7 +101,7 @@ func TestUnhappyIRQtuning(t *testing.T) {
 		{
 			// Invalid number
 			Yaml: `
-irq_tuning:
+irq-tuning:
 - cpus: 0
   filter:
     number: a
@@ -95,7 +111,7 @@ irq_tuning:
 		{
 			// Invalid RegEx
 			Yaml: `
-irq_tuning:
+irq-tuning:
 - cpus: 0
   filter:
     number: 0
@@ -131,10 +147,8 @@ func mainLogicIRQ(t *testing.T, cfg IRQTestCase, i int) (string, error) {
 		os.Remove(tempConfigPath)
 	})
 	var conf model.InternalConfig
-	if d, err := model.LoadConfigFile(tempConfigPath); err != nil {
+	if err := conf.Data.LoadFromFile(tempConfigPath); err != nil {
 		return "", fmt.Errorf("failed to load config file: %v", err)
-	} else {
-		conf.Data = *d
 	}
 
 	err := applyIRQConfig(&conf, cfg.Handler)
@@ -257,7 +271,7 @@ func TestReadIRQsSingleActiveIRQ(t *testing.T) {
 			Number: 10,
 			Files: map[string]string{
 				"actions":   "handle_irq",
-				"chip_name": "testchip",
+				"chip-name": "testchip",
 				"name":      "eth0",
 				"type":      "level",
 				"wakeup":    "enabled",

@@ -409,3 +409,54 @@ func TestWriteOnly(t *testing.T) {
 		})
 	}
 }
+
+func TestApplyRuleUnhappy(t *testing.T) {
+	tests := []struct {
+		name   string
+		sclgov model.CpuGovernanceRule
+	}{
+		{
+			name: "WriteScalingGov fails (needs root)",
+			sclgov: model.CpuGovernanceRule{
+				ScalGov: "performance",
+			},
+		},
+		{
+			name: "ParseFreq MinFreq fails (invalid format)",
+			sclgov: model.CpuGovernanceRule{
+				MinFreq: "invalid!",
+			},
+		},
+		{
+			name: "ParseFreq MaxFreq fails (invalid format)",
+			sclgov: model.CpuGovernanceRule{
+				MinFreq: "1GHz",
+				MaxFreq: "oops!",
+			},
+		},
+		{
+			name: "WriteCPUFreq fails on min frequency (needs root)",
+			sclgov: model.CpuGovernanceRule{
+				MinFreq: "1GHz",
+			},
+		},
+		{
+			name: "WriteCPUFreq fails on max frequency (needs root)",
+			sclgov: model.CpuGovernanceRule{
+				MaxFreq: "5GHz",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+
+			err := pwrmgmtReaderWriter.applyRule(0, tc.sclgov)
+			if err == nil {
+				t.Fatalf(
+					"expected error when processing %+v got nil", tc.sclgov,
+				)
+			}
+		})
+	}
+}

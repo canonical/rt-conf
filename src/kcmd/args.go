@@ -6,6 +6,7 @@ import (
 
 	"github.com/canonical/rt-conf/src/model"
 	"github.com/canonical/rt-conf/src/system"
+	"github.com/canonical/rt-conf/src/utils"
 )
 
 var kcmdSys = map[system.SystemType]func(*model.InternalConfig) ([]string, error){
@@ -15,10 +16,7 @@ var kcmdSys = map[system.SystemType]func(*model.InternalConfig) ([]string, error
 }
 
 func ProcessKcmdArgs(c *model.InternalConfig) ([]string, error) {
-	log.Println("\n-----------------------------")
-	log.Println("Applying Kernel command lines")
-	log.Println("-----------------------------")
-
+	utils.PrintTitle("Kernel Command Line Parameters")
 	if c.Data.KernelCmdline == (model.KernelCmdline{}) {
 		// No kernel command line options to process
 		log.Println("No kernel command line options to process")

@@ -46,7 +46,7 @@ func TestLoadConfigFile(t *testing.T) {
 		},
 		{
 			name:        "FileInvalidPermissions",
-			yaml:        "kernel_cmdline:",
+			yaml:        "kernel-cmdline:",
 			perm:        0755,
 			cfg:         nil,
 			err:         fmt.Errorf("has invalid permissions"),
@@ -54,7 +54,7 @@ func TestLoadConfigFile(t *testing.T) {
 		},
 		{
 			name:        "FileNotOwnedByRoot",
-			yaml:        `kernel_cmdline:`,
+			yaml:        `kernel-cmdline:`,
 			perm:        0644,
 			cfg:         nil,
 			err:         fmt.Errorf("not owned by root"),
@@ -62,7 +62,7 @@ func TestLoadConfigFile(t *testing.T) {
 		},
 		{
 			name:        "FailedToUnmarshalYAML",
-			yaml:        `kernel_cmdline: {`,
+			yaml:        `kernel-cmdline: {`,
 			perm:        0644,
 			cfg:         nil,
 			err:         fmt.Errorf("failed to unmarshal data"),
@@ -71,7 +71,7 @@ func TestLoadConfigFile(t *testing.T) {
 		{
 			name: "FileValid",
 			yaml: `
-kernel_cmdline:
+kernel-cmdline:
     nohz: "on"
     isolcpus: "1"
     kthread_cpus: "0"
@@ -105,7 +105,8 @@ kernel_cmdline:
 				}
 			}
 
-			cfg, err := LoadConfigFile(cfgFilePath)
+			var cfg Config
+			err := cfg.LoadFromFile(cfgFilePath)
 
 			// Unhappy cases
 			if tc.err != nil {
@@ -122,11 +123,8 @@ kernel_cmdline:
 			if err != nil {
 				t.Fatalf("expected no error, got '%v'", err)
 			}
-			if cfg == nil {
-				t.Fatalf("expected non-nil config, got nil")
-			}
-			if !reflect.DeepEqual(cfg, tc.cfg) {
-				t.Fatalf("expected config %v, got %v", tc.cfg, cfg)
+			if !reflect.DeepEqual(cfg, *tc.cfg) {
+				t.Fatalf("expected config %+v, got %+v", *tc.cfg, cfg)
 			}
 		})
 	}

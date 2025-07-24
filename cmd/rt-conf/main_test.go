@@ -22,9 +22,9 @@ func TestRunHappy(t *testing.T) {
 			name: "Valid empty config",
 			args: []string{"rt-conf", "-file", configPath},
 			yaml: `
-kernel_cmdline:
-cpu_governance:
-irq_tuning:
+kernel-cmdline:
+cpu-governance:
+irq-tuning:
 `,
 		},
 	}
@@ -87,7 +87,7 @@ func TestRunUnhappy(t *testing.T) {
 			args: []string{"rt-conf", "-file", configPath},
 			err:  "failed to process kernel cmdline args",
 			yaml: `
-kernel_cmdline:
+kernel-cmdline:
     nohz: "on"
 `,
 		},
@@ -96,7 +96,7 @@ kernel_cmdline:
 			args: []string{"rt-conf", "-file", configPath},
 			err:  "failed to process interrupts",
 			yaml: `
-irq_tuning:
+irq-tuning:
   "foo":
     cpus: "0"
     filter:
@@ -108,10 +108,10 @@ irq_tuning:
 			args: []string{"rt-conf", "-file", configPath},
 			err:  "failed to process power management config",
 			yaml: `
-cpu_governance:
+cpu-governance:
   "bar":
     cpus: "0"
-    scaling_governor: "performance"
+    scaling-governor: "performance"
 `,
 		},
 	}

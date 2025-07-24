@@ -40,7 +40,7 @@ func TestReadYAML(t *testing.T) {
 		{
 			name: "ValidationFails",
 			yaml: `
-kernel_cmdline:
+kernel-cmdline:
   nohz: "invalid_value"
 `,
 			cfg: nil,
@@ -49,7 +49,7 @@ kernel_cmdline:
 		{
 			name: "Success",
 			yaml: `
-kernel_cmdline:
+kernel-cmdline:
   nohz: "on"
 `,
 			cfg: &Config{
