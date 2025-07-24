@@ -5,6 +5,9 @@ import (
 	"os"
 	"syscall"
 	"testing"
+
+	"github.com/canonical/go-snapctl"
+	"gopkg.in/yaml.v3"
 )
 
 var expectedPermission os.FileMode = 0o644
@@ -17,26 +20,27 @@ var isOwnedByRoot = func(fi os.FileInfo) bool {
 	return uid == 0 // Check if the file is owned by root
 }
 
-func LoadConfigFile(confPath string) (*Config, error) {
+func (c *Config) LoadFromFile(confPath string) error {
 	fileInfo, err := os.Stat(confPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find file: %v", err)
+		return fmt.Errorf("failed to find file: %v", err)
 	}
 
 	if fileInfo.Mode() != expectedPermission {
-		return nil, fmt.Errorf(
+		return fmt.Errorf(
 			"file %s has invalid permissions: %v, expected permissions %v",
 			confPath, fileInfo.Mode(), expectedPermission)
 	}
 
 	if !isOwnedByRoot(fileInfo) {
-		return nil, fmt.Errorf("file %s is not owned by root", confPath)
+		return fmt.Errorf("file %s is not owned by root", confPath)
 	}
 
-	content, err := ReadYAML(confPath)
+	cfg, err := ReadYAML(confPath)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	*c = *cfg
 
 	/*
 		TODO: Needs to implement proper validation of the parameters
@@ -46,5 +50,48 @@ func LoadConfigFile(confPath string) (*Config, error) {
 			- key=value
 			- flag
 	*/
-	return content, nil
+	return nil
+}
+
+// LoadSnapOptions reads IRQ and CPU governance objects from snap options
+// When a value is set, the whole object gets overridden.
+func (c *Config) LoadSnapOptions() error {
+
+	value, err := snapctl.Get(
+		"kernel-cmdline",
+		"irq-tuning",
+		"cpu-governance",
+	).Document().Run()
+	if err != nil {
+		return fmt.Errorf("failed to get snap option: %v", err)
+	}
+
+	var confOptions Config
+
+	// Unmarshal json using YAML unmarshaler
+	// This works because YAML is a superset of JSON
+	err = yaml.Unmarshal([]byte(value), &confOptions)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal snap options: %v", err)
+	}
+
+	// reject kernel command line arguments
+	if confOptions.KernelCmdline != (KernelCmdline{}) {
+		return fmt.Errorf("kernel-cmdline snap option is not supported, use the config file instead")
+	}
+
+	// override full objects
+	if len(confOptions.Interrupts) > 0 {
+		c.Interrupts = confOptions.Interrupts
+	}
+	if len(confOptions.CpuGovernance) > 0 {
+		c.CpuGovernance = confOptions.CpuGovernance
+	}
+
+	err = c.Validate()
+	if err != nil {
+		return fmt.Errorf("invalid configurations via snap options: %v", err)
+	}
+
+	return nil
 }

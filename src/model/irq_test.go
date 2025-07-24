@@ -18,7 +18,7 @@ func TestIRQTuningValidate(t *testing.T) {
 				CPUs: "0,1",
 				Filter: IRQFilter{
 					Actions:  `action`,
-					ChipName: `chip_name`,
+					ChipName: `chip-name`,
 					Name:     `name`,
 					Type:     `type`,
 				},
@@ -57,7 +57,7 @@ func TestIRQTuningValidate(t *testing.T) {
 				CPUs: "0,1",
 				Filter: IRQFilter{
 					Actions:  `(?!abc)def`, // Negative lookahead
-					ChipName: `chip_name`,
+					ChipName: `chip-name`,
 					Name:     `name`,
 					Type:     `type`,
 				},
