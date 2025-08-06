@@ -26,6 +26,11 @@ func TestParseCPUListsHappy(t *testing.T) {
 			CPUs{0: true, 1: true},
 		},
 		{
+			"0-N",
+			2,
+			CPUs{0: true, 1: true},
+		},
+		{
 			"4",
 			8,
 			CPUs{4: true},
@@ -121,7 +126,7 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 			"invalid end of range: all",
 		},
 		{
-			"all-n",
+			"all-N",
 			4,
 			"invalid start of range: all",
 		},
@@ -205,6 +210,11 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 			8,
 			"used size greater than total CPUs: 9",
 		},
+		{
+			"0-n",
+			8,
+			"lowercase N isn't accepted",
+		},
 	}
 
 	// If not set totalCPUs back to the original function, the next tests will fail.
@@ -260,16 +270,16 @@ func TestParseWithFlagsHappy(t *testing.T) {
 		{"managed_irq,0", max, isolcpuFlags},
 
 		// Test comma separated CPU list
-		{"0,n", max, isolcpuFlags},
-		{"nohz,0,n", max, isolcpuFlags},
-		{"domain,0,n", max, isolcpuFlags},
-		{"managed_irq,0,n", max, isolcpuFlags},
+		{"0,N", max, isolcpuFlags},
+		{"nohz,0,N", max, isolcpuFlags},
+		{"domain,0,N", max, isolcpuFlags},
+		{"managed_irq,0,N", max, isolcpuFlags},
 
 		// Test comma separated CPU list
-		{"0,n", max, isolcpuFlags},
-		{"nohz,0,n", max, isolcpuFlags},
-		{"domain,0,n", max, isolcpuFlags},
-		{"managed_irq,0,n", max, isolcpuFlags},
+		{"0,N", max, isolcpuFlags},
+		{"nohz,0,N", max, isolcpuFlags},
+		{"domain,0,N", max, isolcpuFlags},
+		{"managed_irq,0,N", max, isolcpuFlags},
 	}
 
 	// If not set totalCPUs back to the original function, the next tests will fail.

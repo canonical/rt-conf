@@ -40,9 +40,11 @@ func ParseForCPUs(cpuLists string, totalCPUs int) (CPUs, error) {
 			continue
 		}
 
-		// Handle "N" or "n"
+		// Handle "n"
+		if strings.Contains(item, "n") {
+			return nil, fmt.Errorf("lowercase N isn't accepted")
+		}
 		item = strings.ReplaceAll(item, "N", strconv.Itoa(totalCPUs-1))
-		item = strings.ReplaceAll(item, "n", strconv.Itoa(totalCPUs-1))
 
 		if strings.Contains(item, ":") {
 			if err := handleCPUGroup(item, cpus, totalCPUs); err != nil {

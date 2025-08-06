@@ -92,21 +92,21 @@ func TestHappyYamlKcmd(t *testing.T) {
 		{
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "0-n"
+  isolcpus: "0-N"
   nohz: "on"
-  nohz_full: "0-n"
-  kthread_cpus: "0-n"
-  irqaffinity: "0-n"
+  nohz_full: "0-N"
+  kthread_cpus: "0-N"
+  irqaffinity: "0-N"
 `,
 			Validations: []struct {
 				param string
 				value string
 			}{
-				{"isolcpus", "0-n"},
+				{"isolcpus", "0-N"},
 				{"nohz", "on"},
-				{"nohz_full", "0-n"},
-				{"kthread_cpus", "0-n"},
-				{"irqaffinity", "0-n"},
+				{"nohz_full", "0-N"},
+				{"kthread_cpus", "0-N"},
+				{"irqaffinity", "0-N"},
 			},
 		},
 		{
@@ -114,9 +114,9 @@ kernel-cmdline:
 kernel-cmdline:
   isolcpus: "0"
   nohz: "off"
-  nohz_full: "0-n"
-  kthread_cpus: "0-n"
-  irqaffinity: "0-n"
+  nohz_full: "0-N"
+  kthread_cpus: "0-N"
+  irqaffinity: "0-N"
 `,
 			Validations: []struct {
 				param string
@@ -124,9 +124,9 @@ kernel-cmdline:
 			}{
 				{"isolcpus", "0"},
 				{"nohz", "off"},
-				{"nohz_full", "0-n"},
-				{"kthread_cpus", "0-n"},
-				{"irqaffinity", "0-n"},
+				{"nohz_full", "0-N"},
+				{"kthread_cpus", "0-N"},
+				{"irqaffinity", "0-N"},
 			},
 		},
 	}
@@ -157,9 +157,9 @@ func TestUnhappyYamlKcmd(t *testing.T) {
 kernel-cmdline:
   isolcpus: "a"
   nohz: "on"
-  nohz_full: "0-n"
+  nohz_full: "0-N"
   kthread_cpus: "0"
-  irqaffinity: "0-n"
+  irqaffinity: "0-N"
 `,
 			Validations: nil,
 		},
@@ -169,9 +169,9 @@ kernel-cmdline:
 kernel-cmdline:
   isolcpus: "0"
   nohz: "on"
-  nohz_full: "0-n"
+  nohz_full: "0-N"
   kthread_cpus: "z"
-  irqaffinity: "0-n"
+  irqaffinity: "0-N"
 `,
 			Validations: nil,
 		},
@@ -181,9 +181,9 @@ kernel-cmdline:
 kernel-cmdline:
   isolcpus: "0"
   nohz: "true"
-  nohz_full: "0-n"
-  kthread_cpus: "0-n"
-  irqaffinity: "0-n"
+  nohz_full: "0-N"
+  kthread_cpus: "0-N"
+  irqaffinity: "0-N"
 `,
 			Validations: nil,
 		},
@@ -193,9 +193,9 @@ kernel-cmdline:
 kernel-cmdline:
   isolcpus: "100000000"
   nohz: "off"
-  nohz_full: "0-n"
-  kthread_cpus: "0-n"
-  irqaffinity: "0-n"
+  nohz_full: "0-N"
+  kthread_cpus: "0-N"
+  irqaffinity: "0-N"
 `,
 			Validations: nil,
 		},
