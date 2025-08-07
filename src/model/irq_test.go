@@ -28,7 +28,7 @@ func TestIRQTuningValidate(t *testing.T) {
 		{
 			name: "valid regex",
 			c: IRQTuning{
-				CPUs: "0-n",
+				CPUs: "0-N",
 				Filter: IRQFilter{
 					Actions:  `nvme`,
 					ChipName: `-PCI-`,
@@ -41,7 +41,7 @@ func TestIRQTuningValidate(t *testing.T) {
 		{
 			name: "valid regex",
 			c: IRQTuning{
-				CPUs: "0,n",
+				CPUs: "0,N",
 				Filter: IRQFilter{
 					Actions:  `nvme`,
 					ChipName: `-PCI-`,
