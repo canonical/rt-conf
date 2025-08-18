@@ -1,3 +1,0 @@
-#!/bin/bash -eu
-
-rm -f /etc/default/grub.d/60_rt-conf.cfg
