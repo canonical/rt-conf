@@ -70,7 +70,7 @@ kernel-cmdline:
 				filePath = filepath.Join(tmpdir, "nonexistent.yaml")
 			} else {
 				filePath = filepath.Join(tmpdir, tc.name+".yaml")
-				if err := os.WriteFile(filePath, []byte(tc.yaml), 0644); err != nil {
+				if err := os.WriteFile(filePath, []byte(tc.yaml), 0o644); err != nil {
 					t.Fatalf("failed to write test YAML file: %v", err)
 				}
 			}
