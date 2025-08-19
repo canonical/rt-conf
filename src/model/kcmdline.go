@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
+	"github.com/canonical/rt-conf/src/utils"
 )
 
 var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
@@ -98,6 +99,7 @@ func (k KernelCmdline) Validate() error {
 	return k.validateKnownParams()
 }
 
+// validateKnownParams checks known parameters for specific rules
 func (k KernelCmdline) validateKnownParams() error {
 	cpulistParams := []string{
 		"kthread_cpus",
@@ -124,14 +126,16 @@ func (k KernelCmdline) validateKnownParams() error {
 		// Validate cpulist parameters
 		for _, cpuParam := range cpulistParams {
 			if key == cpuParam {
-				if _, err := cpulists.Parse(value); err != nil {
+				if _, err := cpulists.Parse(
+					utils.TrimSurroundingDoubleQuotes(value)); err != nil {
 					return fmt.Errorf("parameter %q has invalid cpulist %q: %v", key, value, err)
 				}
 			}
 		}
 		// Handle isolcpus parameter
 		if key == "isolcpus" {
-			if _, _, err := cpulists.ParseWithFlags(value, isolcpuFlags); err != nil {
+			if _, _, err := cpulists.ParseWithFlags(
+				utils.TrimSurroundingDoubleQuotes(value), isolcpuFlags); err != nil {
 				return fmt.Errorf("parameter %q has invalid isolcpus %q: %v", key, value, err)
 			}
 		}
