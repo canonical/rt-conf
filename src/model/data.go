@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 )
 
 type InternalConfig struct {
@@ -24,7 +25,10 @@ func (c Config) Validate() error {
 	if err != nil {
 		return fmt.Errorf("failed to validate kernel cmdline: %v", err)
 	}
-	for _, irq := range c.Interrupts {
+	for label, irq := range c.Interrupts {
+		if strings.ContainsAny(label, " \t\n\r\f") {
+			return fmt.Errorf("rule name cannot contain whitespace characters: %q", label)
+		}
 		err := irq.Validate()
 		if err != nil {
 			return fmt.Errorf("failed to validate irq tuning: %v", err)
@@ -32,6 +36,9 @@ func (c Config) Validate() error {
 	}
 
 	for label, pwrprof := range c.CpuGovernance {
+		if strings.ContainsAny(label, " \t\n\r\f") {
+			return fmt.Errorf("rule name cannot contain whitespace characters: %q", label)
+		}
 		err := pwrprof.Validate()
 		if err != nil {
 			return fmt.Errorf(

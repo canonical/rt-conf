@@ -54,6 +54,20 @@ func TestValidate(t *testing.T) {
 			err: errors.New("failed to validate irq tuning"),
 		},
 		{
+			name: "Invalid name for IRQ tuning rule - with space",
+			cfg: &Config{
+				Interrupts: Interrupts{
+					"foo bar buzz": {
+						CPUs: "0",
+						Filter: IRQFilter{
+							Name: "foo",
+						},
+					},
+				},
+			},
+			err: errors.New("rule name cannot contain whitespace characters"),
+		},
+		{
 			name: "Invalid CPU governance rule",
 			cfg: &Config{
 				CpuGovernance: PwrMgmt{
@@ -64,6 +78,18 @@ func TestValidate(t *testing.T) {
 				},
 			},
 			err: errors.New("failed to validate cpu governance rule"),
+		},
+		{
+			name: "Invalid name for CPU governance rule - with space",
+			cfg: &Config{
+				CpuGovernance: PwrMgmt{
+					"foo bar buzz": {
+						CPUs:    "0-1",
+						ScalGov: "powersave",
+					},
+				},
+			},
+			err: errors.New("rule name cannot contain whitespace characters"),
 		},
 	}
 
@@ -84,7 +110,6 @@ func TestValidate(t *testing.T) {
 			if err != nil {
 				t.Fatalf("expected no error, got '%v'", err)
 			}
-
 		})
 	}
 }
