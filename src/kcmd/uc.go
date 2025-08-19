@@ -74,12 +74,10 @@ var sendRequest = func(method, url string, payload []byte) (*http.Response, erro
 }
 
 func UpdateUbuntuCore(cfg *model.InternalConfig) ([]string, error) {
-
-	cmdline := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
-	if len(cmdline) == 0 {
+	if len(cfg.Data.KernelCmdline) == 0 {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
-	kcmds := model.ParamsToCmdline(cmdline)
+	kcmds := cfg.Data.KernelCmdline.Join()
 
 	b := []byte(fmt.Sprintf(jsonbody, kcmds))
 	resp, err := sendRequest("PUT", confURL, b)

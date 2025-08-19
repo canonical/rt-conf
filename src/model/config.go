@@ -56,7 +56,6 @@ func (c *Config) LoadFromFile(confPath string) error {
 // LoadSnapOptions reads IRQ and CPU governance objects from snap options
 // When a value is set, the whole object gets overridden.
 func (c *Config) LoadSnapOptions() error {
-
 	value, err := snapctl.Get(
 		"kernel-cmdline",
 		"irq-tuning",
@@ -76,7 +75,7 @@ func (c *Config) LoadSnapOptions() error {
 	}
 
 	// reject kernel command line arguments
-	if confOptions.KernelCmdline != (KernelCmdline{}) {
+	if len(confOptions.KernelCmdline) > 0 {
 		return fmt.Errorf("kernel-cmdline snap option is not supported, use the config file instead")
 	}
 

@@ -6,23 +6,23 @@
 kernel-cmdline:
   # Isolate CPUs from general execution
   # Format: CPU Lists
-  # isolcpus: "2-3"
+  #  - isolcpus="2-3"
 
   # Enable/disable dynamic ticks during idle time
   # Supported values: on | off
-  # nohz: "on"
+  #  - nohz="on"
 
   # Enable/disable full dynamic ticks
   # Format: CPU Lists
-  # nohz_full: "2-3"
+  #  - nohz_full="2-3"
 
   # Allocated CPUs for kernel threads
   # Format: CPU Lists
-  # kthread_cpus: "0-1"
+  #  - kthread_cpus="0-1"
 
   # Allocate CPUs for IRQ handling
   # Format: CPU Lists
-  # irqaffinity: "0-1"
+  #  - irqaffinity="0-1"
 
 # Runtime options for IRQ affinity
 irq-tuning:

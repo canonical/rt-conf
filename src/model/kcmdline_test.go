@@ -22,6 +22,7 @@ GRUB_CMDLINE_LINUX=""
 )
 
 type TestCase struct {
+	Name        string
 	Yaml        string
 	Validations []struct {
 		param string
@@ -88,15 +89,15 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 }
 
 func TestHappyYamlKcmd(t *testing.T) {
-	var happyCases = []TestCase{
+	happyCases := []TestCase{
 		{
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "0-N"
-  nohz: "on"
-  nohz_full: "0-N"
-  kthread_cpus: "0-N"
-  irqaffinity: "0-N"
+  - isolcpus=0-N
+  - nohz=on
+  - nohz_full=0-N
+  - kthread_cpus=0-N
+  - irqaffinity=0-N
 `,
 			Validations: []struct {
 				param string
@@ -112,11 +113,11 @@ kernel-cmdline:
 		{
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "0"
-  nohz: "off"
-  nohz_full: "0-N"
-  kthread_cpus: "0-N"
-  irqaffinity: "0-N"
+  - isolcpus=0
+  - nohz=off
+  - nohz_full=0-N
+  - kthread_cpus=0-N
+  - irqaffinity=0-N
 `,
 			Validations: []struct {
 				param string
@@ -150,58 +151,83 @@ kernel-cmdline:
 }
 
 func TestUnhappyYamlKcmd(t *testing.T) {
-	var UnhappyCases = []TestCase{
+	// Building long kernel parameters list for testing
+	// case that violates COMMAND_LINE_SIZE limit
+	var sb strings.Builder
+	sb.WriteString("kernel-cmdline:\n")
+	// Generate 100 list items, each with ~24 characters
+	// 100 * 24 = ~2400 chars (> 2048)
+	for i := 0; i < 100; i++ {
+		sb.WriteString(fmt.Sprintf("  - some_kcmd_option%d=value%d\n", i, i))
+	}
+	longYamlList := sb.String()
+
+	UnhappyCases := []TestCase{
 		{
-			// isolcpus: "a" is valid
+			Name:        "Command line exceeds maximum length",
+			Yaml:        longYamlList,
+			Validations: nil,
+		},
+		{
+			Name: "Invalid parameter name",
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "a"
-  nohz: "on"
-  nohz_full: "0-N"
-  kthread_cpus: "0"
-  irqaffinity: "0-N"
+  - 34foo=a
 `,
 			Validations: nil,
 		},
 		{
-			// irqaffinity: "z" is valid
+			Name: "isolcpus a is invalid",
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "0"
-  nohz: "on"
-  nohz_full: "0-N"
-  kthread_cpus: "z"
-  irqaffinity: "0-N"
+  - isolcpus=a
+  - nohz=on
+  - nohz_full=0-N
+  - kthread_cpus=0
+  - irqaffinity=0-N
 `,
 			Validations: nil,
 		},
 		{
-			// nohz: "true" is valid it should be 'on' or 'off'
+			Name: "irqaffinity z is valid",
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "0"
-  nohz: "true"
-  nohz_full: "0-N"
-  kthread_cpus: "0-N"
-  irqaffinity: "0-N"
+  - isolcpus=0
+  - nohz=on
+  - nohz_full=0-N
+  - kthread_cpus=z
+  - irqaffinity=0-N
 `,
 			Validations: nil,
 		},
 		{
-			// isolcpus: "100000000" is invalid
+			Name: "nohz true is invalid",
 			Yaml: `
 kernel-cmdline:
-  isolcpus: "100000000"
-  nohz: "off"
-  nohz_full: "0-N"
-  kthread_cpus: "0-N"
-  irqaffinity: "0-N"
+  - isolcpus=0
+  - nohz=true
+  - nohz_full=0-N
+  - kthread_cpus=0-N
+  - irqaffinity=0-N
+`,
+			Validations: nil,
+		},
+		{
+			Name: "isolcpus 100000000 is invalid",
+			Yaml: `
+kernel-cmdline:
+  - isolcpus=100000000
+  - nohz=off
+  - nohz_full=0-N
+  - kthread_cpus=0-N
+  - irqaffinity=0-N
 `,
 			Validations: nil,
 		},
 	}
+
 	for i, c := range UnhappyCases {
-		t.Run("UnhappyCases", func(t *testing.T) {
+		t.Run(c.Name, func(t *testing.T) {
 			_, err := mainLogic(t, c, i)
 			if err == nil {
 				t.Fatalf("Expected error, but got nil on YAML: \n%v",

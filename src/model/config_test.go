@@ -72,18 +72,18 @@ func TestLoadConfigFile(t *testing.T) {
 			name: "FileValid",
 			yaml: `
 kernel-cmdline:
-    nohz: "on"
-    isolcpus: "1"
-    kthread_cpus: "0"
-    irqaffinity: "0"
+    - nohz=on
+    - isolcpus=1
+    - kthread_cpus=0
+    - irqaffinity=0
 `,
-			perm: 0644,
+			perm: 0o644,
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
-					Nohz:        "on",
-					IsolCPUs:    "1",
-					KthreadCPUs: "0",
-					IRQaffinity: "0",
+					"nohz=on",
+					"isolcpus=1",
+					"kthread_cpus=0",
+					"irqaffinity=0",
 				},
 			},
 			ownedByRoot: true,
