@@ -24,7 +24,7 @@ const (
 	// See in kernel source code:
 	// - arch/x86/include/asm/setup.h
 	// - arch/arm64/include/uapi/asm/setup.h
-	COMMAND_LINE_SIZE = 2048
+	CommandLineSize = 2048
 )
 
 // Regex for valid parameter names
@@ -75,8 +75,8 @@ func (k KernelCmdline) ValidateKernelParams() error {
 	totalLen := 0
 	for i, p := range k {
 		totalLen += len(p) + 1
-		if totalLen > COMMAND_LINE_SIZE {
-			return fmt.Errorf("command line exceeds maximum length of %d bytes", COMMAND_LINE_SIZE)
+		if totalLen > CommandLineSize {
+			return fmt.Errorf("command line exceeds maximum length of %d bytes", CommandLineSize)
 		}
 
 		keyValue := strings.SplitN(p, "=", 2)
