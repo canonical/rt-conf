@@ -121,21 +121,19 @@ func (k KernelCmdline) validateKnownParams() error {
 		}
 
 		key := parts[0]
-		value := parts[1]
+		value := utils.TrimSurroundingDoubleQuotes(parts[1])
 
 		// Validate cpulist parameters
 		for _, cpuParam := range cpulistParams {
 			if key == cpuParam {
-				if _, err := cpulists.Parse(
-					utils.TrimSurroundingDoubleQuotes(value)); err != nil {
+				if _, err := cpulists.Parse(value); err != nil {
 					return fmt.Errorf("parameter %q has invalid cpulist %q: %v", key, value, err)
 				}
 			}
 		}
 		// Handle isolcpus parameter
 		if key == "isolcpus" {
-			if _, _, err := cpulists.ParseWithFlags(
-				utils.TrimSurroundingDoubleQuotes(value), isolcpuFlags); err != nil {
+			if _, _, err := cpulists.ParseWithFlags(value, isolcpuFlags); err != nil {
 				return fmt.Errorf("parameter %q has invalid isolcpus %q: %v", key, value, err)
 			}
 		}
