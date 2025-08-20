@@ -65,7 +65,7 @@ func TestValidate(t *testing.T) {
 					},
 				},
 			},
-			err: errors.New("rule name cannot contain whitespace characters"),
+			err: errors.New("invalid rule name"),
 		},
 		{
 			name: "Invalid CPU governance rule",
@@ -89,7 +89,7 @@ func TestValidate(t *testing.T) {
 					},
 				},
 			},
-			err: errors.New("rule name cannot contain whitespace characters"),
+			err: errors.New("invalid rule name"),
 		},
 	}
 
