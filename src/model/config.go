@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/canonical/go-snapctl"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 var expectedPermission os.FileMode = 0o644
@@ -56,7 +56,6 @@ func (c *Config) LoadFromFile(confPath string) error {
 // LoadSnapOptions reads IRQ and CPU governance objects from snap options
 // When a value is set, the whole object gets overridden.
 func (c *Config) LoadSnapOptions() error {
-
 	value, err := snapctl.Get(
 		"kernel-cmdline",
 		"irq-tuning",
