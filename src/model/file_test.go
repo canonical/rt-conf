@@ -41,7 +41,7 @@ func TestReadYAML(t *testing.T) {
 			name: "ValidationFails",
 			yaml: `
 kernel-cmdline:
-  nohz: "invalid_value"
+  - nohz=invalid_value
 `,
 			cfg: nil,
 			err: errors.New("failed to validate kernel cmdline"),
@@ -50,11 +50,11 @@ kernel-cmdline:
 			name: "Success",
 			yaml: `
 kernel-cmdline:
-  nohz: "on"
+  - nohz=on
 `,
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
-					Nohz: "on",
+					"nohz=on",
 				},
 			},
 			err: nil,

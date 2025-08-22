@@ -24,11 +24,11 @@ func TestUpdateRPi(t *testing.T) {
 		{
 			name: "Valid parameters",
 			kcmdline: model.KernelCmdline{
-				IsolCPUs:    "1-3",
-				Nohz:        "on",
-				NohzFull:    "1-3",
-				KthreadCPUs: "0",
-				IRQaffinity: "0",
+				"isolcpus=1-3",
+				"nohz=on",
+				"nohz_full=1-3",
+				"kthread_cpus=0",
+				"irqaffinity=0",
 			},
 			expectParts: []string{
 				"isolcpus=1-3",
