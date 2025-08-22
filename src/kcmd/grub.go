@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
+	"github.com/canonical/rt-conf/src/utils"
 )
 
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
@@ -99,14 +100,7 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 		// Trim spaces and quotes from the key and value
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-
-		// Remove surrounding quotes from value
-		if len(value) >= 2 {
-			if (strings.HasPrefix(value, `"`) && strings.HasSuffix(value, `"`)) ||
-				(strings.HasPrefix(value, `'`) && strings.HasSuffix(value, `'`)) {
-				value = value[1 : len(value)-1]
-			}
-		}
+		value = utils.TrimSurroundingDoubleQuotes(value)
 
 		// Warn about duplicates
 		if existing, exists := params[key]; exists {
