@@ -100,7 +100,7 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 		// Trim spaces and quotes from the key and value
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-		value = utils.TrimSurroundingDoubleQuotes(value)
+		value = utils.TrimSurroundingQuotes(value)
 
 		// Warn about duplicates
 		if existing, exists := params[key]; exists {
