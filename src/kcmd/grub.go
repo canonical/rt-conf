@@ -25,13 +25,13 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	// Parse existing GRUB command line
 	existingCmdlineStr, err := parseGrubCMDLineLinuxDefault(cfg.GrubCfg.GrubDefaultFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse %s grub file: %w", cfg.GrubCfg.GrubDefaultFilePath, err)
+		return nil, fmt.Errorf("failed to parse %s grub file: %v", cfg.GrubCfg.GrubDefaultFilePath, err)
 	}
 
 	// Create KernelCmdline from existing string and validate
 	existingCmdline := model.NewKernelCmdline(existingCmdlineStr)
 	if err := existingCmdline.HasDuplicates(); err != nil {
-		return nil, fmt.Errorf("invalid existing parameters in %s: %w", cfg.GrubCfg.GrubDefaultFilePath, err)
+		return nil, fmt.Errorf("invalid existing parameters in %s: %v", cfg.GrubCfg.GrubDefaultFilePath, err)
 	}
 
 	// Convert existing cmdline to params
@@ -47,7 +47,7 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	existingCmdlineStr = model.ParamsToCmdline(existingCmdline.ToParams())
 
 	if err := processFile(cfg.GrubCfg); err != nil {
-		return nil, fmt.Errorf("error updating %s: %w", cfg.GrubCfg.CustomGrubFilePath, err)
+		return nil, fmt.Errorf("error updating %s: %v", cfg.GrubCfg.CustomGrubFilePath, err)
 	}
 
 	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath, existingCmdlineStr, cfg.GrubCfg.Cmdline), nil
@@ -57,7 +57,7 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 func parseGrubCMDLineLinuxDefault(path string) (string, error) {
 	grubMap, err := ParseDefaultGrubFile(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse grub file: %w", err)
+		return "", fmt.Errorf("failed to parse grub file: %v", err)
 	}
 
 	cmdline, ok := grubMap["GRUB_CMDLINE_LINUX_DEFAULT"]
@@ -73,7 +73,7 @@ func parseGrubCMDLineLinuxDefault(path string) (string, error) {
 func ParseDefaultGrubFile(f string) (map[string]string, error) {
 	file, err := os.Open(f)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file %s: %w", f, err)
+		return nil, fmt.Errorf("failed to open file %s: %v", f, err)
 	}
 	defer file.Close()
 
@@ -112,7 +112,7 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading grub file %s: %w", f, err)
+		return nil, fmt.Errorf("error reading grub file %s: %v", f, err)
 	}
 
 	return params, nil
@@ -126,7 +126,7 @@ var processFile = func(grub model.Grub) error {
 	content := banner + cmdline
 
 	if err := os.WriteFile(grub.CustomGrubFilePath, []byte(content), 0o644); err != nil {
-		return fmt.Errorf("failed to write to %s file: %w", grub.CustomGrubFilePath, err)
+		return fmt.Errorf("failed to write to %s file: %v", grub.CustomGrubFilePath, err)
 	}
 	return nil
 }
