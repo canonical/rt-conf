@@ -44,7 +44,7 @@ type IRQs map[int]bool // use the same logic as CPUs lists
 // realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
 type realIRQReaderWriter struct{}
 
-var procIRQ      = model.ProcIRQ
+var procIRQ = model.ProcIRQ
 var sysKernelIRQ = model.SysKernelIRQ
 
 var writeFile = func(path string, content []byte, perm os.FileMode) error {
