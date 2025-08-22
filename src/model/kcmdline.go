@@ -177,16 +177,6 @@ func (k KernelCmdline) HasDuplicates() error {
 	return nil
 }
 
-// CmdlineToParamsError represents an error in command line parsing.
-type CmdlineToParamsError struct {
-	Type string
-	Msg  string
-}
-
-func (e *CmdlineToParamsError) Error() string {
-	return fmt.Sprintf("cmdline parsing error: %s (type: %s)", e.Msg, e.Type)
-}
-
 // CmdlineToParams converts various command line representations into Params.
 // Supported types: string, []string, KernelCmdline
 func CmdlineToParams(cmdline any) (Params, error) {
@@ -198,10 +188,9 @@ func CmdlineToParams(cmdline any) (Params, error) {
 	case KernelCmdline:
 		return v.ToParams(), nil
 	default:
-		return nil, &CmdlineToParamsError{
-			Type: reflect.TypeOf(cmdline).String(),
-			Msg:  "unsupported type",
-		}
+		return nil,
+			fmt.Errorf("unsupported type for CmdlineToParams: %s",
+				reflect.TypeOf(cmdline).String())
 	}
 }
 
