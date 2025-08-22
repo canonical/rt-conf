@@ -20,11 +20,11 @@ type Params map[string]string
 type KernelCmdline []string
 
 const (
-	// Maximum kernel command line length per architecture.
-	// See COMMAND_LINE_SIZE macro, 2048 for amd64 and arm64
-	// See in kernel source code:
+	// Maximum kernel command line characters length per architecture.
+	// See COMMAND_LINE_SIZE macro in kernel source code:
 	// - arch/x86/include/asm/setup.h
 	// - arch/arm64/include/uapi/asm/setup.h
+	// The value 2048 is defined for amd64 and arm64
 	CommandLineSize = 2048
 )
 
@@ -75,6 +75,9 @@ func (k KernelCmdline) ToParams() Params {
 func (k KernelCmdline) ValidateKernelParams() error {
 	totalLen := 0
 	for i, p := range k {
+		// Total length includes spaces between parameters so +1 for each param
+		// unless it's the last one, but we are not checking that here, which gives us
+		// a pratical limit of CommandLineSize -1 characters.
 		totalLen += len(p) + 1
 		if totalLen > CommandLineSize {
 			return fmt.Errorf("command line exceeds maximum length of %d bytes", CommandLineSize)
