@@ -155,10 +155,12 @@ func TestUnhappyYamlKcmd(t *testing.T) {
 	// case that violates COMMAND_LINE_SIZE limit
 	var sb strings.Builder
 	sb.WriteString("kernel-cmdline:\n")
-	// Generate 100 list items, each with ~24 characters
-	// 100 * 24 = ~2400 chars (> 2048)
-	for i := 0; i < 100; i++ {
-		sb.WriteString(fmt.Sprintf("  - some_kcmd_option%d=value%d\n", i, i))
+	// If each key=value parameter is 31 characters long
+	// So being x the maximum number of parameters:
+	// 31 * x + x <= 2048 (+x because we need to count the spaces between parameters)
+	// The maximum x is 64 so with 65 parameters we exceed the limit
+	for i := range 65 {
+		sb.WriteString(fmt.Sprintf("  - some_kernel_cmd_option%03d=value\n", i))
 	}
 	longYamlList := sb.String()
 
