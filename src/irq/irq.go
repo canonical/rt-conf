@@ -44,10 +44,8 @@ type IRQs map[int]bool // use the same logic as CPUs lists
 // realIRQReaderWriter writes CPU affinity to the real `/proc/irq/<irq>/smp_affinity_list` file.
 type realIRQReaderWriter struct{}
 
-var (
-	procIRQ      = model.ProcIRQ
-	sysKernelIRQ = model.SysKernelIRQ
-)
+var procIRQ      = model.ProcIRQ
+var sysKernelIRQ = model.SysKernelIRQ
 
 var writeFile = func(path string, content []byte, perm os.FileMode) error {
 	return os.WriteFile(path, content, perm)
@@ -61,7 +59,7 @@ var writeFile = func(path string, content []byte, perm os.FileMode) error {
 // - err: error if any occurred nil if no error occurred
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (success bool, managedIRQ bool, err error) {
 	affinityFile := fmt.Sprintf("%s/%d/smp_affinity_list", procIRQ, irqNum)
-	err = writeFile(affinityFile, []byte(cpus), 0o644)
+	err = writeFile(affinityFile, []byte(cpus), 0644)
 	if err != nil {
 		if strings.Contains(err.Error(), "input/output error") {
 			return false, true, nil
@@ -152,6 +150,7 @@ func applyIRQConfig(
 	config *model.InternalConfig,
 	handler IRQReaderWriter,
 ) error {
+
 	irqs, err := handler.ReadIRQs()
 	if err != nil {
 		return err
@@ -246,6 +245,7 @@ func logChanges(changed, managed []int, cpuList cpulists.CPUs, cpus string) {
 	if len(managed) > 0 {
 		msgs = append(msgs, fmt.Sprintf("Ignored managed IRQs: %s",
 			cpulists.GenCPUlist(managed)))
+
 	}
 	utils.LogTreeStyle(msgs)
 }
