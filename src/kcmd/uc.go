@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/canonical/rt-conf/src/model"
@@ -77,7 +78,7 @@ func UpdateUbuntuCore(cfg *model.InternalConfig) ([]string, error) {
 	if len(cfg.Data.KernelCmdline) == 0 {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
-	kcmds := cfg.Data.KernelCmdline.Join()
+	kcmds := strings.Join(cfg.Data.KernelCmdline, " ")
 
 	b := []byte(fmt.Sprintf(jsonbody, kcmds))
 	resp, err := sendRequest("PUT", confURL, b)
