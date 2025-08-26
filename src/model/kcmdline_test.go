@@ -191,7 +191,7 @@ kernel-cmdline:
 			Validations: nil,
 		},
 		{
-			Name: "irqaffinity z is valid",
+			Name: "kthread_cpus z is invalid",
 			Yaml: `
 kernel-cmdline:
   - isolcpus=0
