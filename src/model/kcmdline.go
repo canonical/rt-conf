@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"sort"
@@ -104,12 +105,6 @@ func (k KernelCmdline) Validate() error {
 
 // validateKnownParams checks known parameters for specific rules
 func (k KernelCmdline) validateKnownParams() error {
-	cpulistParams := []string{
-		"kthread_cpus",
-		"irqaffinity",
-		"rcu_nocbs",
-	}
-
 	for _, p := range k {
 		// Skip empty parameters
 		if p == "" {
@@ -126,25 +121,22 @@ func (k KernelCmdline) validateKnownParams() error {
 		key := parts[0]
 		value := utils.TrimSurroundingDoubleQuotes(parts[1])
 
-		// Validate cpulist parameters
-		for _, cpuParam := range cpulistParams {
-			if key == cpuParam {
-				if _, err := cpulists.Parse(value); err != nil {
-					return fmt.Errorf("parameter %q has invalid cpulist %q: %v", key, value, err)
-				}
+		// Validate parameters based on key
+		switch key {
+		case "kthread_cpus", "irqaffinity", "rcu_nocbs":
+			if _, err := cpulists.Parse(value); err != nil {
+				return fmt.Errorf("parameter %q has invalid cpulist %q: %v", key, value, err)
 			}
-		}
-		// Handle isolcpus parameter
-		if key == "isolcpus" {
+		case "isolcpus":
 			if _, _, err := cpulists.ParseWithFlags(value, isolcpuFlags); err != nil {
 				return fmt.Errorf("parameter %q has invalid isolcpus %q: %v", key, value, err)
 			}
-		}
-		// Handle nohz parameter
-		if key == "nohz" {
+		case "nohz":
 			if value != "on" && value != "off" {
 				return fmt.Errorf("parameter %q value must be 'on' or 'off', got %q", key, value)
 			}
+		default:
+			log.Printf("Warning: Unknown kernel parameter %q, skipping specific validation", key)
 		}
 	}
 	return nil
