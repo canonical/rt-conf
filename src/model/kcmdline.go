@@ -3,7 +3,6 @@ package model
 import (
 	"fmt"
 	"log"
-	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -170,23 +169,6 @@ func (k KernelCmdline) HasDuplicates() error {
 		}
 	}
 	return nil
-}
-
-// CmdlineToParams converts various command line representations into Params.
-// Supported types: string, []string, KernelCmdline
-func CmdlineToParams(cmdline any) (Params, error) {
-	switch v := cmdline.(type) {
-	case string:
-		return NewKernelCmdline(v).ToParams(), nil
-	case []string:
-		return KernelCmdline(v).ToParams(), nil
-	case KernelCmdline:
-		return v.ToParams(), nil
-	default:
-		return nil,
-			fmt.Errorf("unsupported type for CmdlineToParams: %s",
-				reflect.TypeOf(cmdline).String())
-	}
 }
 
 // ParamsToCmdline converts Params back to a command line string.
