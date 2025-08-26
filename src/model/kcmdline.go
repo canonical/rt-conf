@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
-	"github.com/canonical/rt-conf/src/utils"
 )
 
 var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
@@ -118,7 +117,7 @@ func (k KernelCmdline) validateKnownParams() error {
 		}
 
 		key := parts[0]
-		value := utils.TrimSurroundingDoubleQuotes(parts[1])
+		value := parts[1]
 
 		// Validate parameters based on key
 		switch key {
