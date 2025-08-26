@@ -47,7 +47,7 @@ func (k KernelCmdline) Join() string {
 	return strings.Join(k, " ")
 }
 
-// ToParams converts the KernelCmdline into key=value pairs.
+// ToParams converts the KernelCmdline into Params map.
 // If a parameter has no explicit value, the value is set to "".
 func (k KernelCmdline) ToParams() Params {
 	params := make(Params, len(k))
