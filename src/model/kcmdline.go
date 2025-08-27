@@ -121,7 +121,7 @@ func (k KernelCmdline) validateKnownParams() error {
 
 		// Validate parameters based on key
 		switch key {
-		case "kthread_cpus", "irqaffinity", "rcu_nocbs":
+		case "kthread_cpus", "irqaffinity", "rcu_nocbs", "nohz_full":
 			if _, err := cpulists.Parse(value); err != nil {
 				return fmt.Errorf("parameter %q has invalid cpulist %q: %v", key, value, err)
 			}
