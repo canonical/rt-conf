@@ -21,11 +21,13 @@ func TestValidate(t *testing.T) {
 			name: "Valid config",
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
-					"isolcpus=1",
-					"nohz=on",
-					"nohz_full=1",
-					"kthread_cpus=0",
-					"irqaffinity=0",
+					Parameters: []string{
+						"isolcpus=1",
+						"nohz=on",
+						"nohz_full=1",
+						"kthread_cpus=0",
+						"irqaffinity=0",
+					},
 				},
 			},
 			err: nil,
@@ -34,7 +36,9 @@ func TestValidate(t *testing.T) {
 			name: "Invalid kernel cmdline",
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
-					"nohz=potato", // Invalid value
+					Parameters: []string{
+						"nohz=potato", // Invalid value
+					},
 				},
 			},
 			err: errors.New("failed to validate kernel cmdline"),

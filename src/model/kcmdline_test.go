@@ -93,11 +93,12 @@ func TestHappyYamlKcmd(t *testing.T) {
 		{
 			Yaml: `
 kernel-cmdline:
-  - isolcpus=0-N
-  - nohz=on
-  - nohz_full=0-N
-  - kthread_cpus=0-N
-  - irqaffinity=0-N
+  parameters:
+    - isolcpus=0-N
+    - nohz=on
+    - nohz_full=0-N
+    - kthread_cpus=0-N
+    - irqaffinity=0-N
 `,
 			Validations: []struct {
 				param string
@@ -113,11 +114,12 @@ kernel-cmdline:
 		{
 			Yaml: `
 kernel-cmdline:
-  - isolcpus=0
-  - nohz=off
-  - nohz_full=0-N
-  - kthread_cpus=0-N
-  - irqaffinity=0-N
+  parameters:
+    - isolcpus=0
+    - nohz=off
+    - nohz_full=0-N
+    - kthread_cpus=0-N
+    - irqaffinity=0-N
 `,
 			Validations: []struct {
 				param string
@@ -174,7 +176,8 @@ func TestUnhappyYamlKcmd(t *testing.T) {
 			Name: "Invalid parameter name",
 			Yaml: `
 kernel-cmdline:
-  - 34foo=a
+  parameters:
+		- 34foo=a
 `,
 			Validations: nil,
 		},
@@ -182,11 +185,12 @@ kernel-cmdline:
 			Name: "isolcpus a is invalid",
 			Yaml: `
 kernel-cmdline:
-  - isolcpus=a
-  - nohz=on
-  - nohz_full=0-N
-  - kthread_cpus=0
-  - irqaffinity=0-N
+  parameters:
+		- isolcpus=a
+		- nohz=on
+		- nohz_full=0-N
+		- kthread_cpus=0
+		- irqaffinity=0-N
 `,
 			Validations: nil,
 		},
@@ -194,11 +198,12 @@ kernel-cmdline:
 			Name: "kthread_cpus z is invalid",
 			Yaml: `
 kernel-cmdline:
-  - isolcpus=0
-  - nohz=on
-  - nohz_full=0-N
-  - kthread_cpus=z
-  - irqaffinity=0-N
+  parameters:
+		- isolcpus=0
+		- nohz=on
+		- nohz_full=0-N
+		- kthread_cpus=z
+		- irqaffinity=0-N
 `,
 			Validations: nil,
 		},
@@ -206,11 +211,12 @@ kernel-cmdline:
 			Name: "nohz true is invalid",
 			Yaml: `
 kernel-cmdline:
-  - isolcpus=0
-  - nohz=true
-  - nohz_full=0-N
-  - kthread_cpus=0-N
-  - irqaffinity=0-N
+  parameters:
+		- isolcpus=0
+		- nohz=true
+		- nohz_full=0-N
+		- kthread_cpus=0-N
+		- irqaffinity=0-N
 `,
 			Validations: nil,
 		},
@@ -218,11 +224,12 @@ kernel-cmdline:
 			Name: "isolcpus 100000000 is invalid",
 			Yaml: `
 kernel-cmdline:
-  - isolcpus=100000000
-  - nohz=off
-  - nohz_full=0-N
-  - kthread_cpus=0-N
-  - irqaffinity=0-N
+  parameters:
+		- isolcpus=100000000
+		- nohz=off
+		- nohz_full=0-N
+		- kthread_cpus=0-N
+		- irqaffinity=0-N
 `,
 			Validations: nil,
 		},

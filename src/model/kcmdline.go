@@ -16,7 +16,9 @@ var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
 type Params map[string]string
 
 // KernelCmdline represents the kernel command line options.
-type KernelCmdline []string
+type KernelCmdline struct {
+	Parameters []string `yaml:"parameters"`
+}
 
 const (
 	// Maximum kernel command line characters length per architecture.
@@ -38,20 +40,22 @@ func NewKernelCmdline(cmdline string) KernelCmdline {
 		return KernelCmdline{}
 	}
 	fields := strings.Fields(cmdline)
-	return KernelCmdline(fields)
+	return KernelCmdline{Parameters: fields}
 }
 
 // Join returns the kernel command line as a single string.
 func (k KernelCmdline) Join() string {
-	return strings.Join(k, " ")
+	return strings.Join(k.Parameters, " ")
 }
 
 // ToParams converts the KernelCmdline into Params map.
 // If a parameter has no explicit value, the value is set to "".
 func (k KernelCmdline) ToParams() Params {
-	params := make(Params, len(k))
+	params := make(Params, len(k.Parameters))
 
-	for _, param := range k {
+	// Parse each parameter
+
+	for _, param := range k.Parameters {
 		if param == "" {
 			continue
 		}
@@ -73,7 +77,7 @@ func (k KernelCmdline) ToParams() Params {
 // validateKernelParams checks kernel parameter formatting rules
 func (k KernelCmdline) validateKernelParams() error {
 	totalLen := 0
-	for i, p := range k {
+	for i, p := range k.Parameters {
 		// Total length includes spaces between parameters so +1 for each param
 		// unless it's the last one, but we are not checking that here, which gives us
 		// a pratical limit of CommandLineSize -1 characters.
@@ -103,7 +107,7 @@ func (k KernelCmdline) Validate() error {
 
 // validateKnownParams checks known parameters for specific rules
 func (k KernelCmdline) validateKnownParams() error {
-	for _, p := range k {
+	for _, p := range k.Parameters {
 		// Skip empty parameters
 		if p == "" {
 			continue
@@ -144,7 +148,7 @@ func (k KernelCmdline) validateKnownParams() error {
 func (k KernelCmdline) HasDuplicates() error {
 	params := make(map[string]string)
 
-	for _, p := range k {
+	for _, p := range k.Parameters {
 		if p == "" {
 			continue
 		}

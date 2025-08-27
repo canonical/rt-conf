@@ -71,6 +71,7 @@ func TestLoadConfigFile(t *testing.T) {
 			name: "FileValid",
 			yaml: `
 kernel-cmdline:
+  parameters:
     - nohz=on
     - isolcpus=1
     - kthread_cpus=0
@@ -79,10 +80,12 @@ kernel-cmdline:
 			perm: 0644,
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
-					"nohz=on",
-					"isolcpus=1",
-					"kthread_cpus=0",
-					"irqaffinity=0",
+					Parameters: []string{
+						"nohz=on",
+						"isolcpus=1",
+						"kthread_cpus=0",
+						"irqaffinity=0",
+					},
 				},
 			},
 			ownedByRoot: true,

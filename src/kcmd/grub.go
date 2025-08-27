@@ -15,7 +15,7 @@ import (
 // merges it with the kernel command line parameters specified in the provided config,
 // and writes the resulting command line to a drop-in configuration file for GRUB.
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
-	if len(cfg.Data.KernelCmdline) == 0 {
+	if len(cfg.Data.KernelCmdline.Parameters) == 0 {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
 

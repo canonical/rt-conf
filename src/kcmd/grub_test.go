@@ -286,7 +286,9 @@ func TestUpdateGrub(t *testing.T) {
 			name:        "ParseDefaultGrubFile fails",
 			grubContent: "", // file will be removed
 			kcmd: model.KernelCmdline{
-				"isolcpus=1-3",
+				Parameters: []string{
+					"isolcpus=1-3",
+				},
 			},
 			expectErr: "failed to parse grub file",
 		},
@@ -294,7 +296,9 @@ func TestUpdateGrub(t *testing.T) {
 			name:        "GRUB_CMDLINE_LINUX_DEFAULT missing",
 			grubContent: `GRUB_TIMEOUT=5`,
 			kcmd: model.KernelCmdline{
-				"isolcpus=1-3",
+				Parameters: []string{
+					"isolcpus=1-3",
+				},
 			},
 			expectOutput: "Detected bootloader: GRUB",
 		},
@@ -303,7 +307,9 @@ func TestUpdateGrub(t *testing.T) {
 			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3 isolcpus=2-4"
 `,
 			kcmd: model.KernelCmdline{
-				"isolcpus=2-4",
+				Parameters: []string{
+					"isolcpus=2-4",
+				},
 			},
 			expectErr: "invalid existing parameters",
 		},
@@ -312,7 +318,9 @@ func TestUpdateGrub(t *testing.T) {
 			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3"
 `,
 			kcmd: model.KernelCmdline{
-				"nohz=on",
+				Parameters: []string{
+					"nohz=on",
+				},
 			},
 			expectErr: "error updating",
 		},
@@ -321,8 +329,10 @@ func TestUpdateGrub(t *testing.T) {
 			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3"
 `,
 			kcmd: model.KernelCmdline{
-				"isolcpus=1-3",
-				"nohz=on",
+				Parameters: []string{
+					"isolcpus=1-3",
+					"nohz=on",
+				},
 			},
 			expectOutput: "Detected bootloader: GRUB",
 		},

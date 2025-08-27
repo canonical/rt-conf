@@ -88,6 +88,7 @@ func TestRunUnhappy(t *testing.T) {
 			err:  "failed to process kernel cmdline args",
 			yaml: `
 kernel-cmdline:
+  parameters:
     - nohz=on
 `,
 		},
