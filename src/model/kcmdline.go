@@ -133,7 +133,7 @@ func (k KernelCmdline) validateKnownParams() error {
 				return fmt.Errorf("parameter %q value must be 'on' or 'off', got %q", key, value)
 			}
 		default:
-			log.Printf("Warning: Unknown kernel parameter %q, skipping specific validation", key)
+			log.Printf("Warning: Parameter %q not recognized by rt-conf; skipping specific validation", key)
 		}
 	}
 	return nil
