@@ -24,6 +24,10 @@ kernel-cmdline:
   #   # Allocate CPUs for IRQ handling
   #   # Format: CPU Lists
   #   - irqaffinity=0-1
+  #
+  #   # Prevents CPUs from executing RCU callbacks
+  #   # Format: CPU Lists
+  #   - rcu_nocbs=0-1
 
 # Runtime options for IRQ affinity
 irq-tuning:
