@@ -6,6 +6,6 @@
 
 ## Checklist
  - [ ] Added tests for new functionality
- - [ ] Checked/Updated the README
- - [ ] Checked/Updated Real-time Ubuntu docs
+ - [ ] Checked / updated the README
+ - [ ] Checked / updated Real-time Ubuntu docs
 <!-- For external docs changes, provide the URL -->
