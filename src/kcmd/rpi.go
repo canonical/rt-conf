@@ -2,6 +2,7 @@ package kcmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
 )
@@ -12,5 +13,5 @@ func UpdateRPi(cfg *model.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
 
-	return RpiConclusion(cfg.Data.KernelCmdline.Join()), nil
+	return RpiConclusion(strings.Join(cfg.Data.KernelCmdline.Parameters, " ")), nil
 }

@@ -43,11 +43,6 @@ func NewKernelCmdline(cmdline string) KernelCmdline {
 	return KernelCmdline{Parameters: fields}
 }
 
-// Join returns the kernel command line as a single string.
-func (k KernelCmdline) Join() string {
-	return strings.Join(k.Parameters, " ")
-}
-
 // ToParams converts the KernelCmdline into Params map.
 // If a parameter has no explicit value, the value is set to "".
 func (k KernelCmdline) ToParams() Params {
