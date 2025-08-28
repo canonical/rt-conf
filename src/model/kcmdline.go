@@ -69,8 +69,8 @@ func (k KernelCmdline) ToParams() Params {
 	return params
 }
 
-// validateKernelParams checks kernel parameter formatting rules
-func (k KernelCmdline) validateKernelParams() error {
+// validateParameterFormat performs syntax validation by checking kernel parameter formatting rules
+func (k KernelCmdline) validateParameterFormat() error {
 	totalLen := 0
 	for i, p := range k.Parameters {
 		// Total length includes spaces between parameters so +1 for each param
@@ -94,14 +94,14 @@ func (k KernelCmdline) validateKernelParams() error {
 
 // Validate performs comprehensive validation
 func (k KernelCmdline) Validate() error {
-	if err := k.validateKernelParams(); err != nil {
+	if err := k.validateParameterFormat(); err != nil {
 		return err
 	}
-	return k.validateKnownParams()
+	return k.validateParameterValues()
 }
 
-// validateKnownParams checks known parameters for specific rules
-func (k KernelCmdline) validateKnownParams() error {
+// validateParameterValues performs semantic validation on known parameters for specific rules
+func (k KernelCmdline) validateParameterValues() error {
 	for _, p := range k.Parameters {
 		// Skip empty parameters
 		if p == "" {
