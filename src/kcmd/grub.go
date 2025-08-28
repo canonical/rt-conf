@@ -19,6 +19,10 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
 
+	if err := cfg.Data.KernelCmdline.HasDuplicates(); err != nil {
+		return nil, fmt.Errorf("invalid new parameters: %v", err)
+	}
+
 	// Convert new parameters to Params for easier manipulation
 	newParams := cfg.Data.KernelCmdline.ToParams()
 
