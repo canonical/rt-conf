@@ -47,9 +47,6 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	// Convert back to sorted command line string
 	cfg.GrubCfg.Cmdline = model.ParamsToCmdline(existingParams)
 
-	// Sort both command lines for consistent comparison
-	existingCmdlineStr = model.ParamsToCmdline(existingCmdline.ToParams())
-
 	if err := processFile(cfg.GrubCfg); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", cfg.GrubCfg.CustomGrubFilePath, err)
 	}
