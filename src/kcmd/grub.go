@@ -23,9 +23,6 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("invalid new parameters: %v", err)
 	}
 
-	// Convert new parameters to Params for easier manipulation
-	newParams := cfg.Data.KernelCmdline.ToParams()
-
 	// Parse existing GRUB command line
 	existingCmdlineStr, err := parseGrubCMDLineLinuxDefault(cfg.GrubCfg.GrubDefaultFilePath)
 	if err != nil {
@@ -38,14 +35,8 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 		return nil, fmt.Errorf("invalid existing parameters in %s: %v", cfg.GrubCfg.GrubDefaultFilePath, err)
 	}
 
-	// Convert existing cmdline to params
-	existingParams := existingCmdline.ToParams()
-
-	// Merge parameters (new ones override existing ones)
-	existingParams.Merge(newParams)
-
-	// Convert back to sorted command line string
-	cfg.GrubCfg.Cmdline = model.ParamsToCmdline(existingParams)
+	// Merge parameters while preserving order (existing first, then new in original order)
+	cfg.GrubCfg.Cmdline = model.MergeWithOrderPreservation(existingCmdline, cfg.Data.KernelCmdline)
 
 	if err := processFile(cfg.GrubCfg); err != nil {
 		return nil, fmt.Errorf("error updating %s: %v", cfg.GrubCfg.CustomGrubFilePath, err)
