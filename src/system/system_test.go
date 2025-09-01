@@ -24,10 +24,10 @@ func TestDetectSystemGrub(t *testing.T) {
 	os.Unsetenv("SNAP_SAVE_DATA")
 
 	tmpGrub := "/tmp/default/grub"
-	if err := os.MkdirAll("/tmp/default", 0755); err != nil {
+	if err := os.MkdirAll("/tmp/default", 0o755); err != nil {
 		t.Fatalf("failed to mkdir: %v", err)
 	}
-	if err := os.WriteFile(tmpGrub, []byte("GRUB_CMDLINE"), 0644); err != nil {
+	if err := os.WriteFile(tmpGrub, []byte("GRUB_CMDLINE"), 0o644); err != nil {
 		t.Fatalf("failed to write grub file: %v", err)
 	}
 	defer os.Remove(tmpGrub)

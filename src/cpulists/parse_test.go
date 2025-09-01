@@ -13,7 +13,7 @@ func TestParseCPUListsHappy(t *testing.T) {
 		output CPUs
 	}
 
-	var tst = []test{
+	tst := []test{
 		// single CPU
 		{
 			"all",
@@ -45,15 +45,19 @@ func TestParseCPUListsHappy(t *testing.T) {
 		{
 			"0-7",
 			10,
-			CPUs{0: true, 1: true, 2: true, 3: true, 4: true,
-				5: true, 6: true, 7: true},
+			CPUs{
+				0: true, 1: true, 2: true, 3: true, 4: true,
+				5: true, 6: true, 7: true,
+			},
 		},
 		// two CPUs ranges
 		{
 			"0-2,4-7",
 			10,
-			CPUs{0: true, 1: true, 2: true, 4: true,
-				5: true, 6: true, 7: true},
+			CPUs{
+				0: true, 1: true, 2: true, 4: true,
+				5: true, 6: true, 7: true,
+			},
 		},
 		// CPU range + single CPU
 		{
@@ -65,15 +69,19 @@ func TestParseCPUListsHappy(t *testing.T) {
 		{
 			"0-20:2/5",
 			24,
-			CPUs{0: true, 1: true, 5: true, 6: true,
-				10: true, 11: true, 15: true, 16: true, 20: true},
+			CPUs{
+				0: true, 1: true, 5: true, 6: true,
+				10: true, 11: true, 15: true, 16: true, 20: true,
+			},
 		},
 		// Formated CPU list + a single CPU
 		{
 			"0-20:2/5,23",
 			24,
-			CPUs{0: true, 1: true, 5: true, 6: true, 10: true,
-				11: true, 15: true, 16: true, 20: true, 23: true},
+			CPUs{
+				0: true, 1: true, 5: true, 6: true, 10: true,
+				11: true, 15: true, 16: true, 20: true, 23: true,
+			},
 		},
 	}
 
@@ -109,7 +117,7 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 		err    string
 	}
 
-	var tst = []test{
+	tst := []test{
 		{
 			"al",
 			2,
@@ -233,7 +241,6 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 		if err.Error() != expectedErr {
 			t.Fatalf("expected '%v', got '%v'", expectedErr, err)
 		}
-
 	})
 
 	for _, tt := range tst {
@@ -252,7 +259,7 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 func TestParseWithFlagsHappy(t *testing.T) {
 	isolcpuFlags := []string{"domain", "nohz", "managed_irq"}
 	const max = 24
-	var testCases = []struct {
+	testCases := []struct {
 		value string
 		cpus  int
 		flags []string
@@ -315,7 +322,7 @@ func TestParseWithFlagsHappy(t *testing.T) {
 }
 
 func TestGenCPUlist(t *testing.T) {
-	var testCases = []struct {
+	testCases := []struct {
 		name   string
 		cpus   []int
 		result string

@@ -86,12 +86,15 @@ type mockDirEntry struct {
 func (m *mockDirEntry) Name() string {
 	return m.name
 }
+
 func (m *mockDirEntry) IsDir() bool {
 	return m.isDir
 }
+
 func (m *mockDirEntry) Type() os.FileMode {
 	return os.ModeDir
 }
+
 func (m *mockDirEntry) Info() (os.FileInfo, error) {
 	return nil, nil
 }

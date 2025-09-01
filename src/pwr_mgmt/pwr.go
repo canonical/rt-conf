@@ -83,7 +83,6 @@ func ApplyPwrConfig(config *model.InternalConfig) error {
 func (wr ReaderWriter) applyPwrConfig(
 	rules model.PwrMgmt,
 ) error {
-
 	// Range over all CPU governance rules
 	for label, sclgov := range rules {
 
@@ -136,7 +135,8 @@ func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
 }
 
 func (wr ReaderWriter) applyRule(cpu int,
-	sclgov model.CpuGovernanceRule) error {
+	sclgov model.CpuGovernanceRule,
+) error {
 	if err := wr.WriteScalingGov(sclgov.ScalGov, cpu); err != nil {
 		return err
 	}

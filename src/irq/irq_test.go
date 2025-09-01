@@ -30,7 +30,8 @@ func (m *mockIRQReaderWriter) ReadIRQs() ([]IRQInfo, error) {
 }
 
 func (m *mockIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (
-	success bool, managed bool, err error) {
+	success bool, managed bool, err error,
+) {
 	if err, ok := m.Errors["WriteCPUAffinity"]; ok {
 		return false, false, err
 	}
@@ -49,8 +50,7 @@ type IRQTestCase struct {
 }
 
 func TestHappyIRQtuning(t *testing.T) {
-
-	var happyCases = []IRQTestCase{
+	happyCases := []IRQTestCase{
 		{
 			Yaml: `
 irq-tuning:
@@ -96,8 +96,7 @@ irq_tuning:
 }
 
 func TestUnhappyIRQtuning(t *testing.T) {
-
-	var UnhappyCases = []IRQTestCase{
+	UnhappyCases := []IRQTestCase{
 		{
 			// Invalid number
 			Yaml: `
@@ -134,7 +133,7 @@ irq-tuning:
 func setupTempFile(t *testing.T, content string, idex int) string {
 	t.Helper()
 	tmpfileName := fmt.Sprintf("tempfile-%d", idex)
-	err := os.WriteFile(tmpfileName, []byte(content), 0644)
+	err := os.WriteFile(tmpfileName, []byte(content), 0o644)
 	if err != nil {
 		t.Fatalf("Failed to create temporary file: %v", err)
 	}
@@ -164,7 +163,7 @@ func TestWriteCPUAffinitySuccessfulWrite(t *testing.T) {
 	irqNum := 1
 	cpus := "0-3"
 	irqPath := filepath.Join(tmpDir, fmt.Sprintf("%d", irqNum))
-	if err := os.MkdirAll(irqPath, 0755); err != nil {
+	if err := os.MkdirAll(irqPath, 0o755); err != nil {
 		t.Fatalf("failed to create IRQ directory: %v", err)
 	}
 	affinityFile := filepath.Join(irqPath, "smp_affinity_list")
@@ -225,17 +224,16 @@ func TestWriteCPUAffinityAlreadySet(t *testing.T) {
 	irqNum := 5
 	cpus := "0"
 	irqPath := filepath.Join(tmpDir, fmt.Sprintf("%d", irqNum))
-	if err := os.MkdirAll(irqPath, 0755); err != nil {
+	if err := os.MkdirAll(irqPath, 0o755); err != nil {
 		t.Fatal(err)
 	}
 	affinityFile := filepath.Join(irqPath, "smp_affinity_list")
-	if err := os.WriteFile(affinityFile, []byte(cpus), 0644); err != nil {
+	if err := os.WriteFile(affinityFile, []byte(cpus), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
 	writer := &realIRQReaderWriter{}
 	_, _, err := writer.WriteCPUAffinity(irqNum, cpus)
-
 	if err != nil {
 		t.Errorf("expected no error, got: %v", err)
 	}
@@ -254,17 +252,18 @@ func setupIRQTestDir(t *testing.T, entries []irqDirEntry) string {
 
 	for _, e := range entries {
 		dir := filepath.Join(tmpDir, strconv.Itoa(e.Number))
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatalf("failed to create dir: %v", err)
 		}
 		for name, content := range e.Files {
-			if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0644); err != nil {
+			if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
 				t.Fatalf("failed to write file: %v", err)
 			}
 		}
 	}
 	return tmpDir
 }
+
 func TestReadIRQsSingleActiveIRQ(t *testing.T) {
 	setupIRQTestDir(t, []irqDirEntry{
 		{
@@ -315,7 +314,7 @@ func TestReadIRQsEmptyActionsIgnored(t *testing.T) {
 func TestReadIRQsNonNumericDirectoryIgnored(t *testing.T) {
 	tmp := t.TempDir()
 	sysKernelIRQ = tmp
-	_ = os.Mkdir(filepath.Join(tmp, "notanumber"), 0755)
+	_ = os.Mkdir(filepath.Join(tmp, "notanumber"), 0o755)
 
 	r := &realIRQReaderWriter{}
 	irqs, err := r.ReadIRQs()
