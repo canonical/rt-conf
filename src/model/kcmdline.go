@@ -122,7 +122,7 @@ func (k KernelCmdline) validateParameterValues() error {
 		switch key {
 		case "kthread_cpus", "irqaffinity", "rcu_nocbs", "nohz_full":
 			if _, err := cpulists.Parse(value); err != nil {
-				return fmt.Errorf("parameter %q has invalid cpulist %q: %v", key, value, err)
+				return fmt.Errorf("%q does not contain a valid CPU List: %q: %v", key, value, err)
 			}
 		case "isolcpus":
 			if _, _, err := cpulists.ParseWithFlags(value, isolcpuFlags); err != nil {
