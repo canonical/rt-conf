@@ -67,9 +67,11 @@ func ParseDefaultGrubFile(f string) (params map[string]string, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file %s: %v", f, err)
 	}
-	defer func(f *os.File) {
-		err = f.Close()
-	}(file)
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil && err == nil {
+			err = fmt.Errorf("error closing %s: %v", f, closeErr)
+		}
+	}()
 
 	params = make(map[string]string)
 	scanner := bufio.NewScanner(file)
