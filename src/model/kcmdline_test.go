@@ -45,7 +45,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 
 	// Setup temporary custom grub config file
 	tempCustomCfgPath := filepath.Join(dir, fmt.Sprintf("rt-conf-%d.cfg", i))
-	if err := os.WriteFile(tempGrubPath, []byte(grubSample), 0o644); err != nil {
+	if err := os.WriteFile(tempCustomCfgPath, []byte(grubSample), 0o644); err != nil {
 		t.Fatalf("failed to write grub: %v", err)
 	}
 
