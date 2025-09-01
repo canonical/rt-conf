@@ -29,7 +29,7 @@ func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 	})
 
 	// Create files from 0 to n-1.
-	for i := 0; i < maxCpus; i++ {
+	for i := range maxCpus {
 		filename := strconv.Itoa(i)
 		cpuPath := filepath.Join(tempDir, filename)
 		if err := os.Mkdir(cpuPath, 0o755); err != nil {
