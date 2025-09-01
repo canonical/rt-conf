@@ -37,7 +37,11 @@ func TestProcessKcmdArgs(t *testing.T) {
 			name: "Unsupported Bootloader",
 			input: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{Nohz: "on"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"nohz=on",
+						},
+					},
 				},
 			},
 			mockSys:   system.Unknown,
@@ -47,7 +51,11 @@ func TestProcessKcmdArgs(t *testing.T) {
 			name: "Processor returns error",
 			input: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{Nohz: "on"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"nohz=on",
+						},
+					},
 				},
 			},
 			mockSys:   system.Grub,
@@ -59,7 +67,11 @@ func TestProcessKcmdArgs(t *testing.T) {
 			name: "Processor returns success",
 			input: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{Nohz: "on"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"nohz=on",
+						},
+					},
 				},
 			},
 			mockSys:  system.Grub,

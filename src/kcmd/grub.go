@@ -5,84 +5,77 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/model"
+	"github.com/canonical/rt-conf/src/utils"
 )
-
-func sortKcmdlineParams(cmdline string) string {
-	params := strings.Fields(cmdline)
-	sort.Strings(params)
-	return strings.Join(params, " ")
-}
 
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
 // merges it with the kernel command line parameters specified in the provided config,
 // and writes the resulting command line to a drop-in configuration file for GRUB.
 func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
-
-	params := model.ConstructKeyValuePairs(&cfg.Data.KernelCmdline)
-	if len(params) == 0 {
+	if len(cfg.Data.KernelCmdline.Parameters) == 0 {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
 
-	cmdline, err := parseGrubCMDLineLinuxDefault(cfg.GrubCfg.GrubDefaultFilePath)
+	if err := cfg.Data.KernelCmdline.HasDuplicates(); err != nil {
+		return nil, fmt.Errorf("invalid new parameters: %v", err)
+	}
+
+	// Parse existing GRUB command line
+	existingCmdlineStr, err := parseGrubCMDLineLinuxDefault(cfg.GrubCfg.GrubDefaultFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse %s grub file: %s",
-			cfg.GrubCfg.GrubDefaultFilePath, err.Error())
+		return nil, fmt.Errorf("failed to parse %s grub file: %v", cfg.GrubCfg.GrubDefaultFilePath, err)
 	}
 
-	if err := duplicatedParams(cmdline); err != nil {
-		return nil, fmt.Errorf(
-			"invalid existing parameters in %s for GRUB_CMDLINE_LINUX_DEFAULT: %s",
-			cfg.GrubCfg.GrubDefaultFilePath, err)
-	}
-	currParams := model.CmdlineToParams(cmdline)
-
-	// This replaces if the param already exists and
-	// creates a new one if it doesn't
-	for k, v := range params {
-		currParams[k] = v
+	// Create KernelCmdline from existing string and validate
+	existingCmdline := model.NewKernelCmdline(existingCmdlineStr)
+	if err := existingCmdline.HasDuplicates(); err != nil {
+		return nil, fmt.Errorf("invalid existing parameters in %s: %v", cfg.GrubCfg.GrubDefaultFilePath, err)
 	}
 
-	cfg.GrubCfg.Cmdline = model.ParamsToCmdline(currParams)
-	cfg.GrubCfg.Cmdline = sortKcmdlineParams(cfg.GrubCfg.Cmdline)
-	cmdline = sortKcmdlineParams(cmdline)
+	// Merge parameters while preserving order (existing first, then new in original order)
+	cfg.GrubCfg.Cmdline = model.MergeWithOrderPreservation(existingCmdline, cfg.Data.KernelCmdline)
 
 	if err := processFile(cfg.GrubCfg); err != nil {
-		return nil, fmt.Errorf("error updating %s: %v",
-			cfg.GrubCfg.CustomGrubFilePath, err)
+		return nil, fmt.Errorf("error updating %s: %v", cfg.GrubCfg.CustomGrubFilePath, err)
 	}
 
-	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath,
-		cmdline, cfg.GrubCfg.Cmdline), nil
+	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath, existingCmdlineStr, cfg.GrubCfg.Cmdline), nil
 }
 
+// parseGrubCMDLineLinuxDefault extracts GRUB_CMDLINE_LINUX_DEFAULT from the GRUB config file.
 func parseGrubCMDLineLinuxDefault(path string) (string, error) {
 	grubMap, err := ParseDefaultGrubFile(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse grub file: %v", err)
 	}
+
 	cmdline, ok := grubMap["GRUB_CMDLINE_LINUX_DEFAULT"]
 	if !ok {
 		log.Printf("GRUB_CMDLINE_LINUX_DEFAULT not found in %s", path)
+		return "", nil // Return empty string, not an error
 	}
+
 	return cmdline, nil
 }
 
+// ParseDefaultGrubFile parses a GRUB default configuration file into key-value pairs.
 func ParseDefaultGrubFile(f string) (map[string]string, error) {
-	var err error
-	params := make(map[string]string)
 	file, err := os.Open(f)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open file %s: %v", f, err)
 	}
 	defer file.Close()
 
+	params := make(map[string]string)
 	scanner := bufio.NewScanner(file)
+	lineNum := 0
+
 	for scanner.Scan() {
-		line := scanner.Text()
+		lineNum++
+		line := strings.TrimSpace(scanner.Text())
 
 		// Skip empty lines and comments
 		if line == "" || strings.HasPrefix(line, "#") {
@@ -92,65 +85,40 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 		// Split the line into key and value
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
+			log.Printf("Warning: skipping invalid line %d in %s: %s", lineNum, f, line)
 			continue
 		}
 
 		// Trim spaces and quotes from the key and value
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-		value = strings.Trim(value, `"`)
+		value = utils.TrimSurroundingQuotes(value)
 
-		// Store the key-value pair in the map
+		// Warn about duplicates
+		if existing, exists := params[key]; exists {
+			log.Printf("Warning: duplicate key %s in %s (line %d). Previous value: %s, new value: %s",
+				key, f, lineNum, existing, value)
+		}
+
 		params[key] = value
 	}
+
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading grub file: %v", err)
+		return nil, fmt.Errorf("error reading grub file %s: %v", f, err)
 	}
 
-	return params, err
+	return params, nil
 }
 
-func duplicatedParams(cmdline string) error {
-	params := make(map[string]string)
-	s := strings.Split(cmdline, " ")
-	if len(s) <= 1 {
-		// If it's only one parameter, there are no duplicates
-		return nil
-	}
-	for _, p := range s {
-		pair := strings.Split(p, "=")
-		// Skip parameters without a value, they can be safely dropped
-		if len(pair) != 2 {
-			// Value is optional for some kernel cmdline parameters
-			params[p] = ""
-			continue
-		}
-		param, ok := params[pair[0]]
-		if ok {
-			// Skip if the value is the same, it can be safelly dropped
-			if param == pair[1] {
-				continue
-			}
-
-			return fmt.Errorf("duplicated parameter: %s=%s and %s=%s",
-				pair[0], param, pair[0], pair[1])
-		}
-		params[pair[0]] = pair[1]
-	}
-	return nil
-}
-
-// processFile processes a file with a given FileTransformer, applying
-// its transformation on lines matching the pattern.
+// processFile writes the GRUB configuration to the specified file.
 var processFile = func(grub model.Grub) error {
 	banner := "# This file is automatically generated by rt-conf, please do not edit\n"
-	cmdline := "GRUB_CMDLINE_LINUX_DEFAULT=\"" + grub.Cmdline + "\"\n"
+	cmdline := fmt.Sprintf("GRUB_CMDLINE_LINUX_DEFAULT=\"%s\"\n", grub.Cmdline)
 
 	content := banner + cmdline
 
-	if err := os.WriteFile(grub.CustomGrubFilePath, []byte(content), 0644); err != nil {
-		return fmt.Errorf("failed to write to %s file: %v",
-			grub.CustomGrubFilePath, err)
+	if err := os.WriteFile(grub.CustomGrubFilePath, []byte(content), 0o644); err != nil {
+		return fmt.Errorf("failed to write to %s file: %v", grub.CustomGrubFilePath, err)
 	}
 	return nil
 }

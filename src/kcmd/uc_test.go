@@ -33,7 +33,11 @@ func TestUpdateUbuntuCore(t *testing.T) {
 			name: "Snapd request fails",
 			cfg: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{IsolCPUs: "1-3"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"isolcpus=1-3",
+						},
+					},
 				},
 			},
 			mockErr: errors.New("connection refused"),
@@ -43,7 +47,11 @@ func TestUpdateUbuntuCore(t *testing.T) {
 			name: "Snapd response is invalid JSON",
 			cfg: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{IsolCPUs: "1-3"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"isolcpus=1-3",
+						},
+					},
 				},
 			},
 			mockResp: &http.Response{
@@ -56,7 +64,11 @@ func TestUpdateUbuntuCore(t *testing.T) {
 			name: "Snapd returns error status",
 			cfg: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{IsolCPUs: "1-3"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"isolcpus=1-3",
+						},
+					},
 				},
 			},
 			mockResp: &http.Response{
@@ -74,7 +86,11 @@ func TestUpdateUbuntuCore(t *testing.T) {
 			name: "Success",
 			cfg: model.InternalConfig{
 				Data: model.Config{
-					KernelCmdline: model.KernelCmdline{IsolCPUs: "1-3"},
+					KernelCmdline: model.KernelCmdline{
+						Parameters: []string{
+							"isolcpus=1-3",
+						},
+					},
 				},
 			},
 			mockResp: &http.Response{

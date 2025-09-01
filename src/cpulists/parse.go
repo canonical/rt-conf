@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/canonical/rt-conf/src/utils"
 )
 
 type CPUs map[int]bool
@@ -26,8 +28,10 @@ func Parse(cpuLists string) (CPUs, error) {
 
 // ParseForCPUs parses a CPU Lists string into CPUs map
 func ParseForCPUs(cpuLists string, totalCPUs int) (CPUs, error) {
+	cpulists := utils.TrimSurroundingQuotes(cpuLists)
+
 	cpus := make(CPUs)
-	items := strings.Split(cpuLists, ",")
+	items := strings.Split(cpulists, ",")
 
 	for _, item := range items {
 		item = strings.TrimSpace(item)

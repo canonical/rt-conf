@@ -24,7 +24,6 @@ func TestIsOwnedByRoot(t *testing.T) {
 	if !isOwnedByRoot(fi) {
 		t.Fatalf("expected true, got false")
 	}
-
 }
 
 func TestLoadConfigFile(t *testing.T) {
@@ -72,18 +71,21 @@ func TestLoadConfigFile(t *testing.T) {
 			name: "FileValid",
 			yaml: `
 kernel-cmdline:
-    nohz: "on"
-    isolcpus: "1"
-    kthread_cpus: "0"
-    irqaffinity: "0"
+  parameters:
+    - nohz=on
+    - isolcpus=1
+    - kthread_cpus=0
+    - irqaffinity=0
 `,
 			perm: 0644,
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
-					Nohz:        "on",
-					IsolCPUs:    "1",
-					KthreadCPUs: "0",
-					IRQaffinity: "0",
+					Parameters: []string{
+						"nohz=on",
+						"isolcpus=1",
+						"kthread_cpus=0",
+						"irqaffinity=0",
+					},
 				},
 			},
 			ownedByRoot: true,

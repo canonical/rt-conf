@@ -75,7 +75,7 @@ func (c *Config) LoadSnapOptions() error {
 	}
 
 	// reject kernel command line arguments
-	if confOptions.KernelCmdline != (KernelCmdline{}) {
+	if len(confOptions.KernelCmdline.Parameters) > 0 {
 		return fmt.Errorf("kernel-cmdline snap option is not supported, use the config file instead")
 	}
 
