@@ -126,7 +126,7 @@ func (k KernelCmdline) validateParameterValues() error {
 			}
 		case "isolcpus":
 			if _, _, err := cpulists.ParseWithFlags(value, isolcpuFlags); err != nil {
-				return fmt.Errorf("parameter %q has invalid isolcpus %q: %v", key, value, err)
+				return fmt.Errorf("%q has an invalid value: %q: %v", key, value, err)
 			}
 		case "nohz":
 			if value != "on" && value != "off" {
