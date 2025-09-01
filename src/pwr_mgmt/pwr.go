@@ -139,9 +139,7 @@ func logChanges(cpus []int, minFreq, maxFreq, scalingGov string) {
 	utils.LogTreeStyle(msg)
 }
 
-func (wr ReaderWriter) applyRule(cpu int,
-	sclgov model.CpuGovernanceRule,
-) error {
+func (wr ReaderWriter) applyRule(cpu int, sclgov model.CpuGovernanceRule) error {
 	if err := wr.WriteScalingGov(sclgov.ScalGov, cpu); err != nil {
 		return err
 	}
