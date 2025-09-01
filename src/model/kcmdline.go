@@ -130,7 +130,7 @@ func (k KernelCmdline) validateParameterValues() error {
 			}
 		case "nohz":
 			if value != "on" && value != "off" {
-				return fmt.Errorf("parameter %q value must be 'on' or 'off', got %q", key, value)
+				return fmt.Errorf("%q must be set to either 'on' or 'off', got %q", key, value)
 			}
 		default:
 			log.Printf("Warning: Parameter %q not recognized by rt-conf; skipping specific validation", key)
