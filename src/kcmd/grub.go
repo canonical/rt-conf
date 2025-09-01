@@ -109,7 +109,7 @@ func ParseDefaultGrubFile(f string) (params map[string]string, err error) {
 		return nil, fmt.Errorf("error reading grub file %s: %v", f, err)
 	}
 
-	return params, nil
+	return params, err
 }
 
 // processFile writes the GRUB configuration to the specified file.
