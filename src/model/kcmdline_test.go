@@ -50,9 +50,15 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	}
 
 	t.Cleanup(func() {
-		os.Remove(tempConfigPath)
-		os.Remove(tempGrubPath)
-		os.Remove(tempCustomCfgPath)
+		if err := os.Remove(tempConfigPath); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Remove(tempGrubPath); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Remove(tempCustomCfgPath); err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Logf("tempConfigPath: %s\n", tempConfigPath)

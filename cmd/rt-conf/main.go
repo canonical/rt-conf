@@ -39,7 +39,9 @@ func run(args []string) error {
 		envVerbose,
 		"Verbose mode, prints more information to the console")
 
-	flags.Parse(args[1:])
+	if err := flags.Parse(args[1:]); err != nil {
+		return fmt.Errorf("failed to parse flags: %v", err)
+	}
 
 	log.SetFlags(0)
 

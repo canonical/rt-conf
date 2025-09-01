@@ -6,9 +6,13 @@ import (
 )
 
 func TestDetectSystemUbuntuCore(t *testing.T) {
-	os.Setenv("SNAP_SAVE_DATA", "/some/uc/path")
+	if err := os.Setenv("SNAP_SAVE_DATA", "/some/uc/path"); err != nil {
+		t.Fatalf("failed to set env: %v", err)
+	}
 	t.Cleanup(func() {
-		os.Unsetenv("SNAP_SAVE_DATA")
+		if err := os.Unsetenv("SNAP_SAVE_DATA"); err != nil {
+			t.Fatalf("failed to unset env: %v", err)
+		}
 	})
 
 	sys, err := DetectSystem()
@@ -21,7 +25,9 @@ func TestDetectSystemUbuntuCore(t *testing.T) {
 }
 
 func TestDetectSystemGrub(t *testing.T) {
-	os.Unsetenv("SNAP_SAVE_DATA")
+	if err := os.Unsetenv("SNAP_SAVE_DATA"); err != nil {
+		t.Fatalf("failed to unset env: %v", err)
+	}
 
 	tmpGrub := "/tmp/default/grub"
 	if err := os.MkdirAll("/tmp/default", 0o755); err != nil {
@@ -30,7 +36,11 @@ func TestDetectSystemGrub(t *testing.T) {
 	if err := os.WriteFile(tmpGrub, []byte("GRUB_CMDLINE"), 0o644); err != nil {
 		t.Fatalf("failed to write grub file: %v", err)
 	}
-	defer os.Remove(tmpGrub)
+	t.Cleanup(func() {
+		if err := os.Remove(tmpGrub); err != nil {
+			t.Fatal("failed to remove tmp grub file:", err)
+		}
+	})
 
 	sys, err := DetectSystem()
 	if err != nil {

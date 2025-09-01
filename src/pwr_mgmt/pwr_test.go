@@ -25,7 +25,9 @@ func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 
 	// Clean up the temp directory after the test finishes.
 	t.Cleanup(func() {
-		os.RemoveAll(tempDir)
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Fatalf("failed to remove temp directory: %v", err)
+		}
 	})
 
 	// Create files from 0 to n-1.
@@ -50,7 +52,9 @@ func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 			t.Fatalf("number of written bytes doesn't match on file %s",
 				scalGov)
 		}
-		fscalGov.Close()
+		if err := fscalGov.Close(); err != nil {
+			t.Fatalf("failed to close file %s: %v", scalGov, err)
+		}
 
 		for _, file := range []string{"maxfreq", "minfreq"} {
 			filePath := filepath.Join(cpuPath, file)

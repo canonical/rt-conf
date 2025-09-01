@@ -28,7 +28,12 @@ func writeOnly(path string, data string) error {
 	if err != nil {
 		return fmt.Errorf("error opening %s: %v", path, err)
 	}
-	defer f.Close()
+	defer func(f *os.File) error {
+		if err := f.Close(); err != nil {
+			return err
+		}
+		return nil
+	}(f)
 
 	_, err = f.Write([]byte(data))
 	if err != nil {

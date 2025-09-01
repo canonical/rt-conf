@@ -185,7 +185,9 @@ func TestParseGrubFile(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFile := setupTempFile(t, tc.content, i)
 			t.Cleanup(func() {
-				os.Remove(tmpFile)
+				if err := os.Remove(tmpFile); err != nil {
+					t.Fatalf("Failed to remove temporary file: %v", err)
+				}
 			})
 
 			params, err := ParseDefaultGrubFile(tmpFile)
@@ -352,9 +354,13 @@ func TestUpdateGrub(t *testing.T) {
 			}
 
 			// If test needs Parse failure, remove the file
-			if tc.name == "ParseDefaultGrubFile fails" {
-				os.Remove(grubDefaultPath)
-				os.Remove(cfgPath)
+			if tc.name == "ParseDefaultGrubFile fails" && tc.grubContent != "" {
+				if err := os.Remove(grubDefaultPath); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Remove(cfgPath); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			conf := &model.InternalConfig{

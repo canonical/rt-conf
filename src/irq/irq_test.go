@@ -143,7 +143,9 @@ func setupTempFile(t *testing.T, content string, idex int) string {
 func mainLogicIRQ(t *testing.T, cfg IRQTestCase, i int) (string, error) {
 	tempConfigPath := setupTempFile(t, cfg.Yaml, i)
 	t.Cleanup(func() {
-		os.Remove(tempConfigPath)
+		if err := os.Remove(tempConfigPath); err != nil {
+			t.Fatalf("Failed to remove temporary file: %v", err)
+		}
 	})
 	var conf model.InternalConfig
 	if err := conf.Data.LoadFromFile(tempConfigPath); err != nil {
@@ -171,7 +173,9 @@ func TestWriteCPUAffinitySuccessfulWrite(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create file: %v", err)
 	}
-	f.Close()
+	if err := f.Close(); err != nil {
+		t.Fatalf("failed to close file: %v", err)
+	}
 
 	procIRQ = tmpDir // override to avoid touching /proc
 	writer := &realIRQReaderWriter{}
