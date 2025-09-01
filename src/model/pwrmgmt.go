@@ -38,16 +38,16 @@ func (c CpuGovernanceRule) Validate() error {
 		return fmt.Errorf("invalid cpu scaling governor: %v", c.ScalGov)
 	}
 
-	min, err := ParseFreq(c.MinFreq)
+	minFreq, err := ParseFreq(c.MinFreq)
 	if err != nil {
 		return fmt.Errorf("invalid min frequency: %v", err)
 	}
-	max, err := ParseFreq(c.MaxFreq)
+	maxFreq, err := ParseFreq(c.MaxFreq)
 	if err != nil {
 		return fmt.Errorf("invalid max frequency: %v", err)
 	}
 
-	if err := validateFreqRange(min, max); err != nil {
+	if err := validateFreqRange(minFreq, maxFreq); err != nil {
 		return fmt.Errorf("invalid frequency range: %v", err)
 	}
 

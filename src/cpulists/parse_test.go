@@ -258,35 +258,35 @@ func TestParseCPUListsUnhappy(t *testing.T) {
 
 func TestParseWithFlagsHappy(t *testing.T) {
 	isolcpuFlags := []string{"domain", "nohz", "managed_irq"}
-	const max = 24
+	const maxCpus = 24
 	testCases := []struct {
 		value string
 		cpus  int
 		flags []string
 	}{
 		// Test CPU list with range
-		{"0-1", max, isolcpuFlags},
-		{"nohz,0-1", max, isolcpuFlags},
-		{"domain,0-1", max, isolcpuFlags},
-		{"managed_irq,0-1", max, isolcpuFlags},
+		{"0-1", maxCpus, isolcpuFlags},
+		{"nohz,0-1", maxCpus, isolcpuFlags},
+		{"domain,0-1", maxCpus, isolcpuFlags},
+		{"managed_irq,0-1", maxCpus, isolcpuFlags},
 
 		// Test single CPU on CPU list
-		{"0", max, isolcpuFlags},
-		{"nohz,0", max, isolcpuFlags},
-		{"domain,0", max, isolcpuFlags},
-		{"managed_irq,0", max, isolcpuFlags},
+		{"0", maxCpus, isolcpuFlags},
+		{"nohz,0", maxCpus, isolcpuFlags},
+		{"domain,0", maxCpus, isolcpuFlags},
+		{"managed_irq,0", maxCpus, isolcpuFlags},
 
 		// Test comma separated CPU list
-		{"0,N", max, isolcpuFlags},
-		{"nohz,0,N", max, isolcpuFlags},
-		{"domain,0,N", max, isolcpuFlags},
-		{"managed_irq,0,N", max, isolcpuFlags},
+		{"0,N", maxCpus, isolcpuFlags},
+		{"nohz,0,N", maxCpus, isolcpuFlags},
+		{"domain,0,N", maxCpus, isolcpuFlags},
+		{"managed_irq,0,N", maxCpus, isolcpuFlags},
 
 		// Test comma separated CPU list
-		{"0,N", max, isolcpuFlags},
-		{"nohz,0,N", max, isolcpuFlags},
-		{"domain,0,N", max, isolcpuFlags},
-		{"managed_irq,0,N", max, isolcpuFlags},
+		{"0,N", maxCpus, isolcpuFlags},
+		{"nohz,0,N", maxCpus, isolcpuFlags},
+		{"domain,0,N", maxCpus, isolcpuFlags},
+		{"managed_irq,0,N", maxCpus, isolcpuFlags},
 	}
 
 	// If not set totalCPUs back to the original function, the next tests will fail.
