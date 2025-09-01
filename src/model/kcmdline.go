@@ -72,7 +72,7 @@ func (k KernelCmdline) ToParams() Params {
 // validateParameterFormat performs syntax validation by checking kernel parameter formatting rules
 func (k KernelCmdline) validateParameterFormat() error {
 	totalLen := 0
-	for i, p := range k.Parameters {
+	for _, p := range k.Parameters {
 		// Total length includes spaces between parameters so +1 for each param
 		// unless it's the last one, but we are not checking that here, which gives us
 		// a pratical limit of CommandLineSize -1 characters.
@@ -85,7 +85,7 @@ func (k KernelCmdline) validateParameterFormat() error {
 		key := keyValue[0]
 
 		if !validName.MatchString(key) {
-			return fmt.Errorf("invalid parameter name at index %d: %q", i, key)
+			return fmt.Errorf("invalid parameter name: %q", key)
 		}
 	}
 
