@@ -36,7 +36,7 @@ import (
 // https://wiki.linuxfoundation.org/realtime/documentation/howto/debugging/smi-latency/smi
 
 // ** From experiments:
-// ** Non active IRQs (not shown in /proc/interrupts) are the ones which
+// ** Non-active IRQs (not shown in /proc/interrupts) are the ones which
 // ** doesn't have an action (/sys/kernel/irq/<num>/action) associated with them
 
 type IRQs map[int]bool // use the same logic as CPUs lists

@@ -34,7 +34,7 @@ sudo rt-conf
 
 Set `--help` for more details.
 
-The rt-conf app runs a oneshot service on system startup.
+The rt-conf app runs an oneshot service on system startup.
 This is useful for re-applying non-persistent IRQ tuning and power management settings on boot.
 
 By default, the service reads the [default configuration file](#default-configuration-file).
