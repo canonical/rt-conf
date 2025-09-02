@@ -243,3 +243,65 @@ kernel-cmdline:
 		})
 	}
 }
+
+func TestKcmdDuplicates(t *testing.T) {
+	testCases := []struct {
+		Name      string
+		Cfg       model.KernelCmdline
+		ExpectErr bool
+	}{
+		{
+			Name: "No duplicates",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"nohz=on",
+					"isolcpus=0",
+				},
+			},
+			ExpectErr: false,
+		},
+		{
+			Name: "Duplicated parameter with diferent value",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"nohz=on",
+					"nohz=off",
+				},
+			},
+			ExpectErr: true,
+		},
+		{
+			Name: "Tag parameter duplicated",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"nohz",
+					"nohz",
+				},
+			},
+			ExpectErr: false,
+		},
+		{
+			Name: "Empty value in list",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"nohz=on",
+					"",
+					"quiet",
+				},
+			},
+			ExpectErr: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			err := tc.Cfg.HasDuplicates()
+			if tc.ExpectErr && err == nil {
+				t.Fatal("Expected error, got nil")
+			}
+			if !tc.ExpectErr && err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+		},
+		)
+	}
+}
