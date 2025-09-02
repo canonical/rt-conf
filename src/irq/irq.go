@@ -56,7 +56,7 @@ var writeFile = func(path string, content []byte, perm os.FileMode) error {
 // Write IRQ affinity
 
 // returns:
-// - sucess: true if the affinity was written successfully false if not
+// - success: true if the affinity was written successfully false if not
 // - managedIRQ: true if the irqNum was a managed (read-only) IRQ false if not
 // - err: error if any occurred nil if no error occurred
 func (w *realIRQReaderWriter) WriteCPUAffinity(irqNum int, cpus string) (success bool, managedIRQ bool, err error) {
