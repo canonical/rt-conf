@@ -38,7 +38,7 @@ func ParseForCPUs(cpuLists string, totalCPUs int) (CPUs, error) {
 
 		// Handle "all"
 		if item == "all" {
-			for i := 0; i < totalCPUs; i++ {
+			for i := range totalCPUs {
 				cpus[i] = true
 			}
 			continue

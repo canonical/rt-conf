@@ -13,7 +13,7 @@ func TestIsOwnedByRoot(t *testing.T) {
 	tmpdir := t.TempDir()
 	filePath := filepath.Join(tmpdir, "testfile")
 	err := os.WriteFile(filePath,
-		[]byte("test"), 0644)
+		[]byte("test"), 0o644)
 	if err != nil {
 		t.Fatalf("failed to create test file: %v", err)
 	}
@@ -27,7 +27,7 @@ func TestIsOwnedByRoot(t *testing.T) {
 }
 
 func TestLoadConfigFile(t *testing.T) {
-	var testCases = []struct {
+	testCases := []struct {
 		name        string
 		yaml        string
 		perm        os.FileMode
@@ -38,7 +38,7 @@ func TestLoadConfigFile(t *testing.T) {
 		{
 			name:        "FileDoesNotExist",
 			yaml:        "",
-			perm:        0644,
+			perm:        0o644,
 			cfg:         nil,
 			err:         fmt.Errorf("failed to find file"),
 			ownedByRoot: true,
@@ -46,7 +46,7 @@ func TestLoadConfigFile(t *testing.T) {
 		{
 			name:        "FileInvalidPermissions",
 			yaml:        "kernel-cmdline:",
-			perm:        0755,
+			perm:        0o755,
 			cfg:         nil,
 			err:         fmt.Errorf("has invalid permissions"),
 			ownedByRoot: true,
@@ -54,7 +54,7 @@ func TestLoadConfigFile(t *testing.T) {
 		{
 			name:        "FileNotOwnedByRoot",
 			yaml:        `kernel-cmdline:`,
-			perm:        0644,
+			perm:        0o644,
 			cfg:         nil,
 			err:         fmt.Errorf("not owned by root"),
 			ownedByRoot: false,
@@ -62,7 +62,7 @@ func TestLoadConfigFile(t *testing.T) {
 		{
 			name:        "FailedToUnmarshalYAML",
 			yaml:        `kernel-cmdline: {`,
-			perm:        0644,
+			perm:        0o644,
 			cfg:         nil,
 			err:         fmt.Errorf("failed to unmarshal data"),
 			ownedByRoot: true,
@@ -77,7 +77,7 @@ kernel-cmdline:
     - kthread_cpus=0
     - irqaffinity=0
 `,
-			perm: 0644,
+			perm: 0o644,
 			cfg: &Config{
 				KernelCmdline: KernelCmdline{
 					Parameters: []string{

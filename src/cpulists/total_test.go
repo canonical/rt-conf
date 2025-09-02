@@ -24,7 +24,7 @@ func TestTotalCPUsUnhappy(t *testing.T) {
 		expectErr  string
 	}
 
-	var testCases = []testCase{
+	testCases := []testCase{
 		{
 			name:       "command error",
 			mockOutput: nil,

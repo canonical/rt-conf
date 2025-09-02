@@ -6,7 +6,7 @@ import (
 )
 
 func TestPwrMgmtValidationHappy(t *testing.T) {
-	var happyCases = []CpuGovernanceRule{
+	happyCases := []CpuGovernanceRule{
 		{
 			CPUs:    "0",
 			ScalGov: "balanced",
@@ -31,7 +31,7 @@ func TestPwrMgmtValidationHappy(t *testing.T) {
 }
 
 func TestPwrMgmtValidationUnhappy(t *testing.T) {
-	var happyCases = []struct {
+	happyCases := []struct {
 		err    string
 		sclgov CpuGovernanceRule
 	}{
@@ -66,12 +66,11 @@ func TestPwrMgmtValidationUnhappy(t *testing.T) {
 			if err.Error() != tc.err {
 				t.Fatalf("Expected error message: %q, got: %q", tc.err, err)
 			}
-
 		})
 	}
 }
 
-func TestCheckFreqFormat(t *testing.T) { //TODO: drop this test
+func TestCheckFreqFormat(t *testing.T) { // TODO: drop this test
 	tests := []struct {
 		name    string
 		rule    CpuGovernanceRule

@@ -62,14 +62,14 @@ func parseGrubCMDLineLinuxDefault(path string) (string, error) {
 }
 
 // ParseDefaultGrubFile parses a GRUB default configuration file into key-value pairs.
-func ParseDefaultGrubFile(f string) (map[string]string, error) {
+func ParseDefaultGrubFile(f string) (params map[string]string, err error) {
 	file, err := os.Open(f)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file %s: %v", f, err)
 	}
 	defer file.Close()
 
-	params := make(map[string]string)
+	params = make(map[string]string)
 	scanner := bufio.NewScanner(file)
 	lineNum := 0
 
@@ -107,7 +107,7 @@ func ParseDefaultGrubFile(f string) (map[string]string, error) {
 		return nil, fmt.Errorf("error reading grub file %s: %v", f, err)
 	}
 
-	return params, nil
+	return params, err
 }
 
 // processFile writes the GRUB configuration to the specified file.

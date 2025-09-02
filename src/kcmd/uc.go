@@ -87,7 +87,10 @@ func UpdateUbuntuCore(cfg *model.InternalConfig) ([]string, error) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var snapResp SnapdResponse
 	if err := json.Unmarshal(body, &snapResp); err != nil {

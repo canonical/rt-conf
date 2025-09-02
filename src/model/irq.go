@@ -55,8 +55,8 @@ func (c IRQFilter) Validate() error {
 // TODO: Validate mutual exclusive cpu lists
 
 func (c IRQFilter) validateIRQField(name string, value string, tag string) error {
-	switch {
-	case tag == "cpulist":
+	switch tag {
+	case "cpulist":
 		num, err := GetHigherIRQ()
 		if err != nil {
 			return err
@@ -66,7 +66,7 @@ func (c IRQFilter) validateIRQField(name string, value string, tag string) error
 			return fmt.Errorf("on field %v: invalid irq list: %v", name,
 				err)
 		}
-	case tag == "regex":
+	case "regex":
 		_, err := regexp.Compile(value)
 		if err != nil {
 			return fmt.Errorf("on field %v: invalid regex: %v", name, err)

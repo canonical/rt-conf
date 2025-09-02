@@ -25,14 +25,16 @@ func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 
 	// Clean up the temp directory after the test finishes.
 	t.Cleanup(func() {
-		os.RemoveAll(tempDir)
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Fatalf("failed to remove temp directory: %v", err)
+		}
 	})
 
 	// Create files from 0 to n-1.
-	for i := 0; i < maxCpus; i++ {
+	for i := range maxCpus {
 		filename := strconv.Itoa(i)
 		cpuPath := filepath.Join(tempDir, filename)
-		if err := os.Mkdir(cpuPath, 0755); err != nil {
+		if err := os.Mkdir(cpuPath, 0o755); err != nil {
 			t.Fatalf("failed to create directory %s: %v", cpuPath, err)
 		}
 
@@ -50,11 +52,13 @@ func setupTempDirWithFiles(t *testing.T, prvRule string, maxCpus int) string {
 			t.Fatalf("number of written bytes doesn't match on file %s",
 				scalGov)
 		}
-		fscalGov.Close()
+		if err := fscalGov.Close(); err != nil {
+			t.Fatalf("failed to close file %s: %v", scalGov, err)
+		}
 
 		for _, file := range []string{"maxfreq", "minfreq"} {
 			filePath := filepath.Join(cpuPath, file)
-			if err := os.WriteFile(filePath, []byte("0"), 0644); err != nil {
+			if err := os.WriteFile(filePath, []byte("0"), 0o644); err != nil {
 				t.Fatalf("failed to create file %s: %v", filePath, err)
 			}
 		}
@@ -67,7 +71,7 @@ func TestPwrMgmt(t *testing.T) {
 	// Since this considers the real amount of cpus in the system, all cpulists
 	// for CpuGovernanceRule.CPUs are set to 0 so it can be tested with any
 	// amount of cpus
-	var happyCases = []struct {
+	happyCases := []struct {
 		name     string
 		maxCpus  int
 		prevRule string
@@ -183,7 +187,6 @@ func TestPwrMgmt(t *testing.T) {
 
 	for index, tc := range happyCases {
 		t.Run(fmt.Sprintf("case-%d", index), func(t *testing.T) {
-
 			basePath := setupTempDirWithFiles(t, tc.prevRule, tc.maxCpus)
 
 			// Create a new ReaderWriter instance with the base path
@@ -215,11 +218,10 @@ func TestPwrMgmt(t *testing.T) {
 				}
 
 			}
-
 		})
 	}
 
-	var UnhappyCases = []struct {
+	UnhappyCases := []struct {
 		name string
 		cfg  *model.InternalConfig
 		err  error
@@ -253,7 +255,7 @@ func TestPwrMgmt(t *testing.T) {
 }
 
 func TestEmptyPwrMgmtRules(t *testing.T) {
-	var errorCases = []struct {
+	errorCases := []struct {
 		name string
 		cfg  *model.InternalConfig
 	}{
@@ -369,7 +371,7 @@ func TestWriteOnly(t *testing.T) {
 			name: "success",
 			prepare: func(path string) {
 				// Create the file with write permission
-				_ = os.WriteFile(path, []byte("old content"), 0644)
+				_ = os.WriteFile(path, []byte("old content"), 0o644)
 			},
 			path:        filepath.Join(tmpDir, "success.txt"),
 			data:        "new data",
@@ -387,7 +389,7 @@ func TestWriteOnly(t *testing.T) {
 		{
 			name: "fail to write (read-only file)",
 			prepare: func(path string) {
-				_ = os.WriteFile(path, []byte("content"), 0444) // Read-only
+				_ = os.WriteFile(path, []byte("content"), 0o444) // Read-only
 			},
 			path:        filepath.Join(tmpDir, "readonly.txt"),
 			data:        "",
@@ -450,7 +452,6 @@ func TestApplyRuleUnhappy(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-
 			err := pwrmgmtReaderWriter.applyRule(0, tc.sclgov)
 			if err == nil {
 				t.Fatalf(

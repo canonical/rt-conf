@@ -17,7 +17,7 @@ func TestRunHappy(t *testing.T) {
 	tmpdir := t.TempDir()
 	configPath := filepath.Join(tmpdir, "config.yaml")
 
-	var testCases = []tests{
+	testCases := []tests{
 		{
 			name: "Valid empty config",
 			args: []string{"rt-conf", "-file", configPath},
@@ -32,7 +32,7 @@ irq-tuning:
 		t.Run(test.name, func(t *testing.T) {
 			if test.yaml != "" {
 				if err := os.WriteFile(configPath,
-					[]byte(test.yaml), 0644); err != nil {
+					[]byte(test.yaml), 0o644); err != nil {
 					t.Fatalf("failed to write file: %v", err)
 				}
 			}
@@ -55,7 +55,7 @@ func TestRunUnhappy(t *testing.T) {
 	tmpdir := t.TempDir()
 	configPath := filepath.Join(tmpdir, "config.yaml")
 
-	var testCases = []tests{
+	testCases := []tests{
 		{
 			name: "No config path",
 			args: []string{"rt-conf"},
@@ -121,7 +121,7 @@ cpu-governance:
 		t.Run(test.name, func(t *testing.T) {
 			if test.yaml != "" {
 				if err := os.WriteFile(configPath,
-					[]byte(test.yaml), 0644); err != nil {
+					[]byte(test.yaml), 0o644); err != nil {
 					t.Fatalf("failed to write file: %v", err)
 				}
 			}
