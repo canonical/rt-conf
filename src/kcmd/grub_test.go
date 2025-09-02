@@ -141,7 +141,7 @@ func TestUpdateGrub(t *testing.T) {
 			expectErr: "no parameters to inject",
 		},
 		{
-			name: "GRUB_CMDLINE_LINUX_DEFAULT missing",
+			name: "detected bootloader GRUB",
 			kcmd: model.KernelCmdline{
 				Parameters: []string{
 					"isolcpus=1-3",
@@ -167,6 +167,17 @@ func TestUpdateGrub(t *testing.T) {
 				},
 			},
 			expectOutput: "Detected bootloader: GRUB",
+		},
+		{
+			name: "duplicate parameters with different values",
+			kcmd: model.KernelCmdline{
+				Parameters: []string{
+					"isolcpus=1-3",
+					"nohz=on",
+					"nohz=off",
+				},
+			},
+			expectErr: "invalid new parameters",
 		},
 	}
 
