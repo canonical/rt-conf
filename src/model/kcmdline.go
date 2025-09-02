@@ -30,15 +30,6 @@ const (
 // - can contain: letters, digits, underscores, dots, hyphens
 var validName = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9\._\-]*`)
 
-// NewKernelCmdline creates a new KernelCmdline from a string.
-func NewKernelCmdline(cmdline string) KernelCmdline {
-	if cmdline == "" {
-		return KernelCmdline{}
-	}
-	fields := strings.Fields(cmdline)
-	return KernelCmdline{Parameters: fields}
-}
-
 // validateParameterFormat performs syntax validation by checking kernel parameter formatting rules
 func (k KernelCmdline) validateParameterFormat() error {
 	totalLen := 0
