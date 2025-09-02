@@ -48,7 +48,7 @@ apps:
       - bin/export-env.sh
     command: bin/rt-conf
 
-  # Run the same app as an oneshot service
+  # Run the same app as a oneshot service
   d:
     <<: *rt-conf
     daemon: oneshot
