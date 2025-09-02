@@ -4,16 +4,12 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/canonical/rt-conf/src/cpulists"
 )
 
 var isolcpuFlags = []string{"domain", "nohz", "managed_irq"}
-
-// Params represents key-value pairs for kernel parameters.
-type Params map[string]string
 
 // KernelCmdline represents the kernel command line options.
 type KernelCmdline struct {
@@ -41,32 +37,6 @@ func NewKernelCmdline(cmdline string) KernelCmdline {
 	}
 	fields := strings.Fields(cmdline)
 	return KernelCmdline{Parameters: fields}
-}
-
-// ToParams converts the KernelCmdline into Params map.
-// If a parameter has no explicit value, the value is set to "".
-func (k KernelCmdline) ToParams() Params {
-	params := make(Params, len(k.Parameters))
-
-	// Parse each parameter
-
-	for _, param := range k.Parameters {
-		if param == "" {
-			continue
-		}
-
-		// Split on first '=' only to handle values that contain '='
-		if idx := strings.Index(param, "="); idx != -1 {
-			key := param[:idx]
-			value := param[idx+1:]
-			params[key] = value
-		} else {
-			// Parameter without value (e.g., "quiet", "splash")
-			params[param] = ""
-		}
-	}
-
-	return params
 }
 
 // validateParameterFormat performs syntax validation by checking kernel parameter formatting rules
@@ -167,104 +137,4 @@ func (k KernelCmdline) HasDuplicates() error {
 		}
 	}
 	return nil
-}
-
-// ParamsToCmdline converts Params back to a command line string.
-// Parameters are sorted alphabetically for consistent output.
-func ParamsToCmdline(params Params) string {
-	if len(params) == 0 {
-		return ""
-	}
-
-	// Sort keys for consistent output
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		if k != "" { // Skip empty keys
-			keys = append(keys, k)
-		}
-	}
-	sort.Strings(keys)
-
-	var parts []string
-	for _, key := range keys {
-		value := params[key]
-		if value != "" {
-			parts = append(parts, fmt.Sprintf("%s=%s", key, value))
-		} else {
-			// Parameter without value (e.g., "quiet", "splash")
-			parts = append(parts, key)
-		}
-	}
-
-	return strings.Join(parts, " ")
-}
-
-// MergeWithOrderPreservation merges existing and new parameters while preserving order.
-// Existing parameters come first in their original order, then new parameters in the order they appear in newCmdline.
-// If a parameter exists in both, the new value overwrites the existing one but keeps the original position.
-func MergeWithOrderPreservation(existingCmdline, newCmdline KernelCmdline) string {
-	if len(existingCmdline.Parameters) == 0 && len(newCmdline.Parameters) == 0 {
-		return ""
-	}
-
-	newParams := newCmdline.ToParams()
-
-	// Track which new parameters we've already processed
-	processedNewParams := make(map[string]bool)
-
-	var result []string
-
-	// First, process existing parameters
-	for _, param := range existingCmdline.Parameters {
-		if param == "" {
-			continue
-		}
-
-		var key string
-		if idx := strings.Index(param, "="); idx != -1 {
-			key = param[:idx]
-		} else {
-			key = param
-		}
-
-		// If this parameter is being overridden by new config, use the new value
-		if newValue, exists := newParams[key]; exists {
-			if newValue != "" {
-				result = append(result, fmt.Sprintf("%s=%s", key, newValue))
-			} else {
-				result = append(result, key)
-			}
-			processedNewParams[key] = true
-		} else {
-			// Keep the existing parameter as-is
-			result = append(result, param)
-		}
-	}
-
-	// Then, append any new parameters that weren't already processed (in their original order)
-	for _, param := range newCmdline.Parameters {
-		if param == "" {
-			continue
-		}
-
-		var key string
-		if idx := strings.Index(param, "="); idx != -1 {
-			key = param[:idx]
-		} else {
-			key = param
-		}
-
-		if !processedNewParams[key] {
-			result = append(result, param)
-		}
-	}
-
-	return strings.Join(result, " ")
-}
-
-// Merge merges other Params into this one, overwriting existing keys.
-func (p Params) Merge(other Params) {
-	for k, v := range other {
-		p[k] = v
-	}
 }

@@ -4,17 +4,13 @@ import "testing"
 
 func TestGrubConclusion(t *testing.T) {
 	grubFile := "/etc/default/grub"
-	red := "\033[31m"
 	green := "\033[32m"
 	reset := "\033[0m"
-	old := "quiet splash"
 	latest := "quiet splash isolcpus=1-2"
 
 	expected := []string{
 		"Detected bootloader: GRUB\n",
-		"Default kernel command line:\n",
-		red + "-  " + old + reset + "\n",
-		"New kernel command line:\n",
+		"Parameters appended to kernel command line:\n",
 		green + "+  " + latest + reset + "\n",
 		"Updated default grub file: " + grubFile + "\n",
 		"\n",
@@ -26,7 +22,7 @@ func TestGrubConclusion(t *testing.T) {
 		"\n",
 	}
 
-	result := GrubConclusion(grubFile, old, latest)
+	result := GrubConclusion(grubFile, latest)
 
 	if len(result) != len(expected) {
 		t.Errorf("Expected %d lines, got %d", len(expected), len(result))

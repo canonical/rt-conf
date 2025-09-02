@@ -37,11 +37,6 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	if err := os.WriteFile(tempConfigPath, []byte(c.Yaml), 0o644); err != nil {
 		t.Fatalf("failed to write config: %v", err)
 	}
-	// Set up temporary default grub file
-	tempGrubPath := filepath.Join(dir, fmt.Sprintf("grub-%d", i))
-	if err := os.WriteFile(tempGrubPath, []byte(grubSample), 0o644); err != nil {
-		t.Fatalf("failed to write grub: %v", err)
-	}
 
 	// Setup temporary custom grub config file
 	tempCustomCfgPath := filepath.Join(dir, fmt.Sprintf("rt-conf-%d.cfg", i))
@@ -53,16 +48,12 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		if err := os.Remove(tempConfigPath); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.Remove(tempGrubPath); err != nil {
-			t.Fatal(err)
-		}
 		if err := os.Remove(tempCustomCfgPath); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Logf("tempConfigPath: %s\n", tempConfigPath)
-	t.Logf("tempGrubPath: %s\n", tempGrubPath)
 	t.Logf("tempCustomCfgPath: %s\n", tempCustomCfgPath)
 
 	var conf model.InternalConfig
@@ -71,8 +62,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	}
 
 	conf.GrubCfg = model.Grub{
-		GrubDefaultFilePath: tempGrubPath,
-		CustomGrubFilePath:  tempCustomCfgPath,
+		CustomGrubFilePath: tempCustomCfgPath,
 	}
 
 	t.Logf("Config: %+v\n", conf)
@@ -89,7 +79,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		return "", fmt.Errorf("failed to read modified grub file: %v", err)
 	}
 
-	t.Log("\nGrub file: ", string(updatedGrub))
+	t.Log("\nGrub file: \n", string(updatedGrub))
 
 	return string(updatedGrub), nil
 }
@@ -97,6 +87,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 func TestHappyYamlKcmd(t *testing.T) {
 	happyCases := []TestCase{
 		{
+			Name: "Using all cpus 0-N",
 			Yaml: `
 kernel-cmdline:
   parameters:
@@ -118,14 +109,15 @@ kernel-cmdline:
 			},
 		},
 		{
+			Name: "Isolating cpu 0",
 			Yaml: `
 kernel-cmdline:
   parameters:
     - isolcpus=0
     - nohz=off
-    - nohz_full=0-N
-    - kthread_cpus=0-N
-    - irqaffinity=0-N
+    - nohz_full=1-N
+    - kthread_cpus=1-N
+    - irqaffinity=1-N
 `,
 			Validations: []struct {
 				param string
@@ -133,9 +125,9 @@ kernel-cmdline:
 			}{
 				{"isolcpus", "0"},
 				{"nohz", "off"},
-				{"nohz_full", "0-N"},
-				{"kthread_cpus", "0-N"},
-				{"irqaffinity", "0-N"},
+				{"nohz_full", "1-N"},
+				{"kthread_cpus", "1-N"},
+				{"irqaffinity", "1-N"},
 			},
 		},
 	}
