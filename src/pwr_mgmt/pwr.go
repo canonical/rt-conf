@@ -23,7 +23,7 @@ var pwrmgmtReaderWriter = ReaderWriter{
 	MaxFreqPath:         "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_max_freq",
 }
 
-func writeOnly(path string, data string) (err error) {
+func writeOnly(path string, data string) error {
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0)
 	if err != nil {
 		return fmt.Errorf("error opening %s: %v", path, err)
