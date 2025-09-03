@@ -30,6 +30,16 @@ type TestCase struct {
 	}
 }
 
+func assertError(t *testing.T, err error, expectErr bool) {
+	t.Helper()
+	if expectErr && err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+	if !expectErr && err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+}
+
 func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	dir := t.TempDir()
 	// Set up temporary config-file
@@ -151,25 +161,7 @@ kernel-cmdline:
 }
 
 func TestUnhappyYamlKcmd(t *testing.T) {
-	// Building long kernel parameters list for testing
-	// case that violates COMMAND_LINE_SIZE limit
-	var sb strings.Builder
-	sb.WriteString("kernel-cmdline:\n")
-	// If each key=value parameter is 31 characters long
-	// So being x the maximum number of parameters:
-	// 31 * x + x <= 2048 (+x because we need to count the spaces between parameters)
-	// The maximum x is 64 so with 65 parameters we exceed the limit
-	for i := range 65 {
-		sb.WriteString(fmt.Sprintf("  - some_kernel_cmd_option%03d=value\n", i))
-	}
-	longYamlList := sb.String()
-
 	UnhappyCases := []TestCase{
-		{
-			Name:        "Command line exceeds maximum length",
-			Yaml:        longYamlList,
-			Validations: nil,
-		},
 		{
 			Name: "Invalid parameter name",
 			Yaml: `
@@ -295,13 +287,93 @@ func TestKcmdDuplicates(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
 			err := tc.Cfg.HasDuplicates()
-			if tc.ExpectErr && err == nil {
-				t.Fatal("Expected error, got nil")
-			}
-			if !tc.ExpectErr && err != nil {
-				t.Fatalf("Expected no error, got %v", err)
-			}
+			assertError(t, err, tc.ExpectErr)
 		},
 		)
+	}
+}
+
+func TestKcmdValidation(t *testing.T) {
+	// Building long kernel parameters list for testing
+	// case that violates COMMAND_LINE_SIZE limit
+	parameters := make([]string, 0, 65)
+	// If each key=value parameter is 31 characters long
+	// So being x the maximum number of parameters:
+	// 31 * x + x <= 2048 (+x because we need to count the spaces between parameters)
+	// The maximum x is 64 so with 65 parameters we exceed the limit
+	for i := range 65 {
+		parameters = append(parameters, fmt.Sprintf("some_kernel_cmd_option%03d=value", i))
+	}
+
+	testCases := []struct {
+		Name      string
+		Cfg       model.KernelCmdline
+		ExpectErr bool
+	}{
+		{
+			Name: "invalid Long command line",
+			Cfg: model.KernelCmdline{
+				Parameters: parameters,
+			},
+			ExpectErr: true,
+		},
+		{
+			Name: "invalid parameter name",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"42foo=bar",
+				},
+			},
+			ExpectErr: true,
+		},
+		{
+			Name: "invalid cpulist",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"nohz_full=foo",
+				},
+			},
+			ExpectErr: true,
+		},
+		{
+			Name: "invalid isolcpus",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"isolcpus=foo,0-3",
+				},
+			},
+			ExpectErr: true,
+		},
+		{
+			Name: "ignored empty parameters",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"",
+				},
+			},
+			ExpectErr: false,
+		},
+		{
+			Name: "valid tag paramter",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"nohz",
+				},
+			},
+			ExpectErr: false,
+		},
+		{
+			Name: "valid not validated parameter",
+			Cfg: model.KernelCmdline{
+				Parameters: []string{
+					"amd_iommu=pgtbl_v2",
+				},
+			},
+			ExpectErr: false,
+		},
+	}
+	for _, tc := range testCases {
+		err := tc.Cfg.Validate()
+		assertError(t, err, tc.ExpectErr)
 	}
 }
