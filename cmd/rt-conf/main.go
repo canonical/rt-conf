@@ -23,7 +23,10 @@ func main() {
 
 func run(args []string) error {
 	envConfigFile := os.Getenv("CONFIG_FILE")
-	envVerbose, _ := strconv.ParseBool(os.Getenv("VERBOSE"))
+	envVerbose, err := strconv.ParseBool(os.Getenv("VERBOSE"))
+	if err != nil {
+		log.Printf("Warning: failed to parse VERBOSE env var, defaulting to false: %v", err)
+	}
 
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	configPath := flags.String("file",
