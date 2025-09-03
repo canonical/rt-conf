@@ -43,6 +43,12 @@ func (k KernelCmdline) validateParameterFormat() error {
 		}
 
 		keyValue := strings.SplitN(p, "=", 2)
+
+		if len(keyValue) == 0 || keyValue[0] == "" {
+			log.Printf("Warning: Skipping empty parameter")
+			return nil
+		}
+
 		key := keyValue[0]
 
 		if !validName.MatchString(key) {
