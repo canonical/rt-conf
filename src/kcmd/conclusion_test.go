@@ -4,15 +4,13 @@ import "testing"
 
 func TestGrubConclusion(t *testing.T) {
 	grubFile := "/etc/default/grub"
-	green := "\033[32m"
-	reset := "\033[0m"
 	latest := "quiet splash isolcpus=1-2"
 
 	expected := []string{
 		"Detected bootloader: GRUB\n",
-		"Parameters appended to kernel command line:\n",
-		green + "+  " + latest + reset + "\n",
-		"Updated default grub file: " + grubFile + "\n",
+		"Created drop-in GRUB configuration file: " + grubFile + " \n",
+		"to append the following parameters:\n",
+		"\t" + latest + "\n",
 		"\n",
 		"Please run:\n",
 		"\n",

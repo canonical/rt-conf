@@ -1,14 +1,11 @@
 package kcmd
 
 func GrubConclusion(grubFile, appended string) []string {
-	green := "\033[32m"
-	reset := "\033[0m"
-
 	s := []string{
 		"Detected bootloader: GRUB\n",
-		"Parameters appended to kernel command line:\n",
-		green + "+  " + appended + reset + "\n",
-		"Updated default grub file: " + grubFile + "\n",
+		"Created drop-in GRUB configuration file: " + grubFile + " \n",
+		"to append the following parameters:\n",
+		"\t" + appended + "\n",
 		"\n",
 		"Please run:\n",
 		"\n",
