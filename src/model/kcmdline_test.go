@@ -345,13 +345,13 @@ func TestKcmdValidation(t *testing.T) {
 			ExpectErr: true,
 		},
 		{
-			Name: "ignored empty parameters",
+			Name: "invalid empty parameters",
 			Cfg: model.KernelCmdline{
 				Parameters: []string{
 					"",
 				},
 			},
-			ExpectErr: false,
+			ExpectErr: true,
 		},
 		{
 			Name: "valid tag paramter",

@@ -45,8 +45,7 @@ func (k KernelCmdline) validateParameterFormat() error {
 		keyValue := strings.SplitN(p, "=", 2)
 
 		if len(keyValue) == 0 || keyValue[0] == "" {
-			log.Printf("Warning: Skipping empty parameter")
-			return nil
+			return fmt.Errorf("empty parameter detected")
 		}
 
 		key := keyValue[0]
@@ -70,10 +69,6 @@ func (k KernelCmdline) Validate() error {
 // validateParameterValues performs semantic validation on known parameters for specific rules
 func (k KernelCmdline) validateParameterValues() error {
 	for _, p := range k.Parameters {
-		// Skip empty parameters
-		if p == "" {
-			continue
-		}
 
 		// Split parameter into key and value
 		parts := strings.SplitN(p, "=", 2)
