@@ -29,9 +29,6 @@ func run(args []string) error {
 	configPath := flags.String("file",
 		envConfigFile,
 		"Path to the configuration file")
-	grubConfigPath := flags.String("grub-file",
-		"/etc/default/grub",
-		"Path to the default input grub configuration file, relevant only for GRUB bootloader")
 	grubCfgPath := flags.String("grub-custom-file",
 		"/etc/default/grub.d/60_rt-conf.cfg",
 		"Path to the output drop-in grub configuration file, relevant only for GRUB bootloader")
@@ -69,7 +66,7 @@ func run(args []string) error {
 	}
 
 	conf.GrubCfg = model.Grub{
-		GrubDefaultFilePath: *grubConfigPath,
+		GrubDefaultFilePath: kcmd.GrubDefaultFile,
 		CustomGrubFilePath:  *grubCfgPath,
 	}
 

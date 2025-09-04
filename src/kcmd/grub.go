@@ -8,6 +8,8 @@ import (
 	"github.com/canonical/rt-conf/src/model"
 )
 
+const GrubDefaultFile = "/etc/default/grub"
+
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
 // merges it with the kernel command line parameters specified in the provided config,
 // and writes the resulting command line to a drop-in configuration file for GRUB.
