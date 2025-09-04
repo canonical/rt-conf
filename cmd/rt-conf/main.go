@@ -26,6 +26,7 @@ func run(args []string) error {
 	envVerbose, err := strconv.ParseBool(os.Getenv("VERBOSE"))
 	if err != nil {
 		log.Printf("Warning: failed to parse VERBOSE env var, defaulting to false: %v", err)
+		envVerbose = false
 	}
 
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
