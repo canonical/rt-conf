@@ -1,6 +1,10 @@
 #!/bin/bash -e
 
 export CONFIG_FILE=$(snapctl get config-file)
-export VERBOSE=$(snapctl get verbose)
+
+VERBOSE=$(snapctl get verbose)
+if [[ -n $VERBOSE ]]; then
+  export VERBOSE=$VERBOSE
+fi
 
 exec "$@"
