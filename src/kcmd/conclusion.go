@@ -1,17 +1,11 @@
 package kcmd
 
-func GrubConclusion(grubFile, old, new string) []string {
-	red := "\033[31m"
-	green := "\033[32m"
-	reset := "\033[0m"
-
+func GrubConclusion(grubFile, appended string) []string {
 	s := []string{
 		"Detected bootloader: GRUB\n",
-		"Default kernel command line:\n",
-		red + "-  " + old + reset + "\n",
-		"New kernel command line:\n",
-		green + "+  " + new + reset + "\n",
-		"Updated default grub file: " + grubFile + "\n",
+		"Created drop-in GRUB configuration file: " + grubFile + " \n",
+		"to append the following parameters:\n",
+		"\t" + appended + "\n",
 		"\n",
 		"Please run:\n",
 		"\n",

@@ -9,9 +9,8 @@ import (
 )
 
 type Grub struct {
-	GrubDefaultFilePath string
-	CustomGrubFilePath  string
-	Cmdline             string
+	GrubDropInFile string
+	Cmdline        string
 }
 
 type Core interface {

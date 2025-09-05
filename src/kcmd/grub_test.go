@@ -16,8 +16,8 @@ func TestProcessFile(t *testing.T) {
 		filePath := filepath.Join(tmpDir, "grub")
 
 		grub := model.Grub{
-			CustomGrubFilePath: filePath,
-			Cmdline:            "isolcpus=1-3 nohz=on",
+			GrubDropInFile: filePath,
+			Cmdline:        "isolcpus=1-3 nohz=on",
 		}
 
 		err := processFile(grub)
@@ -35,7 +35,7 @@ func TestProcessFile(t *testing.T) {
 			t.Errorf("expected banner %q, got:\n%s", expectedBanner, string(content))
 		}
 
-		expectedCmdline := `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3 nohz=on"`
+		expectedCmdline := `GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} isolcpus=1-3 nohz=on"`
 		if !strings.Contains(string(content), expectedCmdline) {
 			t.Errorf("expected cmdline %q, got:\n%s", expectedCmdline, string(content))
 		}
@@ -46,8 +46,8 @@ func TestProcessFile(t *testing.T) {
 		badPath := filepath.Join("/nonexistent-dir", "grub")
 
 		grub := model.Grub{
-			CustomGrubFilePath: badPath,
-			Cmdline:            "isolcpus=0",
+			GrubDropInFile: badPath,
+			Cmdline:        "isolcpus=0",
 		}
 
 		err := processFile(grub)
@@ -61,242 +61,20 @@ func TestProcessFile(t *testing.T) {
 	})
 }
 
-func setupTempFile(t *testing.T, content string, idex int) string {
-	t.Helper()
-
-	tmpFile, err := os.CreateTemp("", fmt.Sprintf("tempfile-%d", idex))
-	if err != nil {
-		t.Fatalf("Failed to create temporary file: %v", err)
-	}
-
-	if _, err := tmpFile.Write([]byte(content)); err != nil {
-		t.Fatalf("Failed to write to temporary file: %v", err)
-	}
-	if err := tmpFile.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	return tmpFile.Name()
-}
-
-func TestParseGrubFile(t *testing.T) {
-	testCases := []struct {
-		name    string
-		content string
-		params  map[string]string
-	}{
-		{
-			name:    "simple boolean parameter",
-			content: `GRUB_HIDDEN_TIMEOUT_QUIET=true`,
-			params: map[string]string{
-				"GRUB_HIDDEN_TIMEOUT_QUIET": "true",
-			},
-		},
-		{
-			name:    "numeric parameter",
-			content: `GRUB_TIMEOUT=2`,
-			params: map[string]string{
-				"GRUB_TIMEOUT": "2",
-			},
-		},
-		{
-			name:    "valid default cmdline parameters",
-			content: `GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=ext4 quiet splash acpi_osi="`,
-			params: map[string]string{
-				"GRUB_CMDLINE_LINUX_DEFAULT": "rootfstype=ext4 quiet splash acpi_osi=",
-			},
-		},
-		{
-			name: "complex multi-line configuration",
-			content: "GRUB_DEFAULT=0\n" +
-				"#GRUB_HIDDEN_TIMEOUT=0\n" +
-				"GRUB_HIDDEN_TIMEOUT_QUIET=true\n" +
-				"GRUB_TIMEOUT=2\n" +
-				"GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`\n" +
-				"GRUB_CMDLINE_LINUX_DEFAULT=\"rootfstype=ext4 quiet splash acpi_osi=\"\n" +
-				"GRUB_CMDLINE_LINUX=\"\"\n",
-			params: map[string]string{
-				"GRUB_DEFAULT":               "0",
-				"GRUB_HIDDEN_TIMEOUT_QUIET":  "true",
-				"GRUB_TIMEOUT":               "2",
-				"GRUB_DISTRIBUTOR":           "`lsb_release -i -s 2> /dev/null || echo Debian`",
-				"GRUB_CMDLINE_LINUX_DEFAULT": "rootfstype=ext4 quiet splash acpi_osi=",
-				"GRUB_CMDLINE_LINUX":         "",
-			},
-		},
-		{
-			name: "invalid lines (no equals sign)",
-			content: "GRUB_DEFAULT=0\n" +
-				"INVALID_LINE_NO_EQUALS\n" +
-				"ANOTHER_INVALID_LINE\n" +
-				"GRUB_TIMEOUT=5\n",
-			params: map[string]string{
-				"GRUB_DEFAULT": "0",
-				"GRUB_TIMEOUT": "5",
-			},
-		},
-		{
-			name: "duplicate keys with different values",
-			content: "GRUB_TIMEOUT=10\n" +
-				"GRUB_DEFAULT=0\n" +
-				"GRUB_TIMEOUT=5\n", // Duplicate with different value
-			params: map[string]string{
-				"GRUB_DEFAULT": "0",
-				"GRUB_TIMEOUT": "5", // Last value remains
-			},
-		},
-		{
-			name: "empty lines and comments",
-			content: "# This is a comment\n" +
-				"\n" +
-				"GRUB_DEFAULT=0\n" +
-				"# Another comment\n" +
-				"\n" +
-				"GRUB_TIMEOUT=2\n" +
-				"\n",
-			params: map[string]string{
-				"GRUB_DEFAULT": "0",
-				"GRUB_TIMEOUT": "2",
-			},
-		},
-		{
-			name: "single quotes",
-			content: "GRUB_CMDLINE_LINUX='quiet splash'\n" +
-				"GRUB_DEFAULT='0'\n",
-			params: map[string]string{
-				"GRUB_CMDLINE_LINUX": "quiet splash",
-				"GRUB_DEFAULT":       "0",
-			},
-		},
-		{
-			name: "mixed quotes and whitespace",
-			content: "  GRUB_DEFAULT  =  \"0\"  \n" +
-				"  GRUB_TIMEOUT  =  '5'  \n" +
-				"  GRUB_DISTRIBUTOR  =  unquoted_value  \n",
-			params: map[string]string{
-				"GRUB_DEFAULT":     "0",
-				"GRUB_TIMEOUT":     "5",
-				"GRUB_DISTRIBUTOR": "unquoted_value",
-			},
-		},
-	}
-
-	for i, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			tmpFile := setupTempFile(t, tc.content, i)
-			t.Cleanup(func() {
-				if err := os.Remove(tmpFile); err != nil {
-					t.Fatalf("Failed to remove temporary file: %v", err)
-				}
-			})
-
-			params, err := ParseDefaultGrubFile(tmpFile)
-			if err != nil {
-				t.Fatalf("Failed to parse grub file: %v", err)
-			}
-
-			// Check that we got the expected number of parameters
-			if len(params) != len(tc.params) {
-				t.Fatalf("Expected %d parameters, got %d", len(tc.params), len(params))
-			}
-
-			// Check each expected parameter
-			for expectedKey, expectedValue := range tc.params {
-				actualValue, exists := params[expectedKey]
-				if !exists {
-					t.Fatalf("Expected parameter %s not found", expectedKey)
-				}
-				if actualValue != expectedValue {
-					t.Fatalf("Parameter %s: expected %q, got %q", expectedKey, expectedValue, actualValue)
-				}
-			}
-
-			// Check that we don't have unexpected parameters
-			for actualKey := range params {
-				if _, expected := tc.params[actualKey]; !expected {
-					t.Fatalf("Unexpected parameter found: %s=%s", actualKey, params[actualKey])
-				}
-			}
-		})
-	}
-}
-
-func TestDuplicatedParams(t *testing.T) {
-	testCases := []struct {
-		name    string
-		cmdline string
-		err     string
-	}{
-		{
-			name:    "No duplicates",
-			cmdline: "quiet splash foo",
-		},
-		{
-			name:    "Single parameter",
-			cmdline: "quiet",
-		},
-		{
-			name:    "Duplicate boolean parameters",
-			cmdline: "quiet splash quiet",
-		},
-		{
-			name:    "Duplicate keys with different values",
-			cmdline: "potato=mashed potato=salad",
-			err:     "duplicate parameter",
-		},
-		{
-			name:    "Duplicate key-value pairs",
-			cmdline: "potato=pie potato=pie",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			kcmdline := model.NewKernelCmdline(tc.cmdline)
-			err := kcmdline.HasDuplicates()
-			if tc.err != "" {
-				if err == nil {
-					t.Fatalf("Expected error %v, got nil", tc.err)
-				}
-				if !strings.Contains(err.Error(), tc.err) {
-					t.Fatalf("Expected error %q, got %q", tc.err, err.Error())
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("Expected no error, got %v", err)
-			}
-		})
-	}
-}
-
 func TestUpdateGrub(t *testing.T) {
 	tests := []struct {
 		name         string
-		grubContent  string
 		kcmd         model.KernelCmdline
 		expectErr    string
 		expectOutput string
 	}{
 		{
-			name:        "No params to inject",
-			grubContent: ``,
-			kcmd:        model.KernelCmdline{},
-			expectErr:   "no parameters to inject",
+			name:      "No params to inject",
+			kcmd:      model.KernelCmdline{},
+			expectErr: "no parameters to inject",
 		},
 		{
-			name:        "ParseDefaultGrubFile fails",
-			grubContent: "", // file will be removed
-			kcmd: model.KernelCmdline{
-				Parameters: []string{
-					"isolcpus=1-3",
-				},
-			},
-			expectErr: "failed to parse grub file",
-		},
-		{
-			name:        "GRUB_CMDLINE_LINUX_DEFAULT missing",
-			grubContent: `GRUB_TIMEOUT=5`,
+			name: "detected bootloader GRUB",
 			kcmd: model.KernelCmdline{
 				Parameters: []string{
 					"isolcpus=1-3",
@@ -305,20 +83,7 @@ func TestUpdateGrub(t *testing.T) {
 			expectOutput: "Detected bootloader: GRUB",
 		},
 		{
-			name: "Duplicate params found",
-			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3 isolcpus=2-4"
-`,
-			kcmd: model.KernelCmdline{
-				Parameters: []string{
-					"isolcpus=2-4",
-				},
-			},
-			expectErr: "invalid existing parameters",
-		},
-		{
 			name: "ProcessFile fails",
-			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3"
-`,
 			kcmd: model.KernelCmdline{
 				Parameters: []string{
 					"nohz=on",
@@ -328,8 +93,6 @@ func TestUpdateGrub(t *testing.T) {
 		},
 		{
 			name: "Success",
-			grubContent: `GRUB_CMDLINE_LINUX_DEFAULT="isolcpus=1-3"
-`,
 			kcmd: model.KernelCmdline{
 				Parameters: []string{
 					"isolcpus=1-3",
@@ -338,38 +101,30 @@ func TestUpdateGrub(t *testing.T) {
 			},
 			expectOutput: "Detected bootloader: GRUB",
 		},
+		{
+			name: "duplicate parameters with different values",
+			kcmd: model.KernelCmdline{
+				Parameters: []string{
+					"isolcpus=1-3",
+					"nohz=on",
+					"nohz=off",
+				},
+			},
+			expectErr: "invalid new parameters",
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
-			grubDefaultPath := filepath.Join(tmpDir, "grub")
 			cfgPath := filepath.Join(tmpDir, "rt-conf.cfg")
-
-			// If grub content exists, write it
-			if tc.grubContent != "" {
-				if err := os.WriteFile(grubDefaultPath, []byte(tc.grubContent), 0o644); err != nil {
-					t.Fatal(err)
-				}
-			}
-
-			// If test needs Parse failure, remove the file
-			if tc.name == "ParseDefaultGrubFile fails" && tc.grubContent != "" {
-				if err := os.Remove(grubDefaultPath); err != nil {
-					t.Fatal(err)
-				}
-				if err := os.Remove(cfgPath); err != nil {
-					t.Fatal(err)
-				}
-			}
 
 			conf := &model.InternalConfig{
 				Data: model.Config{
 					KernelCmdline: tc.kcmd,
 				},
 				GrubCfg: model.Grub{
-					GrubDefaultFilePath: grubDefaultPath,
-					CustomGrubFilePath:  cfgPath,
+					GrubDropInFile: cfgPath,
 				},
 			}
 
