@@ -78,11 +78,11 @@ go run cmd/rt-conf/main.go
 ```
 
 > [!TIP]
-> For local hacking on GRUB systems, it's recommended to use the local grub file included at `test/grub`.
+> For local hacking on GRUB systems, it's recommended to point to a local drop-in grub file.
 > Also, you may want to use the local `config.yaml` file provided on the root of the repository:
 >
 > ```shell
-> go run cmd/rt-conf/main.go --file=./config.yaml -ui --grub-file=./test/grub
+> go run cmd/rt-conf/main.go --file=./config.yaml --grub-custom-file=./60_rt-conf.cfg
 > ```
 
 Run tests:
