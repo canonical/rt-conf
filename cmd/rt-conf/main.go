@@ -23,10 +23,14 @@ func main() {
 
 func run(args []string) error {
 	envConfigFile := os.Getenv("CONFIG_FILE")
-	envVerbose, err := strconv.ParseBool(os.Getenv("VERBOSE"))
-	if err != nil {
-		log.Printf("Warning: failed to parse VERBOSE env var, defaulting to false: %v", err)
-		envVerbose = false
+	verboseDefaultCfg := false
+	var err error
+	envVerbose, ok := os.LookupEnv("VERBOSE")
+	if ok {
+		verboseDefaultCfg, err = strconv.ParseBool(envVerbose)
+		if err != nil {
+			return err
+		}
 	}
 
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
@@ -40,7 +44,7 @@ func run(args []string) error {
 		"/etc/default/grub.d/60_rt-conf.cfg",
 		"Path to the output drop-in grub configuration file, relevant only for GRUB bootloader")
 	verbose := flags.Bool("verbose",
-		envVerbose,
+		verboseDefaultCfg,
 		"Verbose mode, prints more information to the console")
 
 	if err := flags.Parse(args[1:]); err != nil {
