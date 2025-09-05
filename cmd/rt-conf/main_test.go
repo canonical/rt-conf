@@ -66,7 +66,7 @@ func TestRunUnhappy(t *testing.T) {
 			name: "Invalid VERBOSE value",
 			args: []string{"rt-conf", "-file", configPath},
 			envs: []envVar{{key: "VERBOSE", value: "yes"}},
-			err:  "invalid syntax",
+			err:  "failed to parse VERBOSE env var",
 			yaml: `
 kernel-cmdline:
 cpu-governance:

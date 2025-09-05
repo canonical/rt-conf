@@ -29,7 +29,7 @@ func run(args []string) error {
 	if ok {
 		verboseDefaultCfg, err = strconv.ParseBool(envVerbose)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to parse VERBOSE env var: %v", err)
 		}
 	}
 
