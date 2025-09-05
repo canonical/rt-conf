@@ -72,7 +72,7 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 	}
 
 	conf.GrubCfg = model.Grub{
-		CustomGrubFilePath: tempCustomCfgPath,
+		GrubDropInFile: tempCustomCfgPath,
 	}
 
 	t.Logf("Config: %+v\n", conf)

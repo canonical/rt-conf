@@ -8,8 +8,6 @@ import (
 	"github.com/canonical/rt-conf/src/model"
 )
 
-const GrubDefaultFile = "/etc/default/grub"
-
 // UpdateGrub reads GRUB_CMDLINE_LINUX_DEFAULT from the default GRUB configuration file,
 // merges it with the kernel command line parameters specified in the provided config,
 // and writes the resulting command line to a drop-in configuration file for GRUB.
@@ -25,10 +23,10 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	cfg.GrubCfg.Cmdline = strings.Join(cfg.Data.KernelCmdline.Parameters, " ")
 
 	if err := processFile(cfg.GrubCfg); err != nil {
-		return nil, fmt.Errorf("error updating %s: %v", cfg.GrubCfg.CustomGrubFilePath, err)
+		return nil, fmt.Errorf("error updating %s: %v", cfg.GrubCfg.GrubDropInFile, err)
 	}
 
-	return GrubConclusion(cfg.GrubCfg.CustomGrubFilePath, cfg.GrubCfg.Cmdline), nil
+	return GrubConclusion(cfg.GrubCfg.GrubDropInFile, cfg.GrubCfg.Cmdline), nil
 }
 
 // processFile writes the GRUB configuration to the specified file.
@@ -38,8 +36,8 @@ var processFile = func(grub model.Grub) error {
 
 	content := banner + cmdline
 
-	if err := os.WriteFile(grub.CustomGrubFilePath, []byte(content), 0o644); err != nil {
-		return fmt.Errorf("failed to write to %s file: %v", grub.CustomGrubFilePath, err)
+	if err := os.WriteFile(grub.GrubDropInFile, []byte(content), 0o644); err != nil {
+		return fmt.Errorf("failed to write to %s file: %v", grub.GrubDropInFile, err)
 	}
 	return nil
 }

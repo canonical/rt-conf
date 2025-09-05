@@ -16,8 +16,8 @@ func TestProcessFile(t *testing.T) {
 		filePath := filepath.Join(tmpDir, "grub")
 
 		grub := model.Grub{
-			CustomGrubFilePath: filePath,
-			Cmdline:            "isolcpus=1-3 nohz=on",
+			GrubDropInFile: filePath,
+			Cmdline:        "isolcpus=1-3 nohz=on",
 		}
 
 		err := processFile(grub)
@@ -46,8 +46,8 @@ func TestProcessFile(t *testing.T) {
 		badPath := filepath.Join("/nonexistent-dir", "grub")
 
 		grub := model.Grub{
-			CustomGrubFilePath: badPath,
-			Cmdline:            "isolcpus=0",
+			GrubDropInFile: badPath,
+			Cmdline:        "isolcpus=0",
 		}
 
 		err := processFile(grub)
@@ -117,7 +117,6 @@ func TestUpdateGrub(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
-			grubDefaultPath := filepath.Join(tmpDir, "grub")
 			cfgPath := filepath.Join(tmpDir, "rt-conf.cfg")
 
 			conf := &model.InternalConfig{
@@ -125,8 +124,7 @@ func TestUpdateGrub(t *testing.T) {
 					KernelCmdline: tc.kcmd,
 				},
 				GrubCfg: model.Grub{
-					GrubDefaultFilePath: grubDefaultPath,
-					CustomGrubFilePath:  cfgPath,
+					GrubDropInFile: cfgPath,
 				},
 			}
 

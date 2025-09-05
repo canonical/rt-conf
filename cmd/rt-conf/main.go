@@ -66,8 +66,7 @@ func run(args []string) error {
 	}
 
 	conf.GrubCfg = model.Grub{
-		GrubDefaultFilePath: kcmd.GrubDefaultFile,
-		CustomGrubFilePath:  *grubCfgPath,
+		GrubDropInFile: *grubCfgPath,
 	}
 
 	if msgs, err := kcmd.ProcessKcmdArgs(&conf); err != nil {
