@@ -1,4 +1,6 @@
 [![rt-conf](https://snapcraft.io/rt-conf/badge.svg)](https://snapcraft.io/rt-conf)
+[![CodeQL](https://github.com/canonical/rt-conf/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/canonical/rt-conf/actions/workflows/github-code-scanning/codeql)
+[![Test and Build](https://github.com/canonical/rt-conf/actions/workflows/test.yaml/badge.svg)](https://github.com/canonical/rt-conf/actions/workflows/test.yaml)
 
 # rt-conf - Real-Time Configuration Tool
 
