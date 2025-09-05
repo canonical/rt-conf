@@ -45,17 +45,34 @@ irq-tuning:
 }
 
 func TestRunUnhappy(t *testing.T) {
+	type envVar struct {
+		key   string
+		value string
+	}
+
 	type tests struct {
 		name string // test name
 		args []string
 		err  string
 		yaml string
+		envs []envVar
 	}
 
 	tmpdir := t.TempDir()
 	configPath := filepath.Join(tmpdir, "config.yaml")
 
 	testCases := []tests{
+		{
+			name: "Invalid VERBOSE value",
+			args: []string{"rt-conf", "-file", configPath},
+			envs: []envVar{{key: "VERBOSE", value: "yes"}},
+			err:  "invalid syntax",
+			yaml: `
+kernel-cmdline:
+cpu-governance:
+irq-tuning:
+`,
+		},
 		{
 			name: "No config path",
 			args: []string{"rt-conf"},
@@ -119,6 +136,14 @@ cpu-governance:
 
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
+			if len(test.envs) > 0 {
+				for _, env := range test.envs {
+					if err := os.Setenv(env.key, env.value); err != nil {
+						t.Fatalf("failed to set env: %v", err)
+					}
+				}
+			}
+
 			if test.yaml != "" {
 				if err := os.WriteFile(configPath,
 					[]byte(test.yaml), 0o644); err != nil {
@@ -132,6 +157,14 @@ cpu-governance:
 			if !strings.Contains(err.Error(), test.err) {
 				t.Fatalf("expected error '%s', got: '%v'", test.err, err)
 			}
+
+			t.Cleanup(func() {
+				if len(test.envs) > 0 {
+					for _, env := range test.envs {
+						os.Unsetenv(env.key)
+					}
+				}
+			})
 		})
 	}
 }
