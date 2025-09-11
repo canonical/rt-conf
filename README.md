@@ -1,6 +1,9 @@
-[![rt-conf](https://snapcraft.io/rt-conf/badge.svg)](https://snapcraft.io/rt-conf)
-
 # rt-conf - Real-Time Configuration Tool
+
+[![rt-conf](https://snapcraft.io/rt-conf/badge.svg)](https://snapcraft.io/rt-conf)
+[![CodeQL](https://github.com/canonical/rt-conf/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/canonical/rt-conf/actions/workflows/github-code-scanning/codeql)
+[![Test and Build](https://github.com/canonical/rt-conf/actions/workflows/test.yaml/badge.svg)](https://github.com/canonical/rt-conf/actions/workflows/test.yaml)
+[![TIOBE Static Analysis](https://github.com/canonical/rt-conf/actions/workflows/tiobe-tics.yaml/badge.svg)](https://github.com/canonical/rt-conf/actions/workflows/tiobe-tics.yaml)
 
 This is a tool to help with configuration and tuning of real-time Ubuntu.
 
