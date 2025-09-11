@@ -37,6 +37,11 @@ plugs:
     read:
       - /etc/default/grub
 
+hooks:
+  remove:
+    plugs:
+      - etc-default-grub
+
 apps:
   rt-conf: &rt-conf
     plugs:
