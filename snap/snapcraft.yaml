@@ -11,6 +11,7 @@ confinement: strict
 
 environment:
   DEFAULT_CONFIG_FILE: $SNAP_COMMON/config.yaml
+  GRUB_DROPIN_FILE: /etc/default/grub.d/60_rt-conf.cfg
 
 parts:
   local:

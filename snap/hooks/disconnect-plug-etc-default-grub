@@ -1,0 +1,3 @@
+#!/bin/bash -eu
+
+rm -f $GRUB_DROPIN_FILE
