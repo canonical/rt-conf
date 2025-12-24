@@ -67,11 +67,15 @@ func TestUpdateGrub(t *testing.T) {
 		kcmd         model.KernelCmdline
 		expectErr    string
 		expectOutput string
+		envVars      map[string]string
 	}{
 		{
 			name:      "No params to inject",
 			kcmd:      model.KernelCmdline{},
 			expectErr: "no parameters to inject",
+			envVars: map[string]string{
+				"GRUB_DROPIN_FILE": "/tmp/60-rt-conf.cfg",
+			},
 		},
 		{
 			name: "detected bootloader GRUB",
@@ -81,6 +85,9 @@ func TestUpdateGrub(t *testing.T) {
 				},
 			},
 			expectOutput: "Detected bootloader: GRUB",
+			envVars: map[string]string{
+				"GRUB_DROPIN_FILE": "/tmp/60-rt-conf.cfg",
+			},
 		},
 		{
 			name: "ProcessFile fails",
@@ -90,6 +97,9 @@ func TestUpdateGrub(t *testing.T) {
 				},
 			},
 			expectErr: "error updating",
+			envVars: map[string]string{
+				"GRUB_DROPIN_FILE": "/tmp/60-rt-conf.cfg",
+			},
 		},
 		{
 			name: "Success",
@@ -100,6 +110,9 @@ func TestUpdateGrub(t *testing.T) {
 				},
 			},
 			expectOutput: "Detected bootloader: GRUB",
+			envVars: map[string]string{
+				"GRUB_DROPIN_FILE": "/tmp/60-rt-conf.cfg",
+			},
 		},
 		{
 			name: "duplicate parameters with different values",
@@ -111,6 +124,19 @@ func TestUpdateGrub(t *testing.T) {
 				},
 			},
 			expectErr: "invalid new parameters",
+			envVars: map[string]string{
+				"GRUB_DROPIN_FILE": "/tmp/60-rt-conf.cfg",
+			},
+		},
+		{
+			name: "GRUB_DROPIN_FILE not set",
+			kcmd: model.KernelCmdline{
+				Parameters: []string{
+					"isolcpus=1-3",
+					"nohz=on",
+				},
+			},
+			expectErr: "environment variable not set",
 		},
 	}
 
@@ -118,6 +144,23 @@ func TestUpdateGrub(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpDir := t.TempDir()
 			cfgPath := filepath.Join(tmpDir, "rt-conf.cfg")
+
+			if tc.envVars != nil {
+				for tck, v := range tc.envVars {
+					if err := os.Setenv(tck, v); err != nil {
+						t.Fatalf("failed to set env var %s: %v", tck, err)
+					}
+				}
+			}
+
+			// Unset env vars after the test
+			t.Cleanup(func() {
+				for tck := range tc.envVars {
+					if err := os.Unsetenv(tck); err != nil {
+						t.Fatalf("failed to unset env var %s: %v", tck, err)
+					}
+				}
+			})
 
 			conf := &model.InternalConfig{
 				Data: model.Config{

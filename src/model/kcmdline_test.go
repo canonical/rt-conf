@@ -54,6 +54,10 @@ func mainLogic(t *testing.T, c TestCase, i int) (string, error) {
 		t.Fatalf("failed to write grub: %v", err)
 	}
 
+	if err := os.Setenv("GRUB_DROPIN_FILE", tempCustomCfgPath); err != nil {
+		t.Fatalf("failed to set env var GRUB_DROPIN_FILE: %v", err)
+	}
+
 	t.Cleanup(func() {
 		if err := os.Remove(tempConfigPath); err != nil {
 			t.Fatal(err)

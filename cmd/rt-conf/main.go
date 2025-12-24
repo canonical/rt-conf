@@ -37,9 +37,6 @@ func run(args []string) error {
 	configPath := flags.String("file",
 		envConfigFile,
 		"Path to the configuration file")
-	grubCfgPath := flags.String("grub-custom-file",
-		"/etc/default/grub.d/60_rt-conf.cfg",
-		"Path to the output drop-in grub configuration file, relevant only for GRUB bootloader")
 	verbose := flags.Bool("verbose",
 		verboseDefaultCfg,
 		"Verbose mode, prints more information to the console")
@@ -71,10 +68,6 @@ func run(args []string) error {
 		if err := conf.Data.LoadSnapOptions(); err != nil {
 			return fmt.Errorf("failed to load config from snap options: %v", err)
 		}
-	}
-
-	conf.GrubCfg = model.Grub{
-		GrubDropInFile: *grubCfgPath,
 	}
 
 	if msgs, err := kcmd.ProcessKcmdArgs(&conf); err != nil {

@@ -15,6 +15,11 @@ func UpdateGrub(cfg *model.InternalConfig) ([]string, error) {
 	if len(cfg.Data.KernelCmdline.Parameters) == 0 {
 		return nil, fmt.Errorf("no parameters to inject")
 	}
+	grubDropInFilePath, exists := os.LookupEnv("GRUB_DROPIN_FILE")
+	if !exists {
+		return nil, fmt.Errorf("GRUB_DROPIN_FILE environment variable not set")
+	}
+	cfg.GrubCfg.GrubDropInFile = grubDropInFilePath
 
 	if err := cfg.Data.KernelCmdline.HasDuplicates(); err != nil {
 		return nil, fmt.Errorf("invalid new parameters: %v", err)

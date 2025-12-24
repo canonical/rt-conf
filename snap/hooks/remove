@@ -1,0 +1,4 @@
+#!/bin/bash -eu
+
+# Remove the grub drop-in file if it exists
+rm -f $GRUB_DROPIN_FILE
