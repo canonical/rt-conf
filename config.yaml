@@ -4,57 +4,50 @@
 
 # Kernel command line parameters
 kernel-cmdline:
-  # parameters:
-  #   # Isolate CPUs from general execution
-  #   # Format: CPU Lists
-  #   - isolcpus=2-3
-  #
-  #   # Enable/disable dynamic ticks during idle time
-  #   # Supported values: on | off
-  #   - nohz=on
-  #
-  #   # Enable/disable full dynamic ticks
-  #   # Format: CPU Lists
-  #   - nohz_full=2-3
-  #
-  #   # Allocated CPUs for kernel threads
-  #   # Format: CPU Lists
-  #   - kthread_cpus=0-1
-  #
-  #   # Allocate CPUs for IRQ handling
-  #   # Format: CPU Lists
-  #   - irqaffinity=0-1
-  #
-  #   # Prevents CPUs from executing RCU callbacks
-  #   # Format: CPU Lists
-  #   - rcu_nocbs=0-1
+  parameters:
+    # Isolate CPUs from general execution (format: CPU Lists)
+    # - isolcpus=2-3
+  
+    # Enable/disable dynamic ticks during idle time (on/off)
+    # - nohz=on
+  
+    # Enable/disable full dynamic ticks (format: CPU Lists)
+    # - nohz_full=2-3
+  
+    # Allocated CPUs for kernel threads (format: CPU Lists)
+    # - kthread_cpus=0-1
+  
+    # Allocate CPUs for IRQ handling (format: CPU Lists)
+    # - irqaffinity=0-1
+  
+    # Prevents CPUs from executing RCU callbacks (format: CPU Lists)
+    # - rcu_nocbs=0-1
 
-# Runtime options for IRQ affinity
+# Define rules for filtering IRQs and assigning them to specific CPUs
 irq-tuning:
-  # # label for the IRQ tuning rule
   # my-wireless-interface:
-  #   # CPUs to which the IRQs are to be moved
-  #   # Format: range, e.g. 0-2
-  #   cpus: "2-3"
   #   # Arguments used to filter IRQs
   #   filter:
   #     actions: "iwlwifi"
   #     chip-name: "IR-PCI"
   #     name: "edge"
   #     type: "edge"
+  #
+  #   # CPUs that will handle the filtered IRQs (format: CPU Lists)
+  #   cpus: "2-3"
 
-# Runtime options for CPU frequency scaling
+# Define rules for CPU governance
 cpu-governance:
-  # # label for the CPU governance rule
-  # kernel-cores:
-  #   # CPUs to which the scaling_governor options are to be applied
-  #   # Format: CPU Lists
+  # cpus-for-kernel-threads:
+  #   # CPUs that the rule applies to (format: CPU Lists)
   #   cpus: "0-1"
+  #
+  #   # CPU scaling governor (performance, powersave, etc.)
   #   scaling-governor: "performance"
-  #   # Minimum CPU frequency
-  #   # Format: frequency with unit, one of "GHz", "MHz", "kHz", "Hz"
+  #
+  #   # Minimum CPU frequency (units: GHz, MHz, kHz, Hz)
   #   min-freq: "1.2GHz"
-  #   # Maximum CPU frequency
-  #   # Format: same as min_freq
+  #
+  #   # Maximum CPU frequency (units: GHz, MHz, kHz, Hz)
   #   max-freq: "2.5GHz"
 
